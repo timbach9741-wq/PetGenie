@@ -1,0 +1,9 @@
+{
+  "name": "강아지 스켄",
+  "description": "스마트 스캔, 반려동물 건강 추적 및 맞춤형 서비스를 제공하는 올인원 AI 카메라입니다.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
