@@ -19,7 +19,15 @@
     "premium_desc": "Obtén informes de salud detallados y escaneos ilimitados",
     "feature_unlimited": "Escaneos ilimitados",
     "feature_report": "Informes detallados",
-    "feature_guide": "Guías personalizadas"
+    "feature_guide": "Guías personalizadas",
+    "pet_measurements": "Medidas corporales de la mascota",
+    "pet_measurements_desc": "Ingrese el peso y la altura para un análisis personalizado más preciso",
+    "weight_label": "Peso",
+    "weight_unit": "kg",
+    "height_label": "Altura",
+    "height_unit": "cm",
+    "premium_input_badge": "Solo Premium",
+    "measurements_lock_msg": "Solo los miembros premium pueden ingresar medidas corporales"
   },
   "common": {
     "back": "Atrás",

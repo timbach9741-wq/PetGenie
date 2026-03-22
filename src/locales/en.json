@@ -19,7 +19,15 @@
     "premium_desc": "Get detailed health reports and unlimited scans",
     "feature_unlimited": "Unlimited Scans",
     "feature_report": "Detailed Reports",
-    "feature_guide": "Custom Guides"
+    "feature_guide": "Custom Guides",
+    "pet_measurements": "Pet Body Measurements",
+    "pet_measurements_desc": "Enter weight and height for more accurate personalized analysis",
+    "weight_label": "Weight",
+    "weight_unit": "kg",
+    "height_label": "Height",
+    "height_unit": "cm",
+    "premium_input_badge": "Premium Only",
+    "measurements_lock_msg": "Only premium members can enter body measurements"
   },
   "common": {
     "back": "Back",

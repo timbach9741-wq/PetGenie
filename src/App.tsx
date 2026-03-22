@@ -892,6 +892,8 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [isCameraLoading, setIsCameraLoading] = useState(true);
+  const [petWeight, setPetWeight] = useState<string>('');
+  const [petHeight, setPetHeight] = useState<string>('');
 
   const setupCamera = async () => {
     setIsCameraLoading(true);
@@ -953,7 +955,7 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
     setIsScanning(true);
     setTimeout(() => {
       setIsScanning(false);
-      onScan({ image: imageData });
+      onScan({ image: imageData, weight: petWeight ? Number(petWeight) : undefined, height: petHeight ? Number(petHeight) : undefined });
     }, 2000);
   };
 
@@ -968,7 +970,7 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
         setIsScanning(true);
         setTimeout(() => {
           setIsScanning(false);
-          onScan({ image: dataUrl });
+          onScan({ image: dataUrl, weight: petWeight ? Number(petWeight) : undefined, height: petHeight ? Number(petHeight) : undefined });
         }, 1500);
       };
       reader.readAsDataURL(file);
@@ -1116,6 +1118,72 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
                 <Upload className="w-5 h-5" />
                 {t('scan_home.upload_photo')}
               </label>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Premium Pet Measurements Input */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm"
+        >
+          {!isPremium && (
+            <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[6px] flex flex-col items-center justify-center p-6 text-center">
+              <Lock className="w-5 h-5 text-zinc-400 mb-2" />
+              <p className="text-xs font-bold text-zinc-500 mb-3">{t('scan_home.measurements_lock_msg')}</p>
+              <button onClick={onBack} className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl">
+                {t('analysis.upgrade_button')}
+              </button>
+            </div>
+          )}
+          <div className="px-5 pt-4 pb-1 flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center">
+              <Weight className="w-3.5 h-3.5 text-amber-600" />
+            </div>
+            <span className="text-xs font-bold text-zinc-700">{t('scan_home.pet_measurements')}</span>
+            {isPremium && (
+              <span className="ml-auto text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                {t('scan_home.premium_input_badge')}
+              </span>
+            )}
+          </div>
+          <p className="px-5 text-[11px] text-zinc-400 mb-3">{t('scan_home.pet_measurements_desc')}</p>
+          <div className="px-5 pb-5 grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 block">{t('scan_home.weight_label')}</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={petWeight}
+                  onChange={(e) => setPetWeight(e.target.value)}
+                  placeholder="0.0"
+                  disabled={!isPremium}
+                  className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-sm font-bold text-zinc-800 placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 disabled:opacity-50 transition-all"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-400">{t('scan_home.weight_unit')}</span>
+              </div>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 block">{t('scan_home.height_label')}</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="200"
+                  step="1"
+                  value={petHeight}
+                  onChange={(e) => setPetHeight(e.target.value)}
+                  placeholder="0"
+                  disabled={!isPremium}
+                  className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-sm font-bold text-zinc-800 placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-400 disabled:opacity-50 transition-all"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-400">{t('scan_home.height_unit')}</span>
+              </div>
             </div>
           </div>
         </motion.div>

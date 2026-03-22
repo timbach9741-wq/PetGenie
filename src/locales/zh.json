@@ -19,7 +19,15 @@
     "premium_desc": "获取详细健康报告和无限扫描",
     "feature_unlimited": "无限扫描",
     "feature_report": "详细报告",
-    "feature_guide": "定制指南"
+    "feature_guide": "定制指南",
+    "pet_measurements": "宠物体型信息",
+    "pet_measurements_desc": "输入体重和身高以获得更准确的个性化分析",
+    "weight_label": "体重",
+    "weight_unit": "kg",
+    "height_label": "体高",
+    "height_unit": "cm",
+    "premium_input_badge": "高级专属",
+    "measurements_lock_msg": "仅高级会员可以输入体型信息"
   },
   "common": {
     "back": "返回",

@@ -19,7 +19,15 @@
     "premium_desc": "정밀 건강 리포트와 무제한 스캔을 이용하세요",
     "feature_unlimited": "무제한 스캔",
     "feature_report": "상세 리포트",
-    "feature_guide": "맞춤 가이드"
+    "feature_guide": "맞춤 가이드",
+    "pet_measurements": "반려견 신체 정보",
+    "pet_measurements_desc": "체중과 키를 입력하면 더 정확한 맞춤 분석을 받을 수 있어요",
+    "weight_label": "체중",
+    "weight_unit": "kg",
+    "height_label": "키(체고)",
+    "height_unit": "cm",
+    "premium_input_badge": "프리미엄 전용",
+    "measurements_lock_msg": "프리미엄 회원만 신체 정보를 입력할 수 있습니다"
   },
   "common": {
     "back": "뒤로",

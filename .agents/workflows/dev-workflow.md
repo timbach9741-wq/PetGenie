@@ -15,13 +15,14 @@ Get-Process -Name "node" -ErrorAction SilentlyContinue | Stop-Process -Force
 
 ### 1-2. dev 서버 실행 (단일 인스턴스만)
 ```powershell
-cd "c:\Users\Tim\Desktop\강아지 앱\강아지-스켄 (1)" && npm run dev
+npm run dev
 ```
+> ⚠️ Cwd를 `c:\Users\Tim\Desktop\강아지 앱\강아지-스켄 (1)` 로 설정
 
 ### 1-3. Git 상태 확인
 작업 시작 전 항상 현재 상태를 확인한다.
 ```powershell
-cd "c:\Users\Tim\Desktop\강아지 앱\강아지-스켄 (1)" && git status && git log --oneline -3
+git status; git log --oneline -3
 ```
 
 ---
