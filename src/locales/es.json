@@ -1,4 +1,10 @@
 {
+  "share": {
+    "no_result": "No hay resultado de análisis para compartir. Escanee su mascota primero.",
+    "match": "Coincidencia",
+    "health_score": "Puntuación de salud",
+    "share_text": "Análisis IA de Pet Genie: {{breed}} ({{percent}}% Coincidencia)"
+  },
   "scan_home": {
     "unlimited": "Premium · Escaneos ilimitados",
     "scans_left": "{{count}} escaneos gratuitos restantes",
@@ -113,7 +119,8 @@
       "report": "Informe",
       "diet": "Dieta",
       "exercise": "Ejercicio",
-      "care": "Cuidado"
+      "care": "Cuidados",
+      "share": "Compartir"
     },
     "recent_scans": "Escaneos de salud recientes",
     "view_all": "Ver todo",

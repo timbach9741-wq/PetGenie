@@ -1,4 +1,10 @@
 {
+  "share": {
+    "no_result": "공유할 분석 결과가 없습니다. 먼저 반려견을 스캔해주세요.",
+    "match": "일치",
+    "health_score": "건강 점수",
+    "share_text": "Pet Genie AI 분석 결과: {{breed}} ({{percent}}% 일치)"
+  },
   "scan_home": {
     "unlimited": "프리미엄 · 무제한 스캔",
     "scans_left": "무료 스캔 {{count}}회 남음",
@@ -113,7 +119,8 @@
       "report": "리포트",
       "diet": "식단",
       "exercise": "운동",
-      "care": "케어"
+      "care": "케어",
+      "share": "공유"
     },
     "recent_scans": "최근 건강 스캔",
     "view_all": "전체 보기",

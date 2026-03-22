@@ -1,4 +1,10 @@
 {
+  "share": {
+    "no_result": "No analysis result to share. Please scan your pet first.",
+    "match": "Match",
+    "health_score": "Health Score",
+    "share_text": "Pet Genie AI Analysis: {{breed}} ({{percent}}% Match)"
+  },
   "scan_home": {
     "unlimited": "Premium · Unlimited Scans",
     "scans_left": "{{count}} Free Scans Left",
@@ -113,7 +119,8 @@
       "report": "Report",
       "diet": "Diet",
       "exercise": "Exercise",
-      "care": "Care"
+      "care": "Care",
+      "share": "Share"
     },
     "recent_scans": "Recent Health Scans",
     "view_all": "View All",

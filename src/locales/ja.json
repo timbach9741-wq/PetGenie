@@ -1,4 +1,10 @@
 {
+  "share": {
+    "no_result": "共有する分析結果がありません。まずペットをスキャンしてください。",
+    "match": "一致",
+    "health_score": "健康スコア",
+    "share_text": "Pet Genie AI分析結果: {{breed}} ({{percent}}%一致)"
+  },
   "scan_home": {
     "unlimited": "Premium · 無制限スキャン",
     "scans_left": "残り無料スキャン: {{count}}回",
@@ -113,7 +119,8 @@
       "report": "レポート",
       "diet": "食事",
       "exercise": "運動",
-      "care": "ケア"
+      "care": "ケア",
+      "share": "共有"
     },
     "recent_scans": "最近の健康スキャン",
     "view_all": "すべて見る",

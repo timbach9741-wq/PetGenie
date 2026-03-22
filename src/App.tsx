@@ -57,7 +57,8 @@ import {
   ChevronDown,
   LogOut,
   Globe,
-  HelpCircle
+  HelpCircle,
+  Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
@@ -1279,6 +1280,120 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
 
 const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, analysisResult, capturedImage, onLogout, dailyCare, onToggleCare, petProfile }: { onDetail: () => void, onScan: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, scanCount: number, analysisResult?: any, capturedImage?: string | null, onLogout: () => void, dailyCare: CareItem[], onToggleCare: (id: string) => void, petProfile: PetProfile }) => {
   const { t, i18n } = useTranslation();
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleShareCard = async () => {
+    if (!analysisResult || !capturedImage) {
+      alert(t('share.no_result'));
+      return;
+    }
+    setIsSharing(true);
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 600;
+      canvas.height = 800;
+      const ctx = canvas.getContext('2d')!;
+      
+      // Background gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, 800);
+      grad.addColorStop(0, '#0a1a0a');
+      grad.addColorStop(1, '#1a2e1a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 600, 800);
+      
+      // Pet image
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject();
+        img.src = capturedImage;
+      });
+      
+      // Circular clipped image
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(300, 250, 140, 0, Math.PI * 2);
+      ctx.clip();
+      const imgSize = Math.min(img.width, img.height);
+      const sx = (img.width - imgSize) / 2;
+      const sy = (img.height - imgSize) / 2;
+      ctx.drawImage(img, sx, sy, imgSize, imgSize, 160, 110, 280, 280);
+      ctx.restore();
+      
+      // Circle border
+      ctx.beginPath();
+      ctx.arc(300, 250, 142, 0, Math.PI * 2);
+      ctx.strokeStyle = '#00FF41';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      
+      // Breed name
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(analysisResult.primaryBreed || 'Unknown', 300, 450);
+      
+      // Percentage
+      ctx.fillStyle = '#00FF41';
+      ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(`${analysisResult.primaryPercentage || 85}% ${t('share.match')}`, 300, 495);
+      
+      // Health score
+      if (analysisResult.healthScore) {
+        ctx.fillStyle = '#ffffff80';
+        ctx.font = '18px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillText(`${t('share.health_score')}: ${analysisResult.healthScore}/100`, 300, 545);
+      }
+      
+      // Divider
+      ctx.strokeStyle = '#ffffff15';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(100, 580);
+      ctx.lineTo(500, 580);
+      ctx.stroke();
+      
+      // Secondary breed if exists
+      if (analysisResult.secondaryBreed) {
+        ctx.fillStyle = '#ffffff60';
+        ctx.font = '16px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillText(`${analysisResult.secondaryBreed} (${analysisResult.secondaryPercentage || 15}%)`, 300, 620);
+      }
+      
+      // Watermark
+      ctx.fillStyle = '#ffffff30';
+      ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText('🐾 Analyzed by Pet Genie', 300, 760);
+      
+      // Convert to blob and share
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((b) => resolve(b!), 'image/png');
+      });
+      
+      const file = new File([blob], 'pet-genie-analysis.png', { type: 'image/png' });
+      
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `${analysisResult.primaryBreed} - Pet Genie`,
+          text: t('share.share_text', { breed: analysisResult.primaryBreed, percent: analysisResult.primaryPercentage || 85 }),
+          files: [file]
+        });
+      } else {
+        // Fallback: download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'pet-genie-analysis.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.log('Share cancelled or failed:', error);
+    } finally {
+      setIsSharing(false);
+    }
+  };
   const isScanLimitReached = !isPremium && scanCount >= 3;
 
   // Language switching handled by LanguageSwitcher component
@@ -1512,13 +1627,14 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
         </div>
 
         {/* Quick Actions Grid - Improved UX & Connected */}
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-6 gap-2">
           {[
             { icon: Scan, label: t('dashboard.quick_actions.scan'), color: 'bg-emerald-50 text-emerald-600', action: onScan },
             { icon: FileText, label: t('dashboard.quick_actions.report'), color: 'bg-blue-50 text-blue-600', action: () => isPremium ? onDetail() : onNavigate('membership') },
             { icon: Utensils, label: t('dashboard.quick_actions.diet'), color: 'bg-orange-50 text-orange-600', action: () => isPremium ? onNavigate('diet-guide') : onNavigate('membership') },
             { icon: Activity, label: t('dashboard.quick_actions.exercise'), color: 'bg-purple-50 text-purple-600', action: () => isPremium ? onNavigate('exercise-plan') : onNavigate('membership') },
             { icon: BookOpen, label: t('dashboard.quick_actions.care'), color: 'bg-rose-50 text-rose-600', action: () => isPremium ? onNavigate('care-guide') : onNavigate('membership') },
+            { icon: Share2, label: t('dashboard.quick_actions.share'), color: 'bg-cyan-50 text-cyan-600', action: handleShareCard },
           ].map((item, i) => (
             <button 
               key={i} 
