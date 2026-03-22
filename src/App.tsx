@@ -63,6 +63,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { GoogleGenAI } from "@google/genai";
 
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
 // --- Types ---
 type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile';
 
@@ -3503,12 +3505,12 @@ export default function App() {
     setIsAnalyzing(true);
     
     try {
-      if (!process.env.GEMINI_API_KEY) {
-        console.warn("GEMINI_API_KEY is missing. Using fallback analysis.");
+      if (!GEMINI_API_KEY) {
+        console.warn("VITE_GEMINI_API_KEY is missing. Using fallback analysis.");
         throw new Error("API Key is missing");
       }
 
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
       
       // Extract mime type and base64 data from data URL
       const mimeType = data.image.split(';')[0].split(':')[1] || "image/jpeg";
@@ -3632,7 +3634,7 @@ CRITICAL RULES:
 
       // Add a timeout to the AI call
       const analysisPromise = ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.5-flash",
         contents: [
           {
             parts: [
@@ -3647,12 +3649,13 @@ CRITICAL RULES:
           }
         ],
         config: {
-          responseMimeType: "application/json"
+          responseMimeType: "application/json",
+          thinkingConfig: { thinkingBudget: 0 }
         }
       });
 
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Analysis timed out")), 25000)
+        setTimeout(() => reject(new Error("Analysis timed out")), 60000)
       );
 
       const response = await Promise.race([analysisPromise, timeoutPromise]) as any;
