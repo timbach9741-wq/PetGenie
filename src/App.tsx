@@ -2179,15 +2179,21 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
           </div>
           
           <div className="grid gap-4">
-            {analysisResult?.expertInsights ? (
+            {analysisResult ? (() => {
+              const insights = analysisResult.expertInsights || {
+                expertAdvice: i18n.language.startsWith('en') ? 'Based on breed characteristics, regular veterinary check-ups and balanced nutrition are essential for optimal health.' : i18n.language.startsWith('ja') ? '品種特性に基づき、定期的な獣医検診とバランスの取れた栄養が最適な健康のために重要です。' : i18n.language === 'zh-TW' ? '根據品種特性，定期獸醫檢查和均衡營養對最佳健康至關重要。' : i18n.language.startsWith('es') ? 'Basado en las características de la raza, los chequeos veterinarios regulares y la nutrición equilibrada son esenciales.' : '품종 특성에 따라 정기적인 수의사 검진과 균형 잡힌 영양 관리가 건강의 핵심입니다.',
+                wsava: i18n.language.startsWith('en') ? 'Nutritional status is the "fifth vital sign". Systematic nutritional assessment can prevent disease and extend lifespan.' : i18n.language.startsWith('ja') ? '栄養状態は「5番目のバイタルサイン」です。体系的な栄養評価により疾病を予防し寿命を延ばすことができます。' : i18n.language === 'zh-TW' ? '營養狀態是「第五大生命徵象」。系統性營養評估可以預防疾病並延長壽命。' : i18n.language.startsWith('es') ? 'El estado nutricional es el "quinto signo vital". La evaluación nutricional sistemática puede prevenir enfermedades.' : '영양 상태는 체온, 맥박과 함께 "다섯 번째 활력징후"입니다. 체계적인 영양 평가를 통해 질병을 예방하고 수명을 연장할 수 있습니다.',
+                steveMann: i18n.language.startsWith('en') ? 'Positive reinforcement training using treats and toys is key to building trust with your dog.' : i18n.language.startsWith('ja') ? 'おやつやおもちゃを活用した「正の強化トレーニング」が愛犬との信頼関係を築く鍵です。' : i18n.language === 'zh-TW' ? '使用零食和玩具的「正向強化訓練」是建立與愛犬信任關係的關鍵。' : i18n.language.startsWith('es') ? 'El entrenamiento de refuerzo positivo usando premios y juguetes es clave para construir confianza.' : '간식과 장난감을 활용한 "긍정강화교육"이 반려견과의 신뢰를 쌓는 핵심입니다.'
+              };
+              return (
               <div className="bg-[#0D0D0D] rounded-[2.5rem] p-8 border border-white/5 space-y-8 relative overflow-hidden group hover:border-white/10 transition-all duration-500">
                 <div className="flex items-start gap-5 relative z-10">
                   <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shrink-0 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
                     <Activity className="w-6 h-6" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="text-base font-bold text-white">전문가 조언</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{analysisResult.expertInsights.expertAdvice}</p>
+                    <h4 className="text-base font-bold text-white">{t('report.expert_advice')}</h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{insights.expertAdvice}</p>
                   </div>
                 </div>
                 
@@ -2196,8 +2202,8 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                     <Utensils className="w-6 h-6" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="text-base font-bold text-white">영양 및 활력 징후 (WSAVA 기준)</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{analysisResult.expertInsights.wsava}</p>
+                    <h4 className="text-base font-bold text-white">{t('report.nutrition_vital')}</h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{insights.wsava}</p>
                   </div>
                 </div>
                 
@@ -2206,25 +2212,26 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                     <Heart className="w-6 h-6" />
                   </div>
                   <div className="space-y-2">
-                    <h4 className="text-base font-bold text-white">행동 및 훈련 (Steve Mann 기준)</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{analysisResult.expertInsights.steveMann}</p>
+                    <h4 className="text-base font-bold text-white">{t('report.behavior_training')}</h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{insights.steveMann}</p>
                   </div>
                 </div>
                 {!isPremium && (
                   <button onClick={onUpgrade} className="w-full text-center text-[10px] font-black text-[#00FF41] uppercase tracking-widest border border-[#00FF41]/20 px-4 py-3 rounded-2xl bg-[#00FF41]/5 hover:bg-[#00FF41]/10 transition-all relative z-10">
-                    🔓 전체 인사이트 보기
+                    🔓 {t('report.unlock_insights')}
                   </button>
                 )}
 
                 {/* Decorative background glow */}
                 <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-500/5 rounded-full blur-[100px] group-hover:bg-emerald-500/10 transition-colors" />
               </div>
-            ) : (
+              );
+            })() : (
               <div className="bg-[#0D0D0D] rounded-[2.5rem] p-12 border border-dashed border-white/10 text-center space-y-4">
                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto text-zinc-700">
                   <Activity className="w-8 h-8" />
                 </div>
-                <p className="text-zinc-500 text-sm">분석 결과가 없습니다.</p>
+                <p className="text-zinc-500 text-sm">{t('report.no_analysis')}</p>
               </div>
             )}
           </div>
