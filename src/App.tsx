@@ -131,7 +131,7 @@ const LANGUAGES = [
   { code: 'ko', label: '한국어', flag: '🇰🇷', short: 'KO' },
   { code: 'en', label: 'English', flag: '🇺🇸', short: 'EN' },
   { code: 'ja', label: '日本語', flag: '🇯🇵', short: 'JA' },
-  { code: 'zh', label: '中文', flag: '🇨🇳', short: 'ZH' },
+  { code: 'zh-TW', label: '繁體中文', flag: '🇹🇼', short: 'TW' },
   { code: 'es', label: 'Español', flag: '🇪🇸', short: 'ES' },
 ] as const;
 
