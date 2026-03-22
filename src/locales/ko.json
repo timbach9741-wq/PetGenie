@@ -362,6 +362,7 @@
     "routine_title": "데일리 루틴",
     "intensity": "강도",
     "caution_title": "운동 시 주의사항",
+    "mark_done": "완료",
     "default_goal": "30분 - 60분",
     "default_walk": "산책",
     "default_duration": "30분",

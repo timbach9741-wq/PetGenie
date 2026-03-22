@@ -327,6 +327,7 @@
     "routine_title": "Daily Routine",
     "intensity": "Intensity",
     "caution_title": "Exercise Precautions",
+    "mark_done": "Done",
     "default_goal": "30 min - 60 min",
     "default_walk": "Walking",
     "default_duration": "30 min",
