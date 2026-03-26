@@ -320,7 +320,7 @@
     "price_label": "Monthly Subscription",
     "price_value": "₩9,900",
     "subscribe_button": "Subscribe Now",
-    "plan_weekly_title": "1-Week Trial",
+    "plan_weekly_title": "1 Week Trial",
     "plan_weekly_price": "$4.99",
     "plan_yearly_title": "1 Year",
     "plan_yearly_price": "$19.99",
@@ -570,5 +570,8 @@
     "suggestion_behavior": "My dog keeps licking its paws.",
     "thinking": "Preparing my answer...",
     "disclaimer": "AI Vet responses are for reference only and cannot replace a professional diagnosis."
-  }
+  },
+  "nav_ai_vet": "AI Vet",
+  "ai_vet_welcome": "Hello! I am your AI Vet. How is your pet doing today?",
+  "ai_vet_disclaimer": "This analysis is for reference only. Please visit a vet for a professional diagnosis."
 }

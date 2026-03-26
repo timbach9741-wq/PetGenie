@@ -570,5 +570,8 @@
     "suggestion_behavior": "갑자기 발을 계속 핥아요.",
     "thinking": "답변을 작성하고 있어요...",
     "disclaimer": "AI 수의사의 답변은 참고용이며, 정확한 진단을 대체할 수 없습니다."
-  }
+  },
+  "nav_ai_vet": "AI 수의사",
+  "ai_vet_welcome": "안녕하세요! AI 수의사입니다. 오늘 아이의 상태는 어떤가요?",
+  "ai_vet_disclaimer": "이 분석은 참고용이며, 정확한 진단은 수의사 방문이 필요합니다."
 }
