@@ -1,5 +1,5 @@
-import { useTranslation, Trans } from 'react-i18next';
-import { Camera, LayoutDashboard, User, History as HistoryIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Camera, LayoutDashboard, User, History as HistoryIcon, Stethoscope } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import type { Screen } from '../../types';
@@ -9,6 +9,7 @@ const Navigation = ({ current, onNavigate }: { current: Screen, onNavigate: (s: 
   const { t } = useTranslation();
   const items = [
     { id: 'camera', icon: Camera, label: t('nav.scan') },
+    { id: 'ai-vet', icon: Stethoscope, label: t('nav.ai_vet', 'AI수의사') },
     { id: 'pet-dashboard', icon: LayoutDashboard, label: t('nav.health') },
     { id: 'history', icon: HistoryIcon, label: t('nav.history') },
     { id: 'profile', icon: User, label: t('nav.profile') },

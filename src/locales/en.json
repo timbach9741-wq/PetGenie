@@ -79,7 +79,8 @@
     "health": "Health",
     "history": "History",
     "market": "Market",
-    "profile": "Profile"
+    "profile": "Profile",
+    "ai_vet": "AI Vet"
   },
   "onboarding": {
     "skip": "Skip",

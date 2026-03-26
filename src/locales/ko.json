@@ -79,7 +79,8 @@
     "health": "건강",
     "history": "히스토리",
     "market": "마켓",
-    "profile": "프로필"
+    "profile": "프로필",
+    "ai_vet": "AI수의사"
   },
   "onboarding": {
     "skip": "건너뛰기",
@@ -112,7 +113,7 @@
     },
     "scan_limit_title": "무료 스캔 횟수를 모두 사용했습니다",
     "scan_limit_desc": "멤버십으로 전환하여 무제한 스캔을 이용하세요.",
-    "scan_limit_button": "보기",
+    "scan_limit_button": "업그레이드",
     "genetic_title": "유전적 품종 분석",
     "default_breed": "골든 리트리버",
     "quick_actions": {
@@ -165,7 +166,6 @@
     "breed_analysis": "품종 분석",
     "dashboard_default_breed": "알 수 없음",
     "scan_limit_msg": "무제한 스캔 및 심층 건강 리포트를 위해 프리미엄으로 업그레이드하세요.",
-    "scan_limit_button": "업그레이드",
     "match": "일치",
     "primary_breed": "주 품종",
     "secondary_breed": "부 품종",

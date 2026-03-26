@@ -504,7 +504,7 @@ CRITICAL RULES:
     navigateTo('pet-dashboard');
   };
 
-  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'ai-vet'].includes(currentScreen);
+  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy'].includes(currentScreen);
 
   return (
     <div className="h-full bg-zinc-50 font-sans selection:bg-emerald-100 overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
