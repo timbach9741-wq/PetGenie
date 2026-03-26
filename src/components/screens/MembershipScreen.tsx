@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { ArrowLeft, Scan, FileText, Activity, ChevronRight, MessageCircle } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { ShoppingBag, FileText, Scan, ArrowLeft, Shield, MapPin } from 'lucide-react';
 
 
 const MembershipScreen = ({ onBack, onUpgrade }: { onBack: () => void, onUpgrade: () => void }) => {
   const { t } = useTranslation();
-  const [selectedPlan, setSelectedPlan] = useState<'weekly' | 'yearly' | 'lifetime'>('yearly');
   const benefits = [
     { title: t('membership.benefit1'), free: t('membership.benefit1_free'), premium: t('membership.benefit1_premium'), icon: Scan },
     { title: t('membership.benefit2'), free: t('membership.benefit2_free'), premium: t('membership.benefit2_premium'), icon: FileText },
-    { icon: Activity, title: t('membership.benefit3'), free: t('membership.benefit3_free'), premium: t('membership.benefit3_premium') },
-    { icon: MessageCircle, title: t('membership.benefit4'), free: t('membership.benefit4_free'), premium: t('membership.benefit4_premium') },
+    { icon: MapPin, title: t('membership.benefit3'), free: t('membership.benefit3_free'), premium: t('membership.benefit3_premium') },
+    { icon: Shield, title: t('membership.benefit4'), free: t('membership.benefit4_free'), premium: t('membership.benefit4_premium') },
+    { icon: ShoppingBag, title: t('membership.benefit5'), free: t('membership.benefit5_free'), premium: t('membership.benefit5_premium') },
   ];
 
   return (
@@ -35,8 +33,8 @@ const MembershipScreen = ({ onBack, onUpgrade }: { onBack: () => void, onUpgrade
           <h3 className="text-sm font-bold text-zinc-900 uppercase tracking-wider border-l-4 border-emerald-500 pl-3">{t('membership.guide_title')}</h3>
           <p className="text-xs text-zinc-500 leading-relaxed font-medium">
             <Trans i18nKey="membership.guide_desc">
-              Free members can use basic health scans and hospital searches (3 times each) and basic summary reports.
-              On the other hand, <span className="text-emerald-600 font-bold">Premium Membership</span> provides all premium rights for your pet.
+              일반 회원은 기본적인 건강 스캔과 병원 검색(각 총 3회) 및 기본 요약 리포트를 이용하실 수 있습니다. 마켓과 보험 서비스 또한 일반형으로 제공됩니다.
+              반면, <span className="text-emerald-600 font-bold">프리미엄 멤버십</span>은 AI 정밀 분석, 무제한 스캔/검색, 그리고 멤버십 전용 마켓/보험 혜택 등 반려동물을 위한 모든 프리미엄 권한을 제공합니다.
             </Trans>
           </p>
         </div>
@@ -61,44 +59,17 @@ const MembershipScreen = ({ onBack, onUpgrade }: { onBack: () => void, onUpgrade
           </div>
         </div>
 
-        <div className="bg-emerald-600 rounded-[2rem] p-8 text-white shadow-xl shadow-emerald-900/20">
-          <p className="text-center text-emerald-100 text-xs font-bold uppercase tracking-widest mb-6">{t('membership.price_label')}</p>
-          
-          <div className="space-y-3 mb-8">
-            {[
-              { id: 'weekly', title: t('membership.plan_weekly_title'), price: t('membership.plan_weekly_price'), badge: '' },
-              { id: 'yearly', title: t('membership.plan_yearly_title'), price: t('membership.plan_yearly_price'), badge: t('membership.best_value') },
-              { id: 'lifetime', title: t('membership.plan_lifetime_title'), price: t('membership.plan_lifetime_price'), badge: '' },
-            ].map(p => (
-              <button
-                key={p.id}
-                onClick={() => setSelectedPlan(p.id as any)}
-                className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-2xl border-2 text-left transition-all",
-                  selectedPlan === p.id 
-                    ? "border-white bg-white/20 shadow-inner" 
-                    : "border-transparent bg-emerald-700/50 hover:bg-emerald-700/70"
-                )}
-              >
-                <div className="flex flex-col">
-                  <span className={cn("font-medium text-sm transition-colors", selectedPlan === p.id ? "text-white" : "text-emerald-100")}>{p.title}</span>
-                  <span className="text-white font-bold text-xl">{p.price}</span>
-                </div>
-                {p.badge && (
-                  <span className="bg-emerald-400 text-emerald-900 text-[10px] font-black uppercase px-2 py-1 rounded-full">
-                    {p.badge}
-                  </span>
-                )}
-              </button>
-            ))}
+        <div className="bg-emerald-600 rounded-[2rem] p-8 text-white text-center shadow-xl shadow-emerald-900/20">
+          <p className="text-emerald-100 text-xs font-bold uppercase tracking-widest mb-2">{t('membership.price_label')}</p>
+          <div className="flex items-baseline justify-center gap-1 mb-6">
+            <span className="text-4xl font-bold">{t('membership.price_value')}</span>
+            <span className="text-emerald-200 text-sm">/ mo</span>
           </div>
-
           <button 
             onClick={onUpgrade}
-            className="w-full bg-white text-emerald-700 py-4 rounded-2xl font-bold shadow-lg active:scale-[0.98] hover:bg-zinc-50 transition-all flex items-center justify-center gap-2"
+            className="w-full bg-white text-emerald-700 py-4 rounded-2xl font-bold shadow-lg active:scale-[0.98] transition-all"
           >
             {t('membership.subscribe_button')}
-            <ChevronRight className="w-5 h-5 text-emerald-400" />
           </button>
         </div>
       </div>

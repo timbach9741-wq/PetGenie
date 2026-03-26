@@ -1,6 +1,8 @@
 import { motion } from 'motion/react';
 
-export const CircularProgress = ({ value, size = 120, strokeWidth = 8, color = '#10b981' }: { value: number; size?: number; strokeWidth?: number; color?: string }) => {
+
+// --- Circular Progress Component ---
+const CircularProgress = ({ value, size = 120, strokeWidth = 8, color = '#10b981' }: { value: number; size?: number; strokeWidth?: number; color?: string }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (value / 100) * circumference;
@@ -19,3 +21,5 @@ export const CircularProgress = ({ value, size = 120, strokeWidth = 8, color = '
     </svg>
   );
 };
+
+export default CircularProgress;

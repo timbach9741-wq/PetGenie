@@ -1,16 +1,15 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CheckCircle2, Utensils } from 'lucide-react';
-import { AdBanner } from '../common';
+import { useTranslation, Trans } from 'react-i18next';
+import { CheckCircle2, ArrowLeft, Utensils } from 'lucide-react';
+import AdBanner from '../common/AdBanner';
 
 
 const DietGuideScreen = ({ onBack, dietPlan, isPremium, onUpgrade }: { onBack: () => void, dietPlan: any, isPremium: boolean, onUpgrade: () => void }) => {
   const { t } = useTranslation();
   const plan = dietPlan || {
     title: t('diet.title'),
-    recommendations: [t('diet.default_rec1'), t('diet.default_rec2'), t('diet.default_rec3')],
-    prohibitedFoods: [t('diet.default_prohibit1'), t('diet.default_prohibit2'), t('diet.default_prohibit3')],
-    dailyCalories: t('diet.default_calories')
+    recommendations: ["충분한 수분 섭취", "균형 잡힌 영양소 공급", "정기적인 식사 시간"],
+    prohibitedFoods: ["초콜릿", "포도", "양파"],
+    dailyCalories: "정보 없음"
   };
 
   return (

@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Heart, Shield, Dna, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
+import { Heart, Scan, ArrowRight, Shield, Dna } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LanguageSwitcher } from '../common/LanguageSwitcher';
+import LanguageSwitcher from '../common/LanguageSwitcher';
 
-export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
-  const { t } = useTranslation();
+
+// --- Onboarding Screen (Full-Bleed Cinematic + AI Particle) ---
+const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
+  const { t, i18n } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
@@ -38,6 +40,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
 
   const currentAccent = slides[currentSlide].accentColor;
 
+  // Auto-advance slides
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide(prev => (prev < slides.length - 1 ? prev + 1 : prev));
@@ -45,6 +48,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
     return () => clearInterval(timer);
   }, [currentSlide]);
 
+  // Swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStart === null) return;
@@ -56,6 +60,9 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
     setTouchStart(null);
   };
 
+  // Language switching handled by LanguageSwitcher component
+
+  // Floating particles data
   const particles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
@@ -73,6 +80,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      {/* === Full-Bleed Background Photos with Crossfade === */}
       <AnimatePresence mode="sync">
         <motion.div
           key={`bg-${currentSlide}`}
@@ -82,12 +90,19 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
           transition={{ duration: 1.2, ease: 'easeOut' }}
           className="absolute inset-0 z-0"
         >
-          <img src={slides[currentSlide].image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+          <img
+            src={slides[currentSlide].image}
+            alt=""
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+          {/* Multi-layer gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" style={{ height: '55%', top: '45%' }} />
         </motion.div>
       </AnimatePresence>
 
+      {/* === AI Scan Line Animation === */}
       <motion.div
         animate={{ y: ['0%', '100%', '0%'] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -98,6 +113,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
         }}
       />
 
+      {/* === Floating DNA Particles === */}
       <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
         {particles.map((p) => (
           <motion.div
@@ -127,13 +143,21 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
         ))}
       </div>
 
+      {/* === Top Bar === */}
       <div className="relative z-20 flex justify-between items-center px-6" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+        {/* Language Switcher */}
         <LanguageSwitcher variant="dark" />
-        <button onClick={onComplete} className="text-white/40 text-[10px] font-bold uppercase tracking-[0.15em] hover:text-white/80 transition-colors px-3 py-2">
+
+        {/* Skip */}
+        <button
+          onClick={onComplete}
+          className="text-white/40 text-[10px] font-bold uppercase tracking-[0.15em] hover:text-white/80 transition-colors px-3 py-2"
+        >
           {t('onboarding.skip')}
         </button>
       </div>
 
+      {/* === Bottom Glassmorphism Card === */}
       <div className="mt-auto relative z-20">
         <div
           className="mx-4 mb-4 rounded-[2rem] border border-white/10 overflow-hidden"
@@ -144,6 +168,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
           }}
         >
           <div className="p-7 pb-5">
+            {/* Slide Content with Transition */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={`content-${currentSlide}`}
@@ -152,6 +177,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
+                {/* Tag + Icon */}
                 <div className="flex items-center gap-2.5 mb-4">
                   <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -159,19 +185,27 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
                   >
                     {(() => { const Icon = slides[currentSlide].icon; return <Icon className="w-4 h-4" style={{ color: currentAccent }} />; })()}
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: currentAccent }}>
+                  <span
+                    className="text-[10px] font-black uppercase tracking-[0.2em]"
+                    style={{ color: currentAccent }}
+                  >
                     {slides[currentSlide].tag}
                   </span>
                 </div>
+
+                {/* Title */}
                 <h1 className="text-[26px] font-extrabold text-white leading-[1.2] tracking-tight mb-3">
                   {slides[currentSlide].title}
                 </h1>
+
+                {/* Description */}
                 <p className="text-white/50 text-[13px] leading-relaxed font-medium">
                   {slides[currentSlide].desc}
                 </p>
               </motion.div>
             </AnimatePresence>
 
+            {/* Social Proof */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -190,7 +224,9 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
               </span>
             </motion.div>
 
+            {/* Progress Dots + CTA Row */}
             <div className="flex items-center gap-4">
+              {/* Dots */}
               <div className="flex gap-1.5">
                 {slides.map((_, i) => (
                   <button
@@ -213,6 +249,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
                 ))}
               </div>
 
+              {/* CTA Button */}
               <button
                 onClick={() => {
                   if (currentSlide < slides.length - 1) {
@@ -240,6 +277,7 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
             </div>
           </div>
 
+          {/* Login Link */}
           <div className="border-t border-white/5 py-3.5 text-center">
             <button
               onClick={onComplete}
@@ -250,8 +288,11 @@ export const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => 
           </div>
         </div>
 
+        {/* Safe Area Bottom Spacer */}
         <div style={{ height: 'env(safe-area-inset-bottom, 0px)' }} />
       </div>
     </motion.div>
   );
 };
+
+export default OnboardingScreen;

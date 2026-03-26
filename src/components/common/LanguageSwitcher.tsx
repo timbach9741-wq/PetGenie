@@ -1,11 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Globe, ChevronDown, Check } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
+import { Check, ChevronDown, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
-import { LANGUAGES } from '../../data/constants';
 
-export const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 'pill' | 'dark' }) => {
+
+// --- Language Switcher (4 Languages) ---
+const LANGUAGES = [
+  { code: 'ko', label: '한국어', flag: '🇰🇷', short: 'KO' },
+  { code: 'en', label: 'English', flag: '🇺🇸', short: 'EN' },
+  { code: 'ja', label: '日本語', flag: '🇯🇵', short: 'JA' },
+  { code: 'zh-TW', label: '繁體中文', flag: '🇹🇼', short: 'TW' },
+  { code: 'es', label: 'Español', flag: '🇪🇸', short: 'ES' },
+] as const;
+
+const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 'pill' | 'dark' }) => {
   const { i18n } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -96,3 +105,5 @@ export const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 
     </div>
   );
 };
+
+export default LanguageSwitcher;

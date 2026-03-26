@@ -1,17 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { 
-  Camera, Heart, LayoutDashboard, ShoppingBag, FileText, Settings, Scan, ChevronRight, Activity, Weight, Calendar,
-  AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Search, Plus, MoreVertical, Cross, Battery, Wifi, Signal,
-  Shield, TrendingUp, Utensils, Moon, Clock, Droplets, MapPin, Navigation as NavIcon, Upload, BriefcaseMedical,
-  Eye, Dna, BookOpen, Quote, Lock, History as HistoryIcon, ChevronLeft, User, Star, Bell, Sun, CloudRain,
-  Thermometer, Check, Sparkles, PawPrint, ChevronDown, LogOut, Globe, HelpCircle, X
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { cn } from '../../lib/utils';
-import { GoogleGenAI } from "@google/genai";
-import { Screen, PetProfile, CareItem } from '../../types';
-import { CircularProgress, LanguageSwitcher, Navigation, AdBanner, StatusBar } from '../common';
+import { Heart, Activity, Weight, Calendar, AlertCircle, ArrowLeft, BriefcaseMedical, Eye } from 'lucide-react';
+import { motion } from 'motion/react';
+import AdBanner from '../common/AdBanner';
 
 
 const CareGuideScreen = ({ onBack, careGuides, isPremium, onUpgrade }: { onBack: () => void, careGuides?: any[], isPremium: boolean, onUpgrade: () => void }) => {

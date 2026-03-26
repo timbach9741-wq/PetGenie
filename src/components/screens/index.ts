@@ -1,3 +1,14 @@
-export { OnboardingScreen } from './OnboardingScreen';
+export { default as OnboardingScreen } from './OnboardingScreen';
+export { default as PrivacyPolicyScreen } from './PrivacyPolicyScreen';
+export { default as CameraScreen } from './CameraScreen';
+export { default as HealthReport } from './HealthReport';
+export { default as DietGuideScreen } from './DietGuideScreen';
+export { default as ExercisePlanScreen } from './ExercisePlanScreen';
+export { default as CareGuideScreen } from './CareGuideScreen';
+export { default as HistoryScreen } from './HistoryScreen';
+export { default as MembershipScreen } from './MembershipScreen';
+export { default as ProfileScreen } from './ProfileScreen';
+export { default as AIVetScreen } from './AIVetScreen';
+export { default as PetDashboard } from './PetDashboard';
 export { LoginScreen, SignUpScreen } from './AuthScreens';
-export { SplashScreen, AnalysisLoadingOverlay } from './SplashScreen';
+export { SplashScreen } from './SplashScreen';

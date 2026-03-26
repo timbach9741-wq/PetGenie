@@ -1,15 +1,15 @@
-import { useTranslation } from 'react-i18next';
-import { Camera, LayoutDashboard, User, History as HistoryIcon, MessageCircle } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
+import { Camera, LayoutDashboard, User, Navigation as NavIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import type { Screen } from '../../types';
 
-export const Navigation = ({ current, onNavigate, isPremium }: { current: Screen, onNavigate: (s: Screen) => void, isPremium?: boolean }) => {
+
+const Navigation = ({ current, onNavigate }: { current: Screen, onNavigate: (s: Screen) => void }) => {
   const { t } = useTranslation();
   const items = [
     { id: 'camera', icon: Camera, label: t('nav.scan') },
     { id: 'pet-dashboard', icon: LayoutDashboard, label: t('nav.health') },
-    { id: 'ai-vet', icon: MessageCircle, label: t('nav.ai_vet', 'AI 상담') },
     { id: 'history', icon: HistoryIcon, label: t('nav.history') },
     { id: 'profile', icon: User, label: t('nav.profile') },
   ];
@@ -22,13 +22,7 @@ export const Navigation = ({ current, onNavigate, isPremium }: { current: Screen
       {items.map((item) => (
         <button
           key={item.id}
-          onClick={() => {
-            if (item.id === 'ai-vet' && !isPremium) {
-              onNavigate('membership' as Screen);
-            } else {
-              onNavigate(item.id as Screen);
-            }
-          }}
+          onClick={() => onNavigate(item.id as Screen)}
           className={cn(
             "flex flex-col items-center gap-1 transition-all duration-200 relative min-w-[56px] min-h-[44px] justify-center",
             current === item.id ? "text-emerald-600" : "text-zinc-400 active:text-zinc-600"
@@ -47,3 +41,5 @@ export const Navigation = ({ current, onNavigate, isPremium }: { current: Screen
     </nav>
   );
 };
+
+export default Navigation;

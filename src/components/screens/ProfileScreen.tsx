@@ -1,20 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
+import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { 
-  Camera, Heart, LayoutDashboard, ShoppingBag, FileText, Settings, Scan, ChevronRight, Activity, Weight, Calendar,
-  AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Search, Plus, MoreVertical, Cross, Battery, Wifi, Signal,
-  Shield, TrendingUp, Utensils, Moon, Clock, Droplets, MapPin, Navigation as NavIcon, Upload, BriefcaseMedical,
-  Eye, Dna, BookOpen, Quote, Lock, History as HistoryIcon, ChevronLeft, User, Star, Bell, Sun, CloudRain,
-  Thermometer, Check, Sparkles, PawPrint, ChevronDown, LogOut, Globe, HelpCircle, X
-} from 'lucide-react';
+import { Settings, ChevronRight, CheckCircle2, Shield, User, Bell, PawPrint, LogOut, Globe, HelpCircle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
-import { GoogleGenAI } from "@google/genai";
-import { Screen, PetProfile, CareItem } from '../../types';
-import { CircularProgress, LanguageSwitcher, Navigation, AdBanner, StatusBar } from '../common';
-import { LANGUAGES } from '../../data/constants';
+import type { Screen } from '../../types';
+import type { PetProfile } from '../../types';
 
 
+// --- Profile Screen ---
 const ProfileScreen = ({ 
   onBack, onNavigate, isPremium, onUpgrade, onLogout, isLoggedIn, user, petProfile, onUpdatePetProfile, onLogin
 }: { 

@@ -1,18 +1,33 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Activity, AlertCircle, ArrowLeft, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
+import { Activity, AlertCircle, CheckCircle2, ArrowLeft, TrendingUp } from 'lucide-react';
+import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
-import { AdBanner } from '../common';
+import AdBanner from '../common/AdBanner';
 
 
 const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { onBack: () => void, exercisePlan: any, isPremium: boolean, onUpgrade: () => void }) => {
   const { t } = useTranslation();
+  const [completedActivities, setCompletedActivities] = useState<Set<number>>(new Set());
   const plan = exercisePlan || {
     title: t('exercise.title'),
-    dailyGoal: t('exercise.default_goal'),
-    activities: [{ name: t('exercise.default_walk'), duration: t('exercise.default_duration'), intensity: "medium" }],
-    precautions: [t('exercise.default_precaution1'), t('exercise.default_precaution2')]
+    dailyGoal: "30분 - 60분",
+    activities: [{ name: "산책", duration: "30분", intensity: "medium" }],
+    precautions: ["충분한 휴식", "수분 공급"]
   };
+
+  const toggleActivity = (index: number) => {
+    setCompletedActivities(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  };
+
+  const completionRate = plan.activities.length > 0 
+    ? Math.round((completedActivities.size / plan.activities.length) * 100) 
+    : 0;
 
   return (
     <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar pb-32 relative">
@@ -50,23 +65,59 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-lg font-bold text-white px-2">{t('exercise.routine_title')}</h3>
+          <div className="flex items-center justify-between px-2">
+            <h3 className="text-lg font-bold text-white">{t('exercise.routine_title')}</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-blue-400">{completedActivities.size}/{plan.activities.length}</span>
+              <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-blue-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${completionRate}%` }}
+                  transition={{ duration: 0.5 }}
+                />
+              </div>
+            </div>
+          </div>
           <div className="grid gap-4">
             {plan.activities.map((activity: any, i: number) => (
-              <div key={i} className="bg-white/5 p-6 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
+              <div key={i} 
+                className={cn(
+                  "p-6 rounded-[2.5rem] border relative overflow-hidden group transition-all duration-300 cursor-pointer",
+                  completedActivities.has(i) 
+                    ? "bg-blue-500/10 border-blue-500/30" 
+                    : "bg-white/5 border-white/5"
+                )}
+                onClick={() => toggleActivity(i)}
+              >
+                {completedActivities.has(i) && (
+                  <motion.div 
+                    initial={{ scale: 0 }} animate={{ scale: 1 }}
+                    className="absolute top-3 right-3 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center z-10"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                  </motion.div>
+                )}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                      completedActivities.has(i) ? "bg-blue-500/20 text-blue-400" :
                       activity.intensity === 'high' ? "bg-rose-500/10 text-rose-500" :
                       activity.intensity === 'medium' ? "bg-orange-500/10 text-orange-500" :
                       "bg-emerald-500/10 text-emerald-500"
                     )}>
                       <TrendingUp className="w-5 h-5" />
                     </div>
-                    <h4 className="font-bold text-white">{activity.name}</h4>
+                    <h4 className={cn(
+                      "font-bold transition-all duration-300",
+                      completedActivities.has(i) ? "text-blue-300 line-through opacity-70" : "text-white"
+                    )}>{activity.name}</h4>
                   </div>
-                  <span className="text-zinc-400 font-bold text-sm">{activity.duration}</span>
+                  <span className={cn(
+                    "font-bold text-sm transition-all duration-300",
+                    completedActivities.has(i) ? "text-blue-400/50 line-through" : "text-zinc-400"
+                  )}>{activity.duration}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t('exercise.intensity')}:</span>
@@ -75,7 +126,8 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
                       <div 
                         key={step} 
                         className={cn(
-                          "w-4 h-1 rounded-full",
+                          "w-4 h-1 rounded-full transition-all duration-300",
+                          completedActivities.has(i) ? "bg-blue-500/30" :
                           step === 1 && activity.intensity === 'low' ? "bg-emerald-500" :
                           step <= 2 && activity.intensity === 'medium' ? "bg-orange-500" :
                           step <= 3 && activity.intensity === 'high' ? "bg-rose-500" : "bg-white/10"
@@ -83,6 +135,14 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
                       />
                     ))}
                   </div>
+                  {!completedActivities.has(i) && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); toggleActivity(i); }}
+                      className="ml-auto text-[10px] font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 hover:bg-blue-500/20 active:scale-95 transition-all"
+                    >
+                      {t('exercise.mark_done')}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
