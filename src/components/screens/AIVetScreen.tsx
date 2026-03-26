@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Send, User, AlertCircle, Loader2 } from 'lucide-react';
 import { fetchVetAnalysis } from '../../services/geminiService';
 import { PetProfile } from '../../types';
+import vetImage from '../../assets/images/ai-vet-character.png';
 
-// 실제 수의사 사진 (Unsplash)
-const VET_PHOTO = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300';
+const VET_PHOTO = vetImage;
 
 interface Message {
   role: 'user' | 'ai';
