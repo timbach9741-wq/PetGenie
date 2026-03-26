@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Send, Sparkles, User, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, User, AlertCircle, Loader2 } from 'lucide-react';
 import { fetchVetAnalysis } from '../../services/geminiService';
 import { PetProfile } from '../../types';
-import vetImage from '../../assets/images/ai-vet-character.png';
+
+// 실제 수의사 사진 (Unsplash)
+const VET_PHOTO = 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300&h=300';
 
 interface Message {
   role: 'user' | 'ai';
@@ -40,24 +42,29 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
 
     const userMsg = inputText.trim();
     setInputText('');
-    setShowProfile(false); // 첫 메시지 전송 시 프로필 숨기기
+    setShowProfile(false);
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
     setError(null);
 
     try {
+      // 이전 대화 히스토리 구성
       const chatHistory = messages
         .map(m => `${m.role === 'user' ? '보호자' : '수의사'}: ${m.content}`)
         .join('\n');
 
+      // 반려동물 정보
       const petInfo = `이름: ${petProfile?.name || '알 수 없음'}, 나이: ${petProfile?.age || '알 수 없음'}, 견종: ${petProfile?.breed || '알 수 없음'}, 성별: ${petProfile?.gender || '알 수 없음'}`;
+
+      // i18next 현재 언어 전달
       const currentLang = i18n.language;
 
+      // Gemini API 호출
       const aiResponse = await fetchVetAnalysis(userMsg, undefined, currentLang, petInfo, chatHistory);
       setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
     } catch (err: any) {
       console.error('AI Vet Error:', err);
-      setError(t('ai_vet.error'));
+      setError(t('ai_vet.error', '오류가 발생했습니다. 다시 시도해주세요.'));
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +87,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden border-2 border-emerald-200 shadow-sm">
-              <img src={vetImage} alt="AI Vet" className="w-full h-full object-cover" />
+              <img src={VET_PHOTO} alt="AI Vet" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </div>
             <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white" />
           </div>
@@ -95,7 +102,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       {showProfile && messages.length === 0 && (
         <div className="bg-white p-6 flex flex-col items-center border-b border-zinc-100">
           <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-emerald-100 mb-3 shadow-lg">
-            <img src={vetImage} alt="AI Vet" className="w-full h-full object-cover" />
+            <img src={VET_PHOTO} alt="AI Vet" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
           </div>
           <h2 className="font-bold text-lg text-zinc-800">{t('nav_ai_vet', 'AI 수의사')}</h2>
           <p className="text-sm text-zinc-500 text-center px-4 mt-2 leading-relaxed">
@@ -115,7 +122,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
                 </div>
               ) : (
                 <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mt-1 border border-emerald-200">
-                  <img src={vetImage} alt="AI Vet" className="w-full h-full object-cover" />
+                  <img src={VET_PHOTO} alt="AI Vet" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
               )}
               <div
@@ -136,7 +143,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
           <div className="flex justify-start">
             <div className="flex max-w-[80%] gap-2 flex-row">
               <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mt-1 border border-emerald-200">
-                <img src={vetImage} alt="AI Vet" className="w-full h-full object-cover" />
+                <img src={VET_PHOTO} alt="AI Vet" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               </div>
               <div className="p-3 rounded-2xl text-[13px] bg-white border border-zinc-200 text-zinc-500 rounded-tl-sm shadow-sm flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
@@ -158,7 +165,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 제안 칩 (대화 시작 전에만 표시) */}
+      {/* 제안 칩 */}
       {messages.length <= 1 && !isLoading && (
         <div className="px-4 pb-2 pt-1 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-hide shrink-0 bg-white shadow-[0_-8px_10px_-5px_rgba(0,0,0,0.05)] z-10 relative">
           <button onClick={() => handleSuggestionClick(t('ai_vet.suggestion_diet'))} className="px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100 hover:bg-emerald-100 transition-colors whitespace-nowrap shadow-sm active:scale-95">
@@ -179,7 +186,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
           <input
             type="text"
             className="flex-1 bg-transparent border-none focus:outline-none text-[13px] text-zinc-900 placeholder-zinc-400 py-2"
-            placeholder={t('ai_vet.input_placeholder')}
+            placeholder={t('ai_vet.input_placeholder', '증상이나 궁금한 점을 입력하세요...')}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => {
