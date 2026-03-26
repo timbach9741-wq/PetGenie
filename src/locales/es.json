@@ -79,7 +79,8 @@
     "health": "Salud",
     "history": "Historial",
     "market": "Tienda",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "ai_vet": "Veterinario IA"
   },
   "onboarding": {
     "skip": "Omitir",
@@ -163,8 +164,8 @@
     "weather_cold": "Hace frío. Considera abrigar a tu mascota.",
     "weather_rain": "Se pronostica lluvia. Se recomienda jugar en interior.",
     "breed_analysis": "Análisis de raza",
-    "dashboard_default_breed": "[TODO] 알 수 없음",
-    "scan_limit_msg": "[TODO] 무제한 스캔 및 심층 건강 리포트를 위해 프리미엄으로 업그레이드하세요.",
+    "dashboard_default_breed": "알 수 없음",
+    "scan_limit_msg": "무제한 스캔 및 심층 건강 리포트를 위해 프리미엄으로 업그레이드하세요.",
     "match": "Coincidencia",
     "primary_breed": "Raza principal",
     "secondary_breed": "Raza secundaria",
@@ -564,8 +565,13 @@
     "send": "Enviar",
     "input_placeholder": "Escriba su mensaje (ej. ¿Puede mi perro comer manzanas?)",
     "error": "Ocurrió un error al obtener la respuesta. Por favor intente de nuevo.",
-    "suggestion_diet": "[TODO] 적절한 사료 양은 어떻게 되나요?",
-    "suggestion_health": "[TODO] 요즘 눈곱이 많이 껴요.",
-    "suggestion_behavior": "[TODO] 갑자기 발을 계속 핥아요."
-  }
+    "suggestion_diet": "¿Mejor dieta para mi perro?",
+    "suggestion_health": "Mi perro parece cansado últimamente",
+    "suggestion_behavior": "Comportamiento extraño recientemente",
+    "thinking": "Preparando tu respuesta...",
+    "disclaimer": "Esto es solo de referencia. Visite un veterinario para un diagnóstico profesional."
+  },
+  "nav_ai_vet": "Veterinario IA",
+  "ai_vet_welcome": "¡Hola! Soy tu veterinario IA. ¿Cómo está tu mascota hoy?",
+  "ai_vet_disclaimer": "Este análisis es solo de referencia. Visite un veterinario para un diagnóstico profesional."
 }
