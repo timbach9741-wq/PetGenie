@@ -19,7 +19,9 @@ i18n
       'zh-TW': { translation: zhTW },
       es: { translation: es }
     },
+    lng: 'ko',
     fallbackLng: 'ko',
+    debug: import.meta.env.DEV,
     detection: {
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: 'i18nextLng',
