@@ -156,6 +156,11 @@ export default function App() {
   };
 
   const handleTabNavigate = (screen: Screen) => {
+    // AI 수의사 탭: 프리미엄 체크
+    if (screen === 'ai-vet' && !isPremium) {
+      navigateTo('membership');
+      return;
+    }
     setScreenHistory([]); // Clear history when switching top-level tabs
     setCurrentScreen(screen);
   };
