@@ -1,17 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
-  Camera, Heart, LayoutDashboard, ShoppingBag, FileText, Settings, Scan, ChevronRight, Activity, Weight, Calendar,
-  AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Search, Plus, MoreVertical, Cross, Battery, Wifi, Signal,
-  Shield, TrendingUp, Utensils, Moon, Clock, Droplets, MapPin, Navigation as NavIcon, Upload, BriefcaseMedical,
-  Eye, Dna, BookOpen, Quote, Lock, History as HistoryIcon, ChevronLeft, User, Star, Bell, Sun, CloudRain,
-  Thermometer, Check, Sparkles, PawPrint, ChevronDown, LogOut, Globe, HelpCircle, X
+  Camera, Heart, Scan, ChevronRight, Activity, Weight, Calendar,
+  AlertCircle, CheckCircle2, Shield, TrendingUp, Utensils, Moon, Clock, Droplets,
+  Check, Sparkles, PawPrint, Bell, Sun, CloudRain, Thermometer, Dna, FileText, BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
-import { GoogleGenAI } from "@google/genai";
 import { Screen, PetProfile, CareItem } from '../../types';
-import { CircularProgress, LanguageSwitcher, Navigation, AdBanner, StatusBar } from '../common';
+import { CircularProgress, LanguageSwitcher, AdBanner } from '../common';
 
 
 const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, analysisResult, capturedImage, onLogout, dailyCare, onToggleCare, petProfile }: { onDetail: () => void, onScan: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, scanCount: number, analysisResult?: any, capturedImage?: string | null, onLogout: () => void, dailyCare: CareItem[], onToggleCare: (id: string) => void, petProfile: PetProfile }) => {

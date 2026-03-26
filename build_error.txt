@@ -6,21 +6,21 @@ computing gzip size...
 [2mdist/[22m[32mindex.html                              [39m[1m[2m  5.19 kB[22m[1m[22m[2m ??gzip:   1.96 kB[22m
 [2mdist/[22m[35massets/index-DfUXCcBY.css               [39m[1m[2m 78.75 kB[22m[1m[22m[2m ??gzip:  11.59 kB[22m
 [2mdist/[22m[36massets/PrivacyPolicyScreen-BLzod4PO.js  [39m[1m[2m  1.99 kB[22m[1m[22m[2m ??gzip:   0.66 kB[22m
-[2mdist/[22m[36massets/CareGuideScreen-BV9YXowa.js      [39m[1m[2m  2.87 kB[22m[1m[22m[2m ??gzip:   1.06 kB[22m
+[2mdist/[22m[36massets/CareGuideScreen-UCPvrapN.js      [39m[1m[2m  2.87 kB[22m[1m[22m[2m ??gzip:   1.06 kB[22m
 [2mdist/[22m[36massets/HistoryScreen-ChEuRpmh.js        [39m[1m[2m  3.21 kB[22m[1m[22m[2m ??gzip:   1.12 kB[22m
-[2mdist/[22m[36massets/DietGuideScreen-BBySF_ie.js      [39m[1m[2m  3.58 kB[22m[1m[22m[2m ??gzip:   1.35 kB[22m
+[2mdist/[22m[36massets/DietGuideScreen-B26KjCAa.js      [39m[1m[2m  3.58 kB[22m[1m[22m[2m ??gzip:   1.35 kB[22m
 [2mdist/[22m[36massets/vendor-react-Bbv2884U.js         [39m[1m[2m  3.90 kB[22m[1m[22m[2m ??gzip:   1.52 kB[22m
 [2mdist/[22m[36massets/MembershipScreen-DLc2Gw-T.js     [39m[1m[2m  4.43 kB[22m[1m[22m[2m ??gzip:   1.51 kB[22m
-[2mdist/[22m[36massets/ExercisePlanScreen-DYhhkrRM.js   [39m[1m[2m  5.68 kB[22m[1m[22m[2m ??gzip:   1.89 kB[22m
-[2mdist/[22m[36massets/AIVetScreen-C1eKYPV5.js          [39m[1m[2m  6.02 kB[22m[1m[22m[2m ??gzip:   2.63 kB[22m
-[2mdist/[22m[36massets/OnboardingScreen-CFSUZ6cG.js     [39m[1m[2m  6.52 kB[22m[1m[22m[2m ??gzip:   2.39 kB[22m
+[2mdist/[22m[36massets/ExercisePlanScreen-r5KC1s_S.js   [39m[1m[2m  5.68 kB[22m[1m[22m[2m ??gzip:   1.89 kB[22m
+[2mdist/[22m[36massets/OnboardingScreen-CyTIhxEL.js     [39m[1m[2m  6.52 kB[22m[1m[22m[2m ??gzip:   2.39 kB[22m
+[2mdist/[22m[36massets/AIVetScreen-Dybmj6v4.js          [39m[1m[2m  6.61 kB[22m[1m[22m[2m ??gzip:   2.92 kB[22m
 [2mdist/[22m[36massets/AuthScreens-DNTEQyy4.js          [39m[1m[2m  7.97 kB[22m[1m[22m[2m ??gzip:   2.05 kB[22m
-[2mdist/[22m[36massets/ProfileScreen-BlQAJlFk.js        [39m[1m[2m  9.08 kB[22m[1m[22m[2m ??gzip:   2.23 kB[22m
-[2mdist/[22m[36massets/PetDashboard-Die_TaoN.js         [39m[1m[2m 14.26 kB[22m[1m[22m[2m ??gzip:   3.81 kB[22m
+[2mdist/[22m[36massets/ProfileScreen-CRVlLd--.js        [39m[1m[2m  9.08 kB[22m[1m[22m[2m ??gzip:   2.23 kB[22m
+[2mdist/[22m[36massets/PetDashboard-h_LP_rzj.js         [39m[1m[2m 14.26 kB[22m[1m[22m[2m ??gzip:   3.82 kB[22m
 [2mdist/[22m[36massets/vendor-icons-CTn_GsGi.js         [39m[1m[2m 19.10 kB[22m[1m[22m[2m ??gzip:   4.61 kB[22m
-[2mdist/[22m[36massets/HealthReport-BL0q0z6t.js         [39m[1m[2m 32.91 kB[22m[1m[22m[2m ??gzip:   8.37 kB[22m
+[2mdist/[22m[36massets/HealthReport-74g2vurx.js         [39m[1m[2m 32.91 kB[22m[1m[22m[2m ??gzip:   8.38 kB[22m
 [2mdist/[22m[36massets/vendor-i18n-CUMyyr4B.js          [39m[1m[2m 66.16 kB[22m[1m[22m[2m ??gzip:  22.70 kB[22m
 [2mdist/[22m[36massets/vendor-motion-BLokTk5t.js        [39m[1m[2m123.27 kB[22m[1m[22m[2m ??gzip:  40.80 kB[22m
 [2mdist/[22m[36massets/vendor-genai-B4KiA8rI.js         [39m[1m[2m270.88 kB[22m[1m[22m[2m ??gzip:  53.72 kB[22m
-[2mdist/[22m[36massets/index-DjUgl3ta.js                [39m[1m[2m391.45 kB[22m[1m[22m[2m ??gzip: 123.30 kB[22m
-[32m??built in 9.63s[39m
+[2mdist/[22m[36massets/index-mPGsXnqC.js                [39m[1m[2m391.70 kB[22m[1m[22m[2m ??gzip: 123.56 kB[22m
+[32m??built in 7.84s[39m
