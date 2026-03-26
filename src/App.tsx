@@ -63,11 +63,12 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { GoogleGenAI } from "@google/genai";
+import AIVetScreen from './components/screens/AIVetScreen';
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // --- Types ---
-type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile';
+type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet';
 
 // --- Pet Profile Type ---
 interface PetProfile {
@@ -3660,11 +3661,11 @@ export default function App() {
     } catch { return { name: '', breed: '', age: '', gender: '', weight: '' }; }
   });
   const [dailyCare, setDailyCare] = useState<CareItem[]>([
-    { id: 'walk', label: t('dashboard.care_walk'), icon: Activity, completed: false },
-    { id: 'feed', label: t('dashboard.care_feed'), icon: Utensils, completed: false },
-    { id: 'water', label: t('dashboard.care_water'), icon: Droplets, completed: false },
-    { id: 'supplement', label: t('dashboard.care_supplement'), icon: Heart, completed: false },
-    { id: 'brush', label: t('dashboard.care_brush'), icon: Sparkles, completed: false },
+    { id: 'walk', label: 'dashboard.care_walk', icon: Activity, completed: false },
+    { id: 'feed', label: 'dashboard.care_feed', icon: Utensils, completed: false },
+    { id: 'water', label: 'dashboard.care_water', icon: Droplets, completed: false },
+    { id: 'supplement', label: 'dashboard.care_supplement', icon: Heart, completed: false },
+    { id: 'brush', label: 'dashboard.care_brush', icon: Sparkles, completed: false },
   ]);
 
   // Set initial screen based on onboarding state
@@ -4062,7 +4063,7 @@ CRITICAL RULES:
     navigateTo('pet-dashboard');
   };
 
-  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy'].includes(currentScreen);
+  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'ai-vet'].includes(currentScreen);
 
   return (
     <div className="h-full bg-zinc-50 font-sans selection:bg-emerald-100 overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
@@ -4209,6 +4210,14 @@ CRITICAL RULES:
                   petProfile={petProfile}
                   onUpdatePetProfile={updatePetProfile}
                   onLogin={() => navigateTo('login')}
+                />
+              )}
+              {currentScreen === 'ai-vet' && (
+                <AIVetScreen
+                  onBack={goBack}
+                  isPremium={isPremium}
+                  onUpgrade={() => navigateTo('membership')}
+                  petProfile={petProfile}
                 />
               )}
             </motion.div>

@@ -156,6 +156,24 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
         {/* AdSense for Free Users */}
         <AdBanner isPremium={isPremium} onUpgrade={() => onNavigate('membership')} type="native" />
 
+        {/* 24/7 AI Vet Premium Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          onClick={() => isPremium ? onNavigate('ai-vet') : onNavigate('membership')}
+          className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform shadow-lg shadow-emerald-500/20"
+        >
+          <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-white font-bold text-sm">{t('ai_vet.title')}</h4>
+            <p className="text-white/70 text-[10px]">{isPremium ? t('ai_vet.welcome_msg').slice(0, 30) + '...' : t('dashboard.premium_banner.button')}</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-white/60" />
+        </motion.div>
+
         {/* Health Score + Daily Care Row */}
         <div className="grid grid-cols-2 gap-4">
           {/* Health Score Card */}
@@ -205,7 +223,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
                   <span className={cn(
                     "text-[11px] font-medium transition-all",
                     care.completed ? "text-zinc-400 line-through" : "text-zinc-700"
-                  )}>{care.label}</span>
+                  )}>{t(care.label)}</span>
                 </button>
               ))}
             </div>

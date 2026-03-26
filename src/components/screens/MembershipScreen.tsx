@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { ArrowLeft, Scan, FileText, ShoppingBag, MapPin, Shield, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Scan, FileText, Activity, ChevronRight, MessageCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 
@@ -10,9 +10,8 @@ const MembershipScreen = ({ onBack, onUpgrade }: { onBack: () => void, onUpgrade
   const benefits = [
     { title: t('membership.benefit1'), free: t('membership.benefit1_free'), premium: t('membership.benefit1_premium'), icon: Scan },
     { title: t('membership.benefit2'), free: t('membership.benefit2_free'), premium: t('membership.benefit2_premium'), icon: FileText },
-    { icon: MapPin, title: t('membership.benefit3'), free: t('membership.benefit3_free'), premium: t('membership.benefit3_premium') },
-    { icon: Shield, title: t('membership.benefit4'), free: t('membership.benefit4_free'), premium: t('membership.benefit4_premium') },
-    { icon: ShoppingBag, title: t('membership.benefit5'), free: t('membership.benefit5_free'), premium: t('membership.benefit5_premium') },
+    { icon: Activity, title: t('membership.benefit3'), free: t('membership.benefit3_free'), premium: t('membership.benefit3_premium') },
+    { icon: MessageCircle, title: t('membership.benefit4'), free: t('membership.benefit4_free'), premium: t('membership.benefit4_premium') },
   ];
 
   return (

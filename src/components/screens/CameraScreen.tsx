@@ -321,7 +321,7 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
                 <h4 className="text-sm font-bold text-zinc-800 mb-1">{t('scan_home.premium_title')}</h4>
                 <p className="text-[11px] text-zinc-500 leading-relaxed mb-3">{t('scan_home.premium_desc')}</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {[t('scan_home.feature_unlimited'), t('scan_home.feature_report'), t('scan_home.feature_guide')].map((f, i) => (
+                  {[t('scan_home.feature_unlimited'), t('scan_home.feature_report'), t('scan_home.feature_guide'), t('scan_home.feature_aivet')].map((f, i) => (
                     <span key={i} className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded-lg">
                       <Check className="w-3 h-3" /> {f}
                     </span>
