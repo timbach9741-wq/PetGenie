@@ -564,8 +564,10 @@
     "send": "Send",
     "input_placeholder": "Type your message (e.g. Can my dog eat apples?)",
     "error": "An error occurred while fetching the response. Please try again.",
-    "suggestion_diet": "[TODO] 적절한 사료 양은 어떻게 되나요?",
-    "suggestion_health": "[TODO] 요즘 눈곱이 많이 껴요.",
-    "suggestion_behavior": "[TODO] 갑자기 발을 계속 핥아요."
+    "suggestion_diet": "How much food should I feed my dog?",
+    "suggestion_health": "My pet has excessive eye discharge.",
+    "suggestion_behavior": "My dog keeps licking its paws.",
+    "thinking": "Preparing my answer...",
+    "disclaimer": "AI Vet responses are for reference only and cannot replace a professional diagnosis."
   }
 }

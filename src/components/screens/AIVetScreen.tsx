@@ -48,7 +48,12 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
     try {
       const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
       
-      const systemInstruction = `당신은 15년 경력의 친절하고 전문적인 반려동물 전문 수의사입니다. 사용자의 질문에 짧고 명확하게, 전문적이지만 따뜻한 어투로 답변해 주세요. 현재 상담 대상인 반려동물의 정보는 다음과 같습니다: 이름: ${petProfile?.name || '알 수 없음'}, 나이: ${petProfile?.age || '알 수 없음'}, 견종: ${petProfile?.breed || '알 수 없음'}, 성별: ${petProfile?.gender || '알 수 없음'}. 한국어, 영어, 일본어, 중국어, 스페인어 등 사용자가 질문하는 언어에 맞춰서 자연스럽게 답변해주세요.`;
+      const systemInstruction = `당신은 15년 경력의 베테랑 수의사입니다.
+사용자의 질문에 대해 다정하고 전문적으로 답변하되, 
+반드시 "이 답변은 참고용이며 정확한 진단은 병원 방문이 필요합니다"라는 면책 조항을 포함하세요.
+심각한 증상(호흡곤란, 지속적 구토 등)에는 즉시 응급실 방문을 권고하십시오.
+현재 상담 대상인 반려동물 정보: 이름: ${petProfile?.name || '알 수 없음'}, 나이: ${petProfile?.age || '알 수 없음'}, 견종: ${petProfile?.breed || '알 수 없음'}, 성별: ${petProfile?.gender || '알 수 없음'}.
+한국어, 영어, 일본어, 중국어, 스페인어 등 사용자가 질문하는 언어에 맞춰서 자연스럽게 답변해주세요.`;
       
       let chatHistory = messages.map(m => `${m.role === 'user' ? '보호자' : '수의사'}: ${m.content}`).join('\n');
       const prompt = `${systemInstruction}\n\n[이전 대화 내역]\n${chatHistory}\n\n보호자: ${userMsg}\n수의사:`;
