@@ -573,5 +573,8 @@
   },
   "nav_ai_vet": "AI 수의사",
   "ai_vet_welcome": "안녕하세요! AI 수의사입니다. 오늘 아이의 상태는 어떤가요?",
-  "ai_vet_disclaimer": "이 분석은 참고용이며, 정확한 진단은 수의사 방문이 필요합니다."
+  "ai_vet_disclaimer": "이 분석은 참고용이며, 정확한 진단은 수의사 방문이 필요합니다.",
+  "breed_retriever": "리트리버 계열",
+  "breed_spitz": "스피츠 계열",
+  "breed_others": "기타 믹스"
 }

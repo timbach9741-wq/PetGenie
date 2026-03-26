@@ -573,5 +573,8 @@
   },
   "nav_ai_vet": "AI兽医",
   "ai_vet_welcome": "你好！我是AI兽医。今天你的宠物状况如何？",
-  "ai_vet_disclaimer": "此分析仅供参考，准确诊断请咨询兽医。"
+  "ai_vet_disclaimer": "此分析仅供参考，准确诊断请咨询兽医。",
+  "breed_retriever": "寻回犬系",
+  "breed_spitz": "狐狸犬系",
+  "breed_others": "其他"
 }

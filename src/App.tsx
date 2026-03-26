@@ -399,9 +399,9 @@ CRITICAL RULES:
           "중간 길이의 이중 피모, 금색~크림색 범위 - FCI 표준 색상 범위 내"
         ],
         lineage: [
-          { label: '리트리버 계열 (Retriever Lineage)', value: 72, color: 'bg-[#00FF41]' },
-          { label: '스피츠 계열 (Spitz Lineage)', value: 25, color: 'bg-zinc-500' },
-          { label: '기타 미분류 (Others)', value: 3, color: 'bg-zinc-700' },
+          { label: t('breed_retriever'), value: 72, color: 'bg-[#00FF41]' },
+          { label: t('breed_spitz'), value: 25, color: 'bg-zinc-500' },
+          { label: t('breed_others'), value: 3, color: 'bg-zinc-700' },
         ],
         riskFactors: [
           {

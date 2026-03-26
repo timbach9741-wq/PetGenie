@@ -573,5 +573,8 @@
   },
   "nav_ai_vet": "Veterinario IA",
   "ai_vet_welcome": "¡Hola! Soy tu veterinario IA. ¿Cómo está tu mascota hoy?",
-  "ai_vet_disclaimer": "Este análisis es solo de referencia. Visite un veterinario para un diagnóstico profesional."
+  "ai_vet_disclaimer": "Este análisis es solo de referencia. Visite un veterinario para un diagnóstico profesional.",
+  "breed_retriever": "Linaje Retriever",
+  "breed_spitz": "Linaje Spitz",
+  "breed_others": "Otros"
 }

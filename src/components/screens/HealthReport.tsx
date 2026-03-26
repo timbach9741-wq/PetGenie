@@ -308,9 +308,9 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
           
             <div className="space-y-6">
             {(analysisResult?.lineage || [
-              { label: '리트리버 계열 (Retriever Lineage)', value: 72, color: 'bg-[#00FF41]' },
-              { label: '스피츠 계열 (Spitz Lineage)', value: 25, color: 'bg-zinc-500' },
-              { label: '기타 미분류 (Others)', value: 3, color: 'bg-zinc-700' },
+              { label: t('breed_retriever'), value: 72, color: 'bg-[#00FF41]' },
+              { label: t('breed_spitz'), value: 25, color: 'bg-zinc-500' },
+              { label: t('breed_others'), value: 3, color: 'bg-zinc-700' },
             ]).map((item: any, i: number) => (
               <div key={i} className={cn("space-y-2 relative", !isPremium && i >= 1 && "opacity-30 blur-[3px]")}>
                 <div className="flex justify-between items-center text-[11px] font-bold uppercase tracking-wider">
