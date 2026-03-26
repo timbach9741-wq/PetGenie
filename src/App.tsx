@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { 
   Camera, Heart, LayoutDashboard, ShoppingBag, FileText, Settings, Scan,
@@ -18,26 +18,28 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { GoogleGenAI } from "@google/genai";
-import AIVetScreen from './components/screens/AIVetScreen';
-import OnboardingScreen from './components/screens/OnboardingScreen';
-import PrivacyPolicyScreen from './components/screens/PrivacyPolicyScreen';
-import CameraScreen from './components/screens/CameraScreen';
-import HealthReport from './components/screens/HealthReport';
-import DietGuideScreen from './components/screens/DietGuideScreen';
-import ExercisePlanScreen from './components/screens/ExercisePlanScreen';
-import MembershipScreen from './components/screens/MembershipScreen';
-import CareGuideScreen from './components/screens/CareGuideScreen';
-import HistoryScreen from './components/screens/HistoryScreen';
-import ProfileScreen from './components/screens/ProfileScreen';
-import CircularProgress from './components/common/CircularProgress';
-import LanguageSwitcher from './components/common/LanguageSwitcher';
-import AdBanner from './components/common/AdBanner';
-import StatusBar from './components/common/StatusBar';
-import NavigationBar from './components/common/Navigation';
-import AnalysisLoadingOverlay from './components/common/AnalysisLoadingOverlay';
-import PetDashboard from './components/screens/PetDashboard';
-import { LoginScreen, SignUpScreen } from './components/screens/AuthScreens';
+
+// --- 필수 컴포넌트: 정적 import (렉 방지) ---
 import { SplashScreen } from './components/screens/SplashScreen';
+import CameraScreen from './components/screens/CameraScreen';
+import NavigationBar from './components/common/Navigation';
+import StatusBar from './components/common/StatusBar';
+import AnalysisLoadingOverlay from './components/common/AnalysisLoadingOverlay';
+
+// --- 무거운 화면: Lazy Loading (초기 로드 최적화) ---
+const OnboardingScreen = lazy(() => import('./components/screens/OnboardingScreen'));
+const HealthReport = lazy(() => import('./components/screens/HealthReport'));
+const AIVetScreen = lazy(() => import('./components/screens/AIVetScreen'));
+const PetDashboard = lazy(() => import('./components/screens/PetDashboard'));
+const ProfileScreen = lazy(() => import('./components/screens/ProfileScreen'));
+const MembershipScreen = lazy(() => import('./components/screens/MembershipScreen'));
+const DietGuideScreen = lazy(() => import('./components/screens/DietGuideScreen'));
+const ExercisePlanScreen = lazy(() => import('./components/screens/ExercisePlanScreen'));
+const CareGuideScreen = lazy(() => import('./components/screens/CareGuideScreen'));
+const HistoryScreen = lazy(() => import('./components/screens/HistoryScreen'));
+const PrivacyPolicyScreen = lazy(() => import('./components/screens/PrivacyPolicyScreen'));
+const LoginScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.LoginScreen })));
+const SignUpScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.SignUpScreen })));
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -516,6 +518,11 @@ CRITICAL RULES:
         <StatusBar dark={currentScreen === 'camera' || currentScreen === 'onboarding'} />
         
         <div className="flex-1 relative bg-zinc-50">
+          <Suspense fallback={
+            <div className="absolute inset-0 flex items-center justify-center bg-zinc-50">
+              <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentScreen}
@@ -661,6 +668,7 @@ CRITICAL RULES:
               )}
             </motion.div>
         </AnimatePresence>
+          </Suspense>
       </div>
 
         {!isSubScreen && (
