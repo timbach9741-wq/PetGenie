@@ -6,90 +6,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { 
-  Camera, 
-  Heart, 
-  LayoutDashboard, 
-  ShoppingBag, 
-  FileText, 
-  Settings, 
-  Scan, 
-  ChevronRight, 
-  Activity, 
-  Weight, 
-  Calendar,
-  AlertCircle,
-  CheckCircle2,
-  ArrowLeft,
-  ArrowRight,
-  Search,
-  Plus,
-  MoreVertical,
-  Cross,
-  Battery,
-  Wifi,
-  Signal,
-  Shield,
-  TrendingUp,
-  Utensils,
-  Moon,
-  Clock,
-  Droplets,
-  MapPin,
-  Navigation as NavIcon,
-  Upload,
-  BriefcaseMedical,
-  Eye,
-  Dna,
-  BookOpen,
-  Quote,
-  Lock,
-  History as HistoryIcon,
-  ChevronLeft,
-  User,
-  Star,
-  Bell,
-  Sun,
-  CloudRain,
-  Thermometer,
-  Check,
-  Sparkles,
-  PawPrint,
-  ChevronDown,
-  LogOut,
-  Globe,
-  HelpCircle,
-  Share2
+  Camera, Heart, LayoutDashboard, ShoppingBag, FileText, Settings, Scan,
+  ChevronRight, Activity, Weight, Calendar, AlertCircle, CheckCircle2,
+  ArrowLeft, ArrowRight, Search, Plus, MoreVertical, Battery, Wifi, Signal,
+  Shield, TrendingUp, Utensils, Moon, Clock, Droplets, MapPin,
+  Navigation as NavIcon, Upload, BriefcaseMedical, Eye, Dna, BookOpen,
+  Quote, Lock, History as HistoryIcon, ChevronLeft, User, Star, Bell, Sun,
+  CloudRain, Thermometer, Check, Sparkles, PawPrint, ChevronDown, LogOut,
+  Globe, HelpCircle, Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { GoogleGenAI } from "@google/genai";
 import AIVetScreen from './components/screens/AIVetScreen';
-
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-// --- Types ---
-type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet';
-
-// --- Pet Profile Type ---
-interface PetProfile {
-  name: string;
-  breed: string;
-  age: string;
-  gender: 'male' | 'female' | '';
-  weight: string;
-}
-
-// --- Daily Care Item ---
-interface CareItem {
-  id: string;
-  label: string;
-  icon: any;
-  completed: boolean;
-}
-
-// --- Mock Data ---
-
-// --- Extracted Screen Components ---
 import OnboardingScreen from './components/screens/OnboardingScreen';
 import PrivacyPolicyScreen from './components/screens/PrivacyPolicyScreen';
 import CameraScreen from './components/screens/CameraScreen';
@@ -100,19 +29,35 @@ import MembershipScreen from './components/screens/MembershipScreen';
 import CareGuideScreen from './components/screens/CareGuideScreen';
 import HistoryScreen from './components/screens/HistoryScreen';
 import ProfileScreen from './components/screens/ProfileScreen';
-
-// --- Extracted Common Components ---
 import CircularProgress from './components/common/CircularProgress';
 import LanguageSwitcher from './components/common/LanguageSwitcher';
 import AdBanner from './components/common/AdBanner';
 import StatusBar from './components/common/StatusBar';
-import Navigation from './components/common/Navigation';
+import NavigationBar from './components/common/Navigation';
 import AnalysisLoadingOverlay from './components/common/AnalysisLoadingOverlay';
-import AIVetScreen from './components/screens/AIVetScreen';
 import PetDashboard from './components/screens/PetDashboard';
 import { LoginScreen, SignUpScreen } from './components/screens/AuthScreens';
 import { SplashScreen } from './components/screens/SplashScreen';
 
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+// --- Types ---
+type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet';
+interface PetProfile {
+  name: string;
+  breed: string;
+  age: string;
+  gender: 'male' | 'female' | '';
+  weight: string;
+}
+interface CareItem {
+  id: string;
+  label: string;
+  icon: any;
+  completed: boolean;
+}
+
+// --- Mock Data ---
 const MOCK_PET = {
   name: "루나",
   type: "골든 리트리버",
@@ -130,7 +75,6 @@ const MOCK_PET = {
     "정기적인 고관절 체크"
   ]
 };
-
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -720,7 +664,7 @@ CRITICAL RULES:
       </div>
 
         {!isSubScreen && (
-          <Navigation current={currentScreen} onNavigate={handleTabNavigate} />
+          <NavigationBar current={currentScreen} onNavigate={handleTabNavigate} />
         )}
       </div>
     </div>
