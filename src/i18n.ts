@@ -19,7 +19,7 @@ i18n
       'zh-TW': { translation: zhTW },
       es: { translation: es }
     },
-    lng: 'ko',
+    lng: 'en',
     fallbackLng: 'ko',
     debug: import.meta.env.DEV,
     detection: {
