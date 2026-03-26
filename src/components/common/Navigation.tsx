@@ -1,5 +1,5 @@
 import { useTranslation, Trans } from 'react-i18next';
-import { Camera, LayoutDashboard, User, Navigation as NavIcon } from 'lucide-react';
+import { Camera, LayoutDashboard, User, History as HistoryIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import type { Screen } from '../../types';
