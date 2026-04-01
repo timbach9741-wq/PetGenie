@@ -35,7 +35,7 @@ const ProfileScreen = ({
 
   if (!isLoggedIn) {
     return (
-      <div className="h-full bg-zinc-50 flex flex-col items-center justify-center p-8 text-center" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="h-full bg-zinc-50 flex flex-col items-center justify-center p-8 text-center pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
         <div className="w-24 h-24 rounded-full bg-zinc-100 flex items-center justify-center mb-6">
           <User className="w-12 h-12 text-zinc-300" />
         </div>
@@ -49,8 +49,8 @@ const ProfileScreen = ({
   }
 
   return (
-    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
-      <header className="bg-white px-6 pb-6 border-b border-zinc-100" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+      <header className="bg-white px-6 pb-6 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+16px)]">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-bold text-zinc-900">{t('profile.title')}</h1>
           {!isEditing ? (
@@ -90,20 +90,20 @@ const ProfileScreen = ({
             <div className="space-y-4">
               <div>
                 <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">{t('profile.pet_name')}</label>
-                <input value={editProfile.name} onChange={(e) => setEditProfile({...editProfile, name: e.target.value})} className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
+                <input title={t('profile.pet_name')} placeholder={t('profile.pet_name')} value={editProfile.name} onChange={(e) => setEditProfile({...editProfile, name: e.target.value})} className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">{t('profile.pet_age')}</label>
                   <div className="flex items-center gap-2">
-                    <input value={editProfile.age} onChange={(e) => setEditProfile({...editProfile, age: e.target.value})} type="number" className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
+                    <input title={t('profile.pet_age')} placeholder={t('profile.pet_age')} value={editProfile.age} onChange={(e) => setEditProfile({...editProfile, age: e.target.value})} type="number" className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
                     <span className="text-xs text-zinc-400 shrink-0">{t('profile.age_unit')}</span>
                   </div>
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">{t('profile.pet_weight')}</label>
                   <div className="flex items-center gap-2">
-                    <input value={editProfile.weight} onChange={(e) => setEditProfile({...editProfile, weight: e.target.value})} type="number" step="0.1" className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
+                    <input title={t('profile.pet_weight')} placeholder={t('profile.pet_weight')} value={editProfile.weight} onChange={(e) => setEditProfile({...editProfile, weight: e.target.value})} type="number" step="0.1" className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
                     <span className="text-xs text-zinc-400 shrink-0">{t('profile.weight_unit')}</span>
                   </div>
                 </div>
@@ -123,7 +123,7 @@ const ProfileScreen = ({
               </div>
               <div>
                 <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1 block">{t('profile.pet_breed')}</label>
-                <input value={editProfile.breed} onChange={(e) => setEditProfile({...editProfile, breed: e.target.value})} className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
+                <input title={t('profile.pet_breed')} placeholder={t('profile.pet_breed')} value={editProfile.breed} onChange={(e) => setEditProfile({...editProfile, breed: e.target.value})} className="w-full bg-zinc-50 rounded-xl px-4 py-3 text-sm border border-zinc-200 focus:border-emerald-500 focus:outline-none" />
               </div>
             </div>
           ) : (

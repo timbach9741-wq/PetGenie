@@ -128,11 +128,12 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
     <div className="h-full bg-zinc-950 text-white flex flex-col overflow-hidden">
       {/* ===== 헤더 ===== */}
       <header
-        className="shrink-0 bg-zinc-900/80 backdrop-blur-xl border-b border-white/5 px-5 flex items-center gap-3"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)', paddingBottom: '12px' }}
+        className="shrink-0 bg-zinc-900/80 backdrop-blur-xl border-b border-white/5 px-5 flex items-center gap-3 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-3"
       >
         <button
           onClick={onBack}
+          title="뒤로가기"
+          aria-label="뒤로가기"
           className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -255,9 +256,11 @@ function DashboardTab({ stats }: { stats: AppStats }) {
           <span className="text-2xl font-black text-emerald-400">{stats.dailyActiveUsers}</span>
         </div>
         <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000"
-            style={{ width: `${(stats.dailyActiveUsers / stats.totalUsers) * 100}%` }}
+          <motion.div
+            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${(stats.dailyActiveUsers / stats.totalUsers) * 100}%` }}
+            transition={{ duration: 1 }}
           />
         </div>
         <p className="text-[10px] text-zinc-500 mt-2">
@@ -277,9 +280,14 @@ function DashboardTab({ stats }: { stats: AppStats }) {
             return (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
                 <span className="text-[9px] font-bold text-emerald-400">{day.count}</span>
-                <div className="w-full bg-zinc-800 rounded-xl relative overflow-hidden" style={{ height: `${height}%`, minHeight: 4 }}>
+                <motion.div 
+                  className="w-full bg-zinc-800 rounded-xl relative overflow-hidden min-h-[4px]" 
+                  initial={{ height: 0 }}
+                  animate={{ height: `${height}%` }}
+                  transition={{ duration: 0.8, delay: i * 0.1 }}
+                >
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded-xl" />
-                </div>
+                </motion.div>
                 <span className="text-[8px] text-zinc-600 font-bold">{day.date}</span>
               </div>
             );
@@ -324,13 +332,17 @@ function DashboardTab({ stats }: { stats: AppStats }) {
           <Crown className="w-4 h-4" /> 멤버십 분포
         </h3>
         <div className="flex items-center gap-1 h-4 rounded-full overflow-hidden mb-4 bg-zinc-800">
-          <div
-            className="h-full bg-zinc-500 transition-all duration-1000"
-            style={{ width: `${(stats.freeUsers / stats.totalUsers) * 100}%` }}
+          <motion.div
+            className="h-full bg-zinc-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${(stats.freeUsers / stats.totalUsers) * 100}%` }}
+            transition={{ duration: 1 }}
           />
-          <div
-            className="h-full bg-emerald-500 transition-all duration-1000"
-            style={{ width: `${(stats.premiumUsers / stats.totalUsers) * 100}%` }}
+          <motion.div
+            className="h-full bg-emerald-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${(stats.premiumUsers / stats.totalUsers) * 100}%` }}
+            transition={{ duration: 1 }}
           />
         </div>
         <div className="grid grid-cols-3 gap-3">
