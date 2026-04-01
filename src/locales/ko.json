@@ -48,8 +48,14 @@
     "cancel": "취소",
     "confirm": "확인",
     "error": "오류가 발생했습니다.",
+    "select_language": "언어 선택",
     "no_data": "데이터가 없습니다.",
     "remove_ads": "광고 제거",
+    "sponsored": "스폰서드",
+    "admob_interstitial": "애드몹 전면 광고",
+    "google_adsense": "구글 애드센스",
+    "full_screen_ad": "전면 광고 영역",
+    "close_ad_and_view": "광고 닫기 및 결과 보기",
     "ad_area": "맞춤형 광고 영역"
   },
   "auth": {
@@ -80,7 +86,7 @@
     "history": "히스토리",
     "market": "마켓",
     "profile": "프로필",
-    "ai_vet": "AI수의사"
+    "ai_vet": "AI 수의사"
   },
   "onboarding": {
     "skip": "건너뛰기",
@@ -225,7 +231,7 @@
     "premium_only_desc_part2": "상세 유전 질환 24종",
     "premium_only_desc_part3": "혈통 분석 데이터",
     "upgrade_membership": "멤버십 업그레이드",
-    "start_premium": "🔓 Premium 시작하기 — .99/월",
+    "start_premium": "Premium 시작하기 — $4.99/월",
     "cancel_anytime": "언제든지 해지 가능 · 7일 무료 체험",
     "identification_basis": "품종 식별 근거",
     "source_label": "출처",
@@ -238,7 +244,22 @@
     "premium_desc_connector": "및",
     "premium_desc_suffix": "입니다.",
     "default_disclaimer": "이 분석은 AI 시각 평가와 공개된 수의학 연구를 기반으로 합니다. 전문 수의사의 진단을 대체하지 않습니다.",
-    "references_title": "참고 자료 References"
+    "references_title": "참고 자료 References",
+    "view_all_mix": "전체 유전 믹스 보기",
+    "premium_title": "정밀 유전 분석 리포트",
+    "premium_desc": "프리미엄 회원만 확인 가능한 상세 유전 질환 24종 및 혈통 분석 데이터입니다.",
+    "upgrade_btn": "멤버십 업그레이드",
+    "references": "참고 자료 References",
+    "source": "출처",
+    "health_risks": "건강 리스크 & 특성",
+    "key_traits": "주요 특징",
+    "vulnerability": "취약성",
+    "care_guide": "반려견 케어 가이드",
+    "nutrition": "영양 관리",
+    "behavior": "행동 분석",
+    "ai_analysis": "AI 심층 분석",
+    "medical_history": "의료 소견 파악",
+    "check_profile": "자세히 보기"
   },
   "hospital": {
     "search_placeholder": "지역 또는 병원명 검색",
@@ -329,7 +350,10 @@
     "best_value": "BEST",
     "benefit4": "24/7 AI 수의사",
     "benefit4_free": "이용 불가",
-    "benefit4_premium": "무제한 상담"
+    "benefit4_premium": "무제한 상담",
+    "benefit5": "프리미엄 펫 상점",
+    "benefit5_free": "일반 상점",
+    "benefit5_premium": "멤버십 전용 마켓"
   },
   "analysis": {
     "detail_title": "정밀 유전 분석 리포트",
@@ -560,7 +584,7 @@
     "fallback_careguide_joint_desc": "콘드로이친, 글루코사민, 오메가-3 보충이 관절 건강에 도움됩니다. (NRC 2006 기준)"
   },
   "ai_vet": {
-    "title": "24시간 AI 수의사 상담",
+    "title": "AI 수의사",
     "welcome_msg": "안녕하세요! 반려동물의 건강 관리를 돕는 15년 경력의 AI 수의사입니다. 우리 아이의 건강에 대해 궁금한 점이나 이상 증상이 있다면 무엇이든 편하게 편안하게 물어보세요.",
     "send": "전송",
     "input_placeholder": "증상이나 궁금한 점을 입력하세요...",
@@ -569,12 +593,18 @@
     "suggestion_health": "요즘 눈곱이 많이 껴요.",
     "suggestion_behavior": "갑자기 발을 계속 핥아요.",
     "thinking": "답변을 작성하고 있어요...",
-    "disclaimer": "AI 수의사의 답변은 참고용이며, 정확한 진단을 대체할 수 없습니다."
+    "disclaimer": "AI 수의사의 답변은 참고용이며, 정확한 진단을 대체할 수 없습니다.",
+    "subtitle": "신뢰할 수 있는 전담 주치의 가이드"
   },
   "nav_ai_vet": "AI 수의사",
-  "ai_vet_welcome": "안녕하세요! AI 수의사입니다. 오늘 아이의 상태는 어떤가요?",
+  "ai_vet_welcome": "안녕하세요! 수의사 실버맨입니다. 오늘 아이에게 어떤 도움이 필요하신가요?",
   "ai_vet_disclaimer": "이 분석은 참고용이며, 정확한 진단은 수의사 방문이 필요합니다.",
   "breed_retriever": "리트리버 계열",
   "breed_spitz": "스피츠 계열",
-  "breed_others": "기타 믹스"
+  "breed_others": "기타 믹스",
+  "persona": {
+    "name": "AI 수의사",
+    "role": "전담 수의사 주치의",
+    "greeting": "안녕하세요! 반려동물의 건강을 책임지는 실버맨입니다."
+  }
 }

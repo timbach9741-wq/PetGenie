@@ -1,16 +1,9 @@
-import { useTranslation, Trans } from 'react-i18next';
-import { ShoppingBag, FileText, Scan, ArrowLeft, Shield, MapPin } from 'lucide-react';
-
+import { useTranslation } from 'react-i18next';
+import { ArrowLeft, Check, Sparkles, Video, FileText, Scan, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const MembershipScreen = ({ onBack, onUpgrade }: { onBack: () => void, onUpgrade: () => void }) => {
   const { t } = useTranslation();
-  const benefits = [
-    { title: t('membership.benefit1'), free: t('membership.benefit1_free'), premium: t('membership.benefit1_premium'), icon: Scan },
-    { title: t('membership.benefit2'), free: t('membership.benefit2_free'), premium: t('membership.benefit2_premium'), icon: FileText },
-    { icon: MapPin, title: t('membership.benefit3'), free: t('membership.benefit3_free'), premium: t('membership.benefit3_premium') },
-    { icon: Shield, title: t('membership.benefit4'), free: t('membership.benefit4_free'), premium: t('membership.benefit4_premium') },
-    { icon: ShoppingBag, title: t('membership.benefit5'), free: t('membership.benefit5_free'), premium: t('membership.benefit5_premium') },
-  ];
 
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-32">
@@ -18,60 +11,127 @@ const MembershipScreen = ({ onBack, onUpgrade }: { onBack: () => void, onUpgrade
         <button onClick={onBack} className="p-2 -ml-2 text-zinc-900 hover:bg-zinc-100 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-sm font-bold text-zinc-900 uppercase tracking-widest">{t('membership.title')}</h1>
+        <h1 className="text-sm font-bold text-zinc-900 uppercase tracking-widest">{t('membership.title', '멤버십 안내')}</h1>
         <div className="w-9" />
       </header>
 
       <div className="p-6 space-y-8">
         <div className="text-center space-y-2">
-          <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">{t('membership.hero_title')}</h2>
-          <p className="text-zinc-500 text-sm">{t('membership.hero_desc')}</p>
+          <h2 className="text-3xl font-bold text-zinc-900 tracking-tight">{t('membership.hero_title', '반려동물을 위한 최고의 선택')}</h2>
+          <p className="text-zinc-500 text-sm leading-relaxed">{t('membership.hero_desc', '나에게 딱 맞는 플랜을 선택하고 스마트한 건강 관리를 시작하세요.')}</p>
         </div>
 
-        {/* Membership Guide Text */}
-        <div className="bg-white rounded-3xl p-6 border border-zinc-100 shadow-sm space-y-4">
-          <h3 className="text-sm font-bold text-zinc-900 uppercase tracking-wider border-l-4 border-emerald-500 pl-3">{t('membership.guide_title')}</h3>
-          <p className="text-xs text-zinc-500 leading-relaxed font-medium">
-            <Trans i18nKey="membership.guide_desc">
-              일반 회원은 기본적인 건강 스캔과 병원 검색(각 총 3회) 및 기본 요약 리포트를 이용하실 수 있습니다. 마켓과 보험 서비스 또한 일반형으로 제공됩니다.
-              반면, <span className="text-emerald-600 font-bold">프리미엄 멤버십</span>은 AI 정밀 분석, 무제한 스캔/검색, 그리고 멤버십 전용 마켓/보험 혜택 등 반려동물을 위한 모든 프리미엄 권한을 제공합니다.
-            </Trans>
-          </p>
-        </div>
-
-        <div className="bg-white rounded-[2.5rem] border border-zinc-100 shadow-sm overflow-hidden">
-          <div className="grid grid-cols-3 bg-zinc-50 border-b border-zinc-100">
-            <div className="p-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{t('membership.table_service')}</div>
-            <div className="p-4 text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center">{t('membership.table_free')}</div>
-            <div className="p-4 text-[10px] font-bold text-emerald-600 uppercase tracking-widest text-center">{t('membership.table_premium')}</div>
+        {/* 6월까지 무료 프로모션 배너 (이전 요구사항 유지) */}
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-emerald-600" />
           </div>
-          <div className="divide-y divide-zinc-50">
-            {benefits.map((b, i) => (
-              <div key={i} className="grid grid-cols-3 items-center">
-                <div className="p-4 flex items-center gap-2">
-                  <b.icon className="w-3 h-3 text-zinc-400" />
-                  <span className="text-[11px] font-bold text-zinc-700">{b.title}</span>
-                </div>
-                <div className="p-4 text-[11px] text-zinc-400 text-center font-medium">{b.free}</div>
-                <div className="p-4 text-[11px] text-emerald-600 text-center font-bold">{b.premium}</div>
+          <div>
+            <p className="text-emerald-800 font-bold text-sm tracking-tight">런칭 기념 사전 혜택</p>
+            <p className="text-emerald-600 text-[11px] font-medium mt-0.5">6월 전까지는 Pro 플랜 기능 전체가 일시 무료 개방됩니다!</p>
+          </div>
+        </div>
+
+        {/* Pricing Cards */}
+        <div className="space-y-4">
+          
+          {/* 1. Basic (Free) */}
+          <div className="bg-white rounded-[2rem] p-6 border border-zinc-100 shadow-sm relative overflow-hidden">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-zinc-900">Basic <span className="text-zinc-400 font-medium text-sm ml-1">(Free)</span></h3>
+              <p className="text-zinc-500 text-xs mt-1">체험해보기 좋은 기본 서비스</p>
+            </div>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-3xl font-black tracking-tighter">$0</span>
+            </div>
+            <div className="space-y-3 mb-6">
+              <div className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
+                <span className="text-sm text-zinc-600 font-medium">일일 상담 3회 (광고 시청 필수)</span>
               </div>
-            ))}
+              <div className="flex items-start gap-2">
+                <Video className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
+                <span className="text-sm text-zinc-600 font-medium">스캔 시 게이트키퍼 팝업 광고 진행</span>
+              </div>
+            </div>
+            <button className="w-full bg-zinc-100 text-zinc-500 py-3.5 rounded-xl font-bold text-sm shadow-sm">
+              현재 사용 중
+            </button>
           </div>
+
+          {/* 2. Silverman Pro */}
+          <div className="bg-zinc-900 rounded-[2rem] p-6 border border-zinc-800 shadow-2xl relative overflow-hidden ring-4 ring-emerald-500/20">
+            {/* Tag */}
+            <div className="absolute top-0 right-6 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-b-xl tracking-wider uppercase">
+              Best Value
+            </div>
+            
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">Silverman Pro <Sparkles className="w-4 h-4 text-emerald-400" /></h3>
+              <p className="text-zinc-400 text-xs mt-1">가장 안정적이고 강력한 멤버십 혜택</p>
+            </div>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-4xl font-black tracking-tighter text-white">₩13,000 <span className="text-xl">($9.99)</span></span>
+              <span className="text-zinc-500 text-sm font-bold uppercase tracking-widest">/ 월</span>
+            </div>
+            <div className="space-y-4 mb-8">
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <Check className="w-3 h-3 text-emerald-400" />
+                </div>
+                <span className="text-sm text-zinc-300 font-medium leading-tight pt-0.5">모든 광고 제거</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <Check className="w-3 h-3 text-emerald-400" />
+                </div>
+                <span className="text-sm text-zinc-300 font-medium leading-tight pt-0.5">수의사 무제한 상담</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <Check className="w-3 h-3 text-emerald-400" />
+                </div>
+                <span className="text-sm text-zinc-300 font-medium leading-tight pt-0.5">건강 분석 리포트 무제한 저장</span>
+              </div>
+            </div>
+            <button 
+              disabled
+              className="w-full bg-zinc-800 text-zinc-500 py-4 rounded-xl font-bold text-sm shadow-xl transition-all cursor-not-allowed"
+            >
+              6월 출시 예정 (Coming Soon)
+            </button>
+          </div>
+
+          {/* 3. Single Deep Scan */}
+          <div className="bg-white rounded-[2rem] p-6 border border-zinc-200 shadow-lg relative overflow-hidden">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-zinc-900">Single Deep Scan</h3>
+              <p className="text-zinc-500 text-xs mt-1">구독이 부담스러울 때, 맞춤형 1회 분석</p>
+            </div>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-3xl font-black tracking-tighter">₩2,500 <span className="text-xl">($1.99)</span></span>
+              <span className="text-zinc-400 text-sm font-bold uppercase tracking-widest">/ 회</span>
+            </div>
+            <div className="space-y-3 mb-6">
+              <div className="flex items-start gap-2">
+                <Zap className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0 fill-emerald-500/20" />
+                <span className="text-sm text-zinc-600 font-medium">광고 없이 딱 한 번만 정밀 분석</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <FileText className="w-4 h-4 text-zinc-400 mt-0.5 shrink-0" />
+                <span className="text-sm text-zinc-600 font-medium">분석 결과 즉시 확인 및 1회성 열람</span>
+              </div>
+            </div>
+            <button 
+              disabled
+              className="w-full bg-zinc-100 text-zinc-400 py-3.5 rounded-xl font-bold text-sm transition-all cursor-not-allowed"
+            >
+              6월 출시 예정 (Coming Soon)
+            </button>
+          </div>
+
         </div>
 
-        <div className="bg-emerald-600 rounded-[2rem] p-8 text-white text-center shadow-xl shadow-emerald-900/20">
-          <p className="text-emerald-100 text-xs font-bold uppercase tracking-widest mb-2">{t('membership.price_label')}</p>
-          <div className="flex items-baseline justify-center gap-1 mb-6">
-            <span className="text-4xl font-bold">{t('membership.price_value')}</span>
-            <span className="text-emerald-200 text-sm">/ mo</span>
-          </div>
-          <button 
-            onClick={onUpgrade}
-            className="w-full bg-white text-emerald-700 py-4 rounded-2xl font-bold shadow-lg active:scale-[0.98] transition-all"
-          >
-            {t('membership.subscribe_button')}
-          </button>
-        </div>
       </div>
     </div>
   );

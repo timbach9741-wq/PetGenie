@@ -1,0 +1,92 @@
+﻿
+> react-example@0.0.0 build
+> vite build
+
+[36mvite v6.4.1 [32mbuilding for production...[36m[39m
+transforming...
+[32m??[39m 1788 modules transformed.
+node.exe : [31m??[39m Build 
+failed in 5.47s
+위치 줄:1 문자:1
++ & "C:\Program Files\nodejs/
+node.exe" "C:\Program Files\n
+odejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: ([31m??  
+  [39m Build failed in 5.4   
+ 7s:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+[31merror during build:
+[31m[vite:esbuild] Transform
+ failed with 1 error:
+C:/Users/Tim/Desktop/媛뺤븘吏 ??
+媛뺤븘吏-?ㅼ펲 (1)/src/components/
+common/LanguageSwitcher.tsx:1
+0:50: ERROR: Expected ":" but
+ found "', short: '"[31m
+file: [36mC:/Users/Tim/Deskt
+op/媛뺤븘吏 ??媛뺤븘吏-?ㅼ펲 (1)/src/
+components/common/LanguageSwi
+tcher.tsx:10:50[31m
+[33m
+[33mExpected ":" but found "
+', short: '"[33m
+8  |  // --- Language Switche
+r (4 Languages) ---
+9  |  const LANGUAGES = [
+10 |    { code: 'ko', label: 
+'??볥럢??, flag: '?????, short:
+ 'KO' },
+   |                         
+                           ^
+11 |    { code: 'en', label: 
+'English', flag: '?????, shor
+t: 'EN' },
+12 |    { code: 'ja', label: 
+'?瓘?띷쾬?, flag: '?????, short:
+ 'JA' },
+[31m
+    at failureErrorWithLog (C
+:\Users\Tim\Desktop\媛뺤븘吏 ??媛
+뺤븘吏-?ㅼ펲 (1)\node_modules\vit
+e\node_modules\esbuild\lib\ma
+in.js:1467:15)
+    at C:\Users\Tim\Desktop\媛
+뺤븘吏 ??媛뺤븘吏-?ㅼ펲 (1)\node_mod
+ules\vite\node_modules\esbuil
+d\lib\main.js:736:50
+    at responseCallbacks.<com
+puted> (C:\Users\Tim\Desktop\
+媛뺤븘吏 ??媛뺤븘吏-?ㅼ펲 (1)\node_mo
+dules\vite\node_modules\esbui
+ld\lib\main.js:603:9)
+    at handleIncomingPacket (
+C:\Users\Tim\Desktop\媛뺤븘吏 ??
+媛뺤븘吏-?ㅼ펲 (1)\node_modules\vi
+te\node_modules\esbuild\lib\m
+ain.js:658:12)
+    at Socket.readFromStdout 
+(C:\Users\Tim\Desktop\媛뺤븘吏 ?
+?媛뺤븘吏-?ㅼ펲 (1)\node_modules\v
+ite\node_modules\esbuild\lib\
+main.js:581:7)
+    at Socket.emit (node:even
+ts:508:28)
+    at addChunk (node:interna
+l/streams/readable:559:12)
+    at readableAddChunkPushBy
+teMode (node:internal/streams
+/readable:510:3)
+    at Readable.push (node:in
+ternal/streams/readable:390:5
+)
+    at Pipe.onStreamRead (nod
+e:internal/stream_base_common
+s:189:23)[39m
+

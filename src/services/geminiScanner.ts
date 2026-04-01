@@ -1,0 +1,244 @@
+import { antigravityEngine } from './antigravityEngine';
+
+export const performPetScan = async (
+  data: { image: string, weight?: number, height?: number },
+  petProfile: any,
+  language: string,
+  apiKey: string,
+  t: any
+) => {
+  if (!apiKey) {
+    throw new Error("API Key is missing");
+  }
+
+  const mimeType = data.image.split(';')[0].split(':')[1] || "image/jpeg";
+  const base64Data = data.image.split(',')[1];
+  
+  if (!base64Data) throw new Error("Invalid base64 data");
+
+  const petContext = `
+    Pet Context (if available):
+    ${data.weight ? `- Weight: ${data.weight}kg` : '- Weight: not provided'}
+    ${data.height ? `- Height: ${data.height}cm` : '- Height: not provided'}
+    ${petProfile.age ? `- Age: ${petProfile.age} years` : ''}
+    ${petProfile.gender ? `- Gender: ${petProfile.gender}` : ''}
+  `;
+
+  const langMap: Record<string, string> = {
+    ko: "Korean",
+    en: "English",
+    ja: "Japanese",
+    "zh-TW": "Traditional Chinese",
+    es: "Spanish"
+  };
+  const responseLang = langMap[language] || "English";
+
+  const noKoreanStr = language === 'ko' ? '' : 'NEVER USE KOREAN. ';
+  
+  const prompt = `REPLY ONLY IN [${responseLang.toUpperCase()}]. NO KOREAN.\nALL BREED AND DISEASE NAMES MUST BE TRANSLATED.
+IDENTITY: You are "AI Vet", a highly advanced Veterinary Genetics Expert AI. Always act and speak as AI Vet. Perform a rigorous, evidence-based visual phenotype analysis of this dog image to identify its breed composition, health risks, and care requirements.
+
+ANALYSIS GUIDELINES:
+1. **Rigorous Breed Identification**: Analyze phenotype strictly based on AKC and FCI breed standards. Evaluate minutely: 
+   - Skull shape and "stop" (muzzle to forehead transition)
+   - Ear shape, set, and carriage (e.g., pricked, drop, rose)
+   - Coat texture, length, coloration, and patterns (e.g., merle, roan, ticking)
+   - Body proportions, chest depth, back length, and tail set.
+2. **Score vs. Purity Distinction (CRITICAL)**: 
+   - \`breedMatch\` (Confidence): Your AI confidence score (0-100) that you have correctly identified the visual breed.
+   - \`primaryPercentage\` (Bloodline/Purity): Your estimate (0-100) of how purebred the dog is based on visual phenotypic purity vs mixing. Purebreds must be 90-100. Mixed breeds must be clearly split.
+3. **Evidence-Based Health Risks**: Reference OFA, CHIC, and UCDavis VGL. State actual known prevalence rates and identify critical risk factors for the primary breed.
+4. **Nutrition & Behavior**: Strictly follow WSAVA Global Nutrition Guidelines 2021 and AVSAB behavior protocols (positive reinforcement only).
+
+${petContext}
+
+Return a valid JSON object with this exact structure (Translate all text values to ${responseLang}, EXCEPT 'color' fields or when noted):
+{
+  "primaryBreed": "품종명 (${responseLang})",
+  "primaryPercentage": number (estimated genetic purity percentage, not confidence),
+  "secondaryBreed": "두 번째 믹스 품종명 (If purebred, use 'N/A')",
+  "secondaryPercentage": number (0 if purebred),
+  "breedMatch": number (0-100, AI visual recognition confidence score),
+  "breedSource": "e.g., AKC 견종 표준 / FCI 그룹 N",
+  "identificationBasis": [
+    "구체적인 외형적 특징과 표준의 일치 여부 (e.g., '넓은 두개골과 완만한 액단이 AKC 골든 리트리버 표준에 정확히 부합함')"
+  ],
+  "lineage": [
+    {"label": "계열명 (e.g., 리트리버 계열)", "value": number, "color": "bg-[#00FF41] or other tailwind color"}
+  ],
+  "riskFactors": [
+    {
+      "name": "질병명",
+      "riskLevel": "high" | "medium" | "low",
+      "prevalence": "발생률 및 통계",
+      "source": "출처",
+      "description": "임상적 설명",
+      "recommendation": "예방 및 관리 권장사항",
+      "careGuides": [
+        {
+          "title": "가이드 제목",
+          "desc": "구체적인 관리 지침",
+          "iconType": "calendar" | "weight" | "activity" | "medical" | "heart" | "eye"
+        }
+      ]
+    }
+  ],
+  "detailedMarkers": [
+    {
+      "label": "유전 마커 이름",
+      "value": number (0-100),
+      "status": "normal" | "carrier" | "caution",
+      "testSource": "참고 데이터베이스"
+    }
+  ],
+  "dietPlan": {
+    "title": "식단 플랜 제목",
+    "source": "WSAVA / NRC",
+    "recommendations": ["영양 조언 (${responseLang})"],
+    "prohibitedFoods": ["위험한 음식 (${responseLang})"],
+    "dailyCalories": "권장 칼로리 범위"
+  },
+  "exercisePlan": {
+    "title": "운동 플랜 제목",
+    "source": "권장 가이드라인",
+    "dailyGoal": "목표 시간",
+    "activities": [{"name": "활동명", "duration": "시간", "intensity": "low" | "medium" | "high"}],
+    "precautions": ["운동 시 주의사항 (${responseLang})"]
+  },
+  "expertInsights": {
+    "expertAdvice": "총평 (${responseLang})",
+    "wsava": "WSAVA 통찰 (${responseLang})",
+    "steveMann": "행동/훈련 조언 (${responseLang})",
+    "sources": ["출처"]
+  },
+  "careGuides": [
+    {
+      "title": "가이드 제목 (${responseLang})",
+      "desc": "관리 지침 (${responseLang})",
+      "iconType": "calendar" | "weight" | "activity" | "medical" | "heart" | "eye",
+      "source": "출처 (${responseLang})"
+    }
+  ],
+  "disclaimer": "This analysis is generated by AI..."
+}
+
+CRITICAL RULES:
+${antigravityEngine.getGlobalPrompt(language.split('-')[0])}
+- Use REAL prevalence data from OFA/CHIC when available for the identified breed
+- Be honest about confidence levels - if breed identification is uncertain, reflect lower breedMatch scores
+- All medical recommendations should align with AAHA preventive care guidelines
+- Include only conditions genuinely associated with the identified breed(s)
+- All text values MUST be in ${responseLang}, but keep source/reference names in English for credibility (unless they have well known translated names)
+- If weight/height data is provided, factor it into calorie calculations and health assessments`;
+
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const body = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: prompt },
+          {
+            inline_data: {
+              mime_type: mimeType,
+              data: base64Data
+            }
+          }
+        ]
+      }
+    ],
+    generationConfig: {
+      responseMimeType: "application/json"
+    }
+  };
+
+  const analysisPromise = fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(res => {
+    if (!res.ok) throw new Error(`API HTTP Error: ${res.status}`);
+    return res.json();
+  });
+
+  const timeoutPromise = new Promise((_, reject) => 
+    setTimeout(() => reject(new Error("Analysis timed out")), 60000)
+  );
+
+  const response = await Promise.race([analysisPromise, timeoutPromise]) as any;
+  const text = response?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+  const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  
+  let result: any = null;
+  try {
+    result = JSON.parse(cleanedText);
+  } catch (parseError) {
+    console.error("JSON Parse failed:", parseError, "Text:", cleanedText);
+    throw new Error("Invalid AI response format");
+  }
+
+  return result;
+};
+
+export const getFallbackResult = (t: any) => ({
+  primaryBreed: "골든 리트리버",
+  primaryPercentage: 70,
+  secondaryBreed: "진돗개",
+  secondaryPercentage: 30,
+  breedMatch: 85,
+  breedSource: "AKC Breed Standard / FCI Group 8 No.111",
+  identificationBasis: [
+    "넓은 두개골과 완만한 스탑 - AKC 골든 리트리버 표준 일치",
+    "귀 위치가 눈 높이에서 시작, 앞으로 당기면 눈을 덮는 길이 - AKC 표준 부합",
+    "중간 길이의 이중 피모, 금색~크림색 범위 - FCI 표준 색상 범위 내"
+  ],
+  lineage: [
+    { label: t('breed_retriever', '리트리버 계열'), value: 72, color: 'bg-[#00FF41]' },
+    { label: t('breed_spitz', '스피츠 계열'), value: 25, color: 'bg-zinc-500' },
+    { label: t('breed_others', '기타'), value: 3, color: 'bg-zinc-700' },
+  ],
+  riskFactors: [
+    {
+      name: "고관절 이형성증",
+      riskLevel: "high",
+      prevalence: "골든 리트리버 중 19.3% 발생 (OFA 2024)",
+      source: "OFA Statistics 2024",
+      description: "골든 리트리버 품종에서 높은 발생률을 보이는 유전성 질환입니다.",
+      recommendation: "AAHA 가이드라인에 따라 12개월 이후 X-ray 검사 권장",
+      careGuides: [
+        { title: "정기적인 고관절 검진", desc: "OFA 권장에 따라 24개월에 공식 고관절 평가를 받으세요.", iconType: "medical" },
+        { title: "체중 관리", desc: "적정 체중 유지 시 고관절 이형성증 발현이 지연됩니다.", iconType: "weight" },
+        { title: "저충격 운동", desc: "수영은 관절에 부담을 주지 않는 최적의 운동입니다.", iconType: "activity" }
+      ]
+    }
+  ],
+  detailedMarkers: [
+    { label: 'MDR1 유전자 변이', value: 98, status: '정상', testSource: 'UCDavis VGL Panel' },
+    { label: '퇴행성 골수염 (DM)', value: 85, status: '정상', testSource: 'UCDavis VGL Panel' },
+    { label: '진행성 망막 위축증 (PRA)', value: 12, status: '주의', testSource: 'OFA/CHIC Recommended Test' },
+  ],
+  dietPlan: {
+    title: "골든 리트리버 식단",
+    source: "WSAVA / NRC 2006",
+    recommendations: ["관절 건강을 위한 오메가-3 보충", "단백질 최소 25% 이상 급여"],
+    prohibitedFoods: ["포도", "초콜릿", "자일리톨"],
+    dailyCalories: "1,200 - 1,500 kcal"
+  },
+  exercisePlan: {
+    title: "데일리 운동 루틴",
+    source: "AKC",
+    dailyGoal: "60분 - 90분",
+    activities: [{ name: "산책", duration: "30분", intensity: "low" }],
+    precautions: ["여름철 열사병 주의"]
+  },
+  expertInsights: {
+    expertAdvice: "골든 리트리버는 지능이 높고 활동량이 많습니다.",
+    wsava: "비만 관리가 필수적입니다.",
+    steveMann: "긍정강화 훈련을 하세요.",
+    sources: ["WSAVA 2021", "OFA 2024"]
+  },
+  careGuides: [
+    { title: "체중 관리", desc: "BCS 4-5/9 유지", iconType: "weight", source: "WSAVA" }
+  ],
+  disclaimer: "AI 기반 참고용 결과입니다."
+});

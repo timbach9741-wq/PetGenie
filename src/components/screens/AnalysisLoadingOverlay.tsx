@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
-import { GoogleGenAI } from "@google/genai";
 import { Screen, PetProfile, CareItem } from '../../types';
 import { CircularProgress, LanguageSwitcher, Navigation, AdBanner, StatusBar } from '../common';
 

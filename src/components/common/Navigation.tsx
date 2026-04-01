@@ -3,10 +3,11 @@ import { Camera, LayoutGrid, User, History as HistoryIcon, HeartPulse } from 'lu
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import type { Screen } from '../../types';
+import vetImage from '../../assets/images/ai-vet-character.png';
 
 const navItems = [
   { id: 'camera', icon: Camera, label: 'nav.scan', isSpecial: false },
-  { id: 'ai-vet', icon: HeartPulse, label: 'nav.ai_vet', isSpecial: true },
+  { id: 'ai-vet', icon: HeartPulse, label: 'nav.ai_vet', isSpecial: true, imgIcon: vetImage },
   { id: 'pet-dashboard', icon: LayoutGrid, label: 'nav.health', isSpecial: false },
   { id: 'history', icon: HistoryIcon, label: 'nav.history', isSpecial: false },
   { id: 'profile', icon: User, label: 'nav.profile', isSpecial: false },
@@ -31,13 +32,25 @@ const Navigation = ({ current, onNavigate }: { current: Screen, onNavigate: (s: 
               : "text-zinc-400 active:text-zinc-600"
           )}
         >
-          <item.icon 
-            className={cn(
-              "w-6 h-6 transition-transform", 
-              current === item.id && "scale-110",
-              item.isSpecial && current !== item.id && "text-rose-400 animate-pulse"
-            )} 
-          />
+          {item.imgIcon ? (
+            <img 
+              src={item.imgIcon} 
+              alt="Avatar" 
+              className={cn(
+                "w-7 h-7 rounded-full object-cover transition-transform shadow-sm",
+                current === item.id && "scale-110 ring-2 ring-rose-500",
+                item.isSpecial && current !== item.id && "animate-pulse"
+              )}
+            />
+          ) : (
+            <item.icon 
+              className={cn(
+                "w-6 h-6 transition-transform", 
+                current === item.id && "scale-110",
+                item.isSpecial && current !== item.id && "text-rose-400 animate-pulse"
+              )} 
+            />
+          )}
           <span className="text-[10px] font-bold uppercase tracking-wider">{t(item.label)}</span>
           {current === item.id && (
             <motion.div 

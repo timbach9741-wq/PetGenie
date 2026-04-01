@@ -2,6 +2,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { Heart, Activity, Weight, Calendar, AlertCircle, ArrowLeft, BriefcaseMedical, Eye } from 'lucide-react';
 import { motion } from 'motion/react';
 import AdBanner from '../common/AdBanner';
+import DrSilvermanHeader from '../common/DrSilvermanHeader';
 
 
 const CareGuideScreen = ({ onBack, careGuides, isPremium, onUpgrade }: { onBack: () => void, careGuides?: any[], isPremium: boolean, onUpgrade: () => void }) => {
@@ -38,6 +39,7 @@ const CareGuideScreen = ({ onBack, careGuides, isPremium, onUpgrade }: { onBack:
         </button>
         <h1 className="text-lg font-bold text-white">{t('care_guide.title')}</h1>
       </header>
+      <DrSilvermanHeader />
 
       <div className="p-6 space-y-8">
         <div className="bg-gradient-to-br from-[#00FF41]/20 to-black rounded-[2.5rem] p-8 border border-[#00FF41]/20">

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { Camera, FileText, Scan, Weight, ArrowLeft, Upload, Dna, Lock, Star, Check, PawPrint } from 'lucide-react';
+import { Camera, FileText, Scan, Weight, ArrowLeft, Upload, Dna, Lock, Star, Check, PawPrint, History as HistoryIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import AdBanner from '../common/AdBanner';
 import LanguageSwitcher from '../common/LanguageSwitcher';
+import logoSrc from '../../assets/pet_genie_logo.png';
 
 
 const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analysisResult, capturedImage }: { onScan: (data: any) => void, onBack: () => void, isLoggedIn: boolean, isPremium?: boolean, scanCount?: number, analysisResult?: any, capturedImage?: string | null }) => {

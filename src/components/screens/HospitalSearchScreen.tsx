@@ -1,8 +1,8 @@
+import { antigravityEngine } from '../../services/antigravityEngine';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Search, MapPin, Heart, Activity, Navigation as NavIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { GoogleGenAI } from "@google/genai";
 import { AdBanner } from '../common';
 
 
@@ -17,8 +17,6 @@ const HospitalSearchScreen = ({ onBack, isPremium, onUpgrade }: { onBack: () => 
     
     setIsLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-      
       // Determine language for search
       const langName = i18n.language.startsWith('ko') ? 'Korean' :
                        i18n.language.startsWith('ja') ? 'Japanese' :
@@ -36,19 +34,27 @@ const HospitalSearchScreen = ({ onBack, isPremium, onUpgrade }: { onBack: () => 
         console.log("Location access denied or timed out");
       }
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `Find animal hospitals or veterinary clinics near ${searchQuery}. ${locationContext}
+      const prompt = `${antigravityEngine.getGlobalPrompt(i18n.language.split('-')[0])}\nFind animal hospitals or veterinary clinics near ${searchQuery}. ${locationContext}
         Return a JSON array of objects with: name, address, distance (estimated), openStatus (use "${t('hospital.status_open')}" for open, "${t('hospital.status_closed')}" for closed), rating, phone, and mapsUri.
         Respond in ${langName}.
-        IMPORTANT: Return ONLY the JSON array.`,
-        config: {
-          tools: [{ googleMaps: {} }],
-          responseMimeType: "application/json"
-        }
-      });
+        IMPORTANT: Return ONLY the JSON array.`;
 
-      const text = response.text || "[]";
+      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`;
+      const body = {
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        tools: [{ google_search: {} }],
+        generationConfig: { responseMimeType: "application/json" }
+      };
+
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      if (!res.ok) throw new Error(`API HTTP Error: ${res.status}`);
+      const data = await res.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
       const results = JSON.parse(text.replace(/```json/g, "").replace(/```/g, "").trim());
       setHospitals(results);
     } catch (error) {

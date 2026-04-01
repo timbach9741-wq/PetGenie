@@ -3,6 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { Check, ChevronDown, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
+import { antigravityEngine } from '../../services/antigravityEngine';
 
 
 // --- Language Switcher (4 Languages) ---
@@ -34,8 +35,7 @@ const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 'pill' 
   }, [showDropdown]);
 
   const selectLang = (code: string) => {
-    i18n.changeLanguage(code);
-    setShowDropdown(false);
+    antigravityEngine.switchLanguage(code);
   };
 
   const buttonStyles = {
@@ -107,3 +107,4 @@ const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 'pill' 
 };
 
 export default LanguageSwitcher;
+

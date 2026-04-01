@@ -7,6 +7,7 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [agreeMarketing, setAgreeMarketing] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,9 +74,27 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
             </div>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="••••••••" required />
           </div>
+          <div className="flex items-start gap-3 pt-2">
+            <input 
+              type="checkbox" 
+              id="marketing-consent-login"
+              checked={agreeMarketing}
+              onChange={(e) => setAgreeMarketing(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
+            />
+            <label htmlFor="marketing-consent-login" className="text-xs text-zinc-400 leading-tight">
+              I agree to receive launch benefits via email
+            </label>
+          </div>
           <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-900/20 transition-all active:scale-[0.98]">
             {t('auth.login_button')}
           </button>
+          <div className="text-center pt-2">
+            <p className="text-[10px] text-zinc-500 leading-relaxed">
+              By continuing, you agree to Pet Genie's <br/>
+              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Terms</a> and <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Privacy Policy</a>
+            </p>
+          </div>
         </form>
 
         <div className="text-center">
@@ -93,6 +112,7 @@ export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreeMarketing, setAgreeMarketing] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,9 +152,27 @@ export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email
             <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{t('auth.password_confirm_label')}</label>
             <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="••••••••" required />
           </div>
+          <div className="flex items-start gap-3 pt-2">
+            <input 
+              type="checkbox" 
+              id="marketing-consent-signup"
+              checked={agreeMarketing}
+              onChange={(e) => setAgreeMarketing(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
+            />
+            <label htmlFor="marketing-consent-signup" className="text-xs text-zinc-400 leading-tight">
+              I agree to receive launch benefits via email
+            </label>
+          </div>
           <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-900/20 transition-all active:scale-[0.98]">
             {t('auth.signup_button')}
           </button>
+          <div className="text-center pt-2">
+            <p className="text-[10px] text-zinc-500 leading-relaxed">
+              By continuing, you agree to Pet Genie's <br/>
+              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Terms</a> and <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Privacy Policy</a>
+            </p>
+          </div>
         </form>
 
         <div className="text-center">

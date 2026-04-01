@@ -9,11 +9,15 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { Screen, PetProfile, CareItem } from '../../types';
 import { CircularProgress, LanguageSwitcher, AdBanner } from '../common';
-
+import { globalTranslate } from '../../utils/translateData';
 
 const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, analysisResult, capturedImage, onLogout, dailyCare, onToggleCare, petProfile }: { onDetail: () => void, onScan: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, scanCount: number, analysisResult?: any, capturedImage?: string | null, onLogout: () => void, dailyCare: CareItem[], onToggleCare: (id: string) => void, petProfile: PetProfile }) => {
   const { t, i18n } = useTranslation();
   const isScanLimitReached = !isPremium && scanCount >= 3;
+
+  const translateBreed = (breedName: string) => {
+    return globalTranslate(breedName, i18n.language);
+  };
 
   // Language switching handled by LanguageSwitcher component
 
@@ -244,7 +248,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
               <div>
                 <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mb-1">{t('dashboard.genetic_title')}</p>
                 <div className="flex items-baseline gap-2">
-                  <h2 className="text-4xl font-bold tracking-tight text-white">{analysisResult?.primaryBreed || t('dashboard.default_breed')}</h2>
+                  <h2 className="text-4xl font-bold tracking-tight text-white">{translateBreed(analysisResult?.primaryBreed) || t('dashboard.default_breed')}</h2>
                   <span className="text-[#00FF41] font-bold text-lg">{analysisResult?.primaryPercentage || 70}%</span>
                 </div>
               </div>

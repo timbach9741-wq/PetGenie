@@ -48,9 +48,15 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "error": "An error occurred.",
+    "select_language": "Select Language",
     "no_data": "No data available.",
     "remove_ads": "Remove Ads",
-    "ad_area": "Custom Ad Area"
+    "sponsored": "Sponsored",
+    "admob_interstitial": "AdMob Interstitial Unit",
+    "google_adsense": "Google AdSense",
+    "full_screen_ad": "Full Screen Ad Area",
+    "close_ad_and_view": "Close Ad & View Results",
+    "ad_area": "Sponsored Ad Area"
   },
   "auth": {
     "login_title": "Login",
@@ -164,8 +170,8 @@
     "weather_cold": "It's cold. Consider dressing your pet warmly.",
     "weather_rain": "Rain forecasted. Indoor play recommended.",
     "breed_analysis": "Breed Analysis",
-    "dashboard_default_breed": "알 수 없음",
-    "scan_limit_msg": "무제한 스캔 및 심층 건강 리포트를 위해 프리미엄으로 업그레이드하세요.",
+    "dashboard_default_breed": "Unknown",
+    "scan_limit_msg": "Upgrade to Premium for unlimited scans and in-depth health reports.",
     "match": "Match",
     "primary_breed": "Primary Breed",
     "secondary_breed": "Secondary Breed",
@@ -225,7 +231,7 @@
     "premium_only_desc_part2": "24 detailed genetic diseases",
     "premium_only_desc_part3": "lineage analysis data",
     "upgrade_membership": "Upgrade Membership",
-    "start_premium": "🔓 Start Premium — .99/mo",
+    "start_premium": "Start Premium — $4.99/mo",
     "cancel_anytime": "Cancel anytime · 7-day free trial",
     "identification_basis": "Identification Basis",
     "source_label": "Source",
@@ -238,7 +244,22 @@
     "premium_desc_connector": "and",
     "premium_desc_suffix": ".",
     "default_disclaimer": "This analysis is based on AI visual assessment and published veterinary research. It does not replace professional veterinary diagnosis.",
-    "references_title": "References"
+    "references_title": "References",
+    "view_all_mix": "View Full Genetic Mix",
+    "premium_title": "Premium Genetic Analysis",
+    "premium_desc": "Exclusive access to 24 detailed genetic diseases and lineage data.",
+    "upgrade_btn": "Upgrade Membership",
+    "references": "References",
+    "source": "Source",
+    "health_risks": "Health Risks & Traits",
+    "key_traits": "Key Traits",
+    "vulnerability": "Vulnerability",
+    "care_guide": "Care Guide",
+    "nutrition": "Nutrition",
+    "behavior": "Behavior",
+    "ai_analysis": "AI Analysis",
+    "medical_history": "Medical Overview",
+    "check_profile": "View Detail"
   },
   "hospital": {
     "search_placeholder": "Search region or hospital name",
@@ -329,7 +350,10 @@
     "best_value": "BEST",
     "benefit4": "24/7 AI Vet",
     "benefit4_free": "Not available",
-    "benefit4_premium": "Unlimited chat"
+    "benefit4_premium": "Unlimited chat",
+    "benefit5": "Premium Pet Market",
+    "benefit5_free": "Standard access",
+    "benefit5_premium": "Exclusive discounts"
   },
   "analysis": {
     "detail_title": "Precision Genetic Analysis Report",
@@ -572,9 +596,14 @@
     "disclaimer": "AI Vet responses are for reference only and cannot replace a professional diagnosis."
   },
   "nav_ai_vet": "AI Vet",
-  "ai_vet_welcome": "Hello! I am your AI Vet. How is your pet doing today?",
+  "ai_vet_welcome": "Hello! I am Vet Silverman. How can I help your dog today?",
   "ai_vet_disclaimer": "This analysis is for reference only. Please visit a vet for a professional diagnosis.",
   "breed_retriever": "Retriever Lineage",
   "breed_spitz": "Spitz Lineage",
-  "breed_others": "Others"
+  "breed_others": "Others",
+  "persona": {
+    "name": "AI Vet",
+    "role": "Dedicated AI Vet",
+    "greeting": "Hello! I am Dr. Silverman, responsible for your pet's health."
+  }
 }

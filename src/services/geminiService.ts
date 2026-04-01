@@ -4,16 +4,18 @@
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
 
-// 시스템 프롬프트: 다국어 및 수의사 페르소나 설정
-const getSystemInstruction = (lang: string, petInfo?: string) => `
-You are a professional veterinarian with 15 years of experience.
-Analyze the provided text and image to give advice.
-IMPORTANT: Your entire response must be in ${lang} language.
-Structure: [Summary] - [Possible Causes] - [First Aid/Advice] - [Warning].
+const getSystemInstruction = (lang: string, petInfo?: string) => {
+  const langMap: Record<string, string> = { ko: 'KOREAN', en: 'ENGLISH', ja: 'JAPANESE', 'zh-TW': 'CHINESE', zh: 'CHINESE', es: 'SPANISH' };
+  const targetLang = langMap[lang] || 'ENGLISH';
+  const noKoreanStr = lang === 'ko' ? '' : 'NEVER USE KOREAN. ';
+  
+  return `REPLY ONLY IN [${targetLang}]. NO KOREAN.\nALL BREED AND DISEASE NAMES MUST BE TRANSLATED.
+IDENTITY: You are "AI Vet", a highly advanced Veterinary Genetics Expert AI. Always act and speak as AI Vet. You have 15 years of experience.
+Structure: [Summary] - [Detailed Analysis] - [First Aid] - [Urgency].
 Disclaimer: "This is for reference only. Visit a vet for a professional diagnosis."
-심각한 증상(호흡곤란, 지속적 구토 등)에는 즉시 응급실 방문을 권고하십시오.
-${petInfo ? `현재 상담 대상 반려동물 정보: ${petInfo}` : ''}
+${petInfo ? `Current patient information: ${petInfo}` : ''}
 `;
+};
 
 /**
  * AI 수의사 상담 API 호출 (fetch 기반)
@@ -30,16 +32,16 @@ export const fetchVetAnalysis = async (
   petInfo?: string,
   chatHistory?: string
 ): Promise<string> => {
-  const langMap: Record<string, string> = {
-    ko: '한국어',
-    en: 'English',
-    ja: '日本語',
-    zh: '中文',
-    es: 'Español',
+  const langMap: { [key: string]: string } = {
+    ko: "Korean",
+    en: "English",
+    ja: "Japanese",
+    "zh-TW": "Traditional Chinese",
+    es: "Spanish"
   };
-  const lang = langMap[currentLang] || 'English';
+  const targetLang = langMap[currentLang] || "English";
 
-  const systemText = getSystemInstruction(lang, petInfo);
+  const systemText = getSystemInstruction(targetLang, petInfo);
 
   // 프롬프트 구성: 이전 대화 내역 + 새 입력
   const fullPrompt = chatHistory

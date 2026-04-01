@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Scan, Dna } from 'lucide-react';
 import { motion } from 'motion/react';
+import logoSrc from '../../assets/pet_genie_logo.png';
 
 export const SplashScreen = () => {
   const { t } = useTranslation();
@@ -27,8 +28,8 @@ export const SplashScreen = () => {
       className="relative w-32 h-32 mb-8"
     >
       <div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl animate-pulse" />
-      <div className="relative w-full h-full bg-white/10 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center border border-white/20 shadow-2xl">
-        <Scan className="w-16 h-16 text-emerald-400" />
+      <div className="relative w-full h-full bg-white/10 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center border border-white/20 shadow-2xl p-2">
+        <img src={logoSrc} alt="Pet Genie Logo" className="w-full h-full rounded-[2rem] object-cover" />
       </div>
     </motion.div>
 

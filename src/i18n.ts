@@ -19,8 +19,8 @@ i18n
       'zh-TW': { translation: zhTW },
       es: { translation: es }
     },
-    lng: 'en',
-    fallbackLng: 'ko',
+    lng: localStorage.getItem('user-language') || 'ko', // 저장된 언어 강제 로드
+    fallbackLng: 'en', // 키가 없으면 무조건 영어로 나오게 설정
     debug: import.meta.env.DEV,
     detection: {
       order: ['localStorage', 'navigator'],

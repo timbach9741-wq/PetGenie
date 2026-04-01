@@ -80,7 +80,7 @@
     "history": "Historial",
     "market": "Tienda",
     "profile": "Perfil",
-    "ai_vet": "Veterinario IA"
+    "ai_vet": "Veterinario AI"
   },
   "onboarding": {
     "skip": "Omitir",
@@ -164,8 +164,8 @@
     "weather_cold": "Hace frío. Considera abrigar a tu mascota.",
     "weather_rain": "Se pronostica lluvia. Se recomienda jugar en interior.",
     "breed_analysis": "Análisis de raza",
-    "dashboard_default_breed": "알 수 없음",
-    "scan_limit_msg": "무제한 스캔 및 심층 건강 리포트를 위해 프리미엄으로 업그레이드하세요.",
+    "dashboard_default_breed": "Desconocido",
+    "scan_limit_msg": "Actualiza a Premium para escaneos ilimitados e informes de salud detallados.",
     "match": "Coincidencia",
     "primary_breed": "Raza principal",
     "secondary_breed": "Raza secundaria",
@@ -225,7 +225,7 @@
     "premium_only_desc_part2": "24 enfermedades genéticas detalladas",
     "premium_only_desc_part3": "datos de análisis de linaje",
     "upgrade_membership": "Mejorar Membresía",
-    "start_premium": "🔓 Iniciar Premium — .99/mes",
+    "start_premium": "Iniciar Premium — $4.99/mes",
     "cancel_anytime": "Cancela en cualquier momento · 7 días gratis",
     "identification_basis": "Base de identificación",
     "source_label": "Fuente",
@@ -238,7 +238,22 @@
     "premium_desc_connector": "y",
     "premium_desc_suffix": ".",
     "default_disclaimer": "Este análisis se basa en la evaluación visual de IA. No reemplaza el diagnóstico veterinario profesional.",
-    "references_title": "Referencias"
+    "references_title": "Referencias",
+    "view_all_mix": "Ver toda la mezcla genética",
+    "premium_title": "Informe de Análisis Genético Preciso",
+    "premium_desc": "Datos detallados de análisis de linaje y 24 enfermedades genéticas disponibles solo para miembros premium.",
+    "upgrade_btn": "Actualizar a Membresía",
+    "references": "Referencias",
+    "source": "Fuente",
+    "health_risks": "Riesgos de salud y rasgos",
+    "key_traits": "Rasgos clave",
+    "vulnerability": "Vulnerabilidad",
+    "care_guide": "Guía de cuidado",
+    "nutrition": "Nutrición",
+    "behavior": "Comportamiento",
+    "ai_analysis": "Análisis de IA",
+    "medical_history": "Resumen médico",
+    "check_profile": "Ver detalles"
   },
   "hospital": {
     "search_placeholder": "Buscar región u hospital",
@@ -329,7 +344,10 @@
     "best_value": "BEST",
     "benefit4": "Veterinario IA 24/7",
     "benefit4_free": "No disponible",
-    "benefit4_premium": "Chat ilimitado"
+    "benefit4_premium": "Chat ilimitado",
+    "benefit5": "Mercado Premium de Mascotas",
+    "benefit5_free": "Acceso estándar",
+    "benefit5_premium": "Descuentos exclusivos"
   },
   "analysis": {
     "detail_title": "Informe genético de precisión",
@@ -572,9 +590,14 @@
     "disclaimer": "Esto es solo de referencia. Visite un veterinario para un diagnóstico profesional."
   },
   "nav_ai_vet": "Veterinario IA",
-  "ai_vet_welcome": "¡Hola! Soy tu veterinario IA. ¿Cómo está tu mascota hoy?",
+  "ai_vet_welcome": "¡Hola! Soy el veterinario Silverman. ¿Cómo puedo ayudar a su perro hoy?",
   "ai_vet_disclaimer": "Este análisis es solo de referencia. Visite un veterinario para un diagnóstico profesional.",
   "breed_retriever": "Linaje Retriever",
   "breed_spitz": "Linaje Spitz",
-  "breed_others": "Otros"
+  "breed_others": "Otros",
+  "persona": {
+    "name": "Veterinario AI",
+    "role": "Veterinario AI Dedicado",
+    "greeting": "¡Hola! Soy el Dr. Silverman, responsable de la salud de su mascota."
+  }
 }

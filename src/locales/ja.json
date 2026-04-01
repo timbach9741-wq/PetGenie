@@ -80,7 +80,7 @@
     "history": "履歴",
     "market": "マーケット",
     "profile": "プロフィール",
-    "ai_vet": "AI獣医"
+    "ai_vet": "AI 獣医"
   },
   "onboarding": {
     "skip": "スキップ",
@@ -164,8 +164,8 @@
     "weather_cold": "寒いです。ペットに暖かい服を着せることを検討してください。",
     "weather_rain": "雨の予報です。室内での遊びをお勧めします。",
     "breed_analysis": "品種分析",
-    "dashboard_default_breed": "알 수 없음",
-    "scan_limit_msg": "무제한 스캔 및 심층 건강 리포트를 위해 프리미엄으로 업그레이드하세요.",
+    "dashboard_default_breed": "不明",
+    "scan_limit_msg": "無制限スキャンと詳細な健康レポートのためにプレミアムにアップグレードしてください。",
     "match": "一致度",
     "primary_breed": "第1の品種",
     "secondary_breed": "第2の品種",
@@ -225,7 +225,7 @@
     "premium_only_desc_part2": "24種の詳細な遺伝性疾患",
     "premium_only_desc_part3": "血統分析データ",
     "upgrade_membership": "メンバーシップをアップグレード",
-    "start_premium": "🔓 Premiumを開始 — .99/月",
+    "start_premium": "Premiumを開始 — $4.99/月",
     "cancel_anytime": "いつでもキャンセル可能・7日間無料体験",
     "identification_basis": "品種識別根拠",
     "source_label": "出典",
@@ -238,7 +238,22 @@
     "premium_desc_connector": "と",
     "premium_desc_suffix": "です。",
     "default_disclaimer": "この分析はAIの視覚的評価と獣医学研究に基づいています。獣医師の診断に代わるものではありません。",
-    "references_title": "参考文献 References"
+    "references_title": "参考文献 References",
+    "view_all_mix": "すべての遺伝子の混合を見る",
+    "premium_title": "精密遺伝子分析レポート",
+    "premium_desc": "プレミアム会員のみが確認できる詳細な遺伝性疾患24種および血統分析データです。",
+    "upgrade_btn": "メンバーシップのアップグレード",
+    "references": "参考資料 References",
+    "source": "出典",
+    "health_risks": "健康リスクと特性",
+    "key_traits": "主な特徴",
+    "vulnerability": "脆弱性",
+    "care_guide": "ケアガイド",
+    "nutrition": "栄養",
+    "behavior": "行動",
+    "ai_analysis": "AI分析",
+    "medical_history": "医療概要",
+    "check_profile": "詳細を見る"
   },
   "hospital": {
     "search_placeholder": "地域または病院名で検索",
@@ -329,7 +344,10 @@
     "best_value": "BEST",
     "benefit4": "24時間 AI獣医師",
     "benefit4_free": "利用不可",
-    "benefit4_premium": "無制限の相談"
+    "benefit4_premium": "無制限の相談",
+    "benefit5": "プレミアムペットマーケット",
+    "benefit5_free": "通常アクセス",
+    "benefit5_premium": "限定割引"
   },
   "analysis": {
     "detail_title": "精密遺伝子分析レポート",
@@ -572,9 +590,14 @@
     "disclaimer": "これは参考用です。正確な診断には獣医師の診察が必要です。"
   },
   "nav_ai_vet": "AI獣医",
-  "ai_vet_welcome": "こんにちは！AI獣医です。今日のペットの様子はいかがですか？",
+  "ai_vet_welcome": "こんにちは！獣医師のシルバーマンです。今日はどうされましたか？",
   "ai_vet_disclaimer": "この分析は参考用であり、正確な診断には獣医師の診察が必要です。",
   "breed_retriever": "レトリーバー系",
   "breed_spitz": "スピッツ系",
-  "breed_others": "その他"
+  "breed_others": "その他",
+  "persona": {
+    "name": "AI 獣医",
+    "role": "専属 AI 獣医",
+    "greeting": "こんにちは！ペットの健康を守るシルバーマンです。"
+  }
 }

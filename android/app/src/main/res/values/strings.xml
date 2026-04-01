@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Pet Genie</string>
+    <string name="title_activity_main">Pet Genie</string>
+    <string name="package_name">com.petgenie.official</string>
+    <string name="custom_url_scheme">com.petgenie.official</string>
+</resources>

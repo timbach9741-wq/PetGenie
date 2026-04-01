@@ -1,6 +1,7 @@
 import { useTranslation, Trans } from 'react-i18next';
 import { CheckCircle2, ArrowLeft, Utensils } from 'lucide-react';
 import AdBanner from '../common/AdBanner';
+import DrSilvermanHeader from '../common/DrSilvermanHeader';
 
 
 const DietGuideScreen = ({ onBack, dietPlan, isPremium, onUpgrade }: { onBack: () => void, dietPlan: any, isPremium: boolean, onUpgrade: () => void }) => {
@@ -37,6 +38,7 @@ const DietGuideScreen = ({ onBack, dietPlan, isPremium, onUpgrade }: { onBack: (
         </button>
         <h1 className="text-lg font-bold text-white">{t('diet.title')}</h1>
       </header>
+      <DrSilvermanHeader />
 
       <div className="p-6 space-y-8">
         <section className="bg-gradient-to-br from-emerald-900/40 to-black rounded-[2.5rem] p-8 border border-emerald-500/20">

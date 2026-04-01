@@ -4,6 +4,7 @@ import { Activity, AlertCircle, CheckCircle2, ArrowLeft, TrendingUp } from 'luci
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 import AdBanner from '../common/AdBanner';
+import DrSilvermanHeader from '../common/DrSilvermanHeader';
 
 
 const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { onBack: () => void, exercisePlan: any, isPremium: boolean, onUpgrade: () => void }) => {
@@ -54,6 +55,7 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
         </button>
         <h1 className="text-lg font-bold text-white">{t('exercise.title')}</h1>
       </header>
+      <DrSilvermanHeader />
 
       <div className="p-6 space-y-8">
         <section className="bg-gradient-to-br from-blue-900/40 to-black rounded-[2.5rem] p-8 border border-blue-500/20">

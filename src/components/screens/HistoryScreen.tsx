@@ -1,5 +1,5 @@
 import { useTranslation, Trans } from 'react-i18next';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, History as HistoryIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 
 

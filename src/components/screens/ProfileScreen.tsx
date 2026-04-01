@@ -5,7 +5,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import type { Screen } from '../../types';
 import type { PetProfile } from '../../types';
-
+const LANGUAGES = [
+  { code: 'ko', label: '한국어', flag: '🇰🇷' },
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'zh-TW', label: '繁體中文', flag: '🇹🇼' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+] as const;
 
 // --- Profile Screen ---
 const ProfileScreen = ({ 
@@ -170,6 +176,13 @@ const ProfileScreen = ({
             <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{t('profile.app_settings')}</h3>
           </div>
           <div className="space-y-1">
+            {user?.email === 'timbach@naver.com' && (
+              <button onClick={() => onNavigate('admin')} className="w-full flex items-center gap-4 py-3.5 px-1 rounded-xl hover:bg-emerald-50 transition-colors">
+                <Shield className="w-5 h-5 text-emerald-600" />
+                <span className="flex-1 text-left text-sm font-bold text-emerald-600">Admin Dashboard</span>
+                <ChevronRight className="w-4 h-4 text-emerald-300" />
+              </button>
+            )}
             {[
               { icon: Globe, label: t('profile.language'), value: (LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0]).label, action: () => { const idx = LANGUAGES.findIndex(l => l.code === i18n.language); i18n.changeLanguage(LANGUAGES[(idx + 1) % LANGUAGES.length].code); } },
               { icon: Bell, label: t('profile.notifications'), value: '', action: () => {} },
