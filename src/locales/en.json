@@ -605,5 +605,19 @@
     "name": "AI Vet",
     "role": "Dedicated AI Vet",
     "greeting": "Hello! I am Dr. Silverman, responsible for your pet's health."
+  },
+  "fallback": {
+    "diet_rec1": "Adequate hydration",
+    "diet_rec2": "Balanced nutrition",
+    "diet_rec3": "Regular meal times",
+    "diet_prohibit1": "Chocolate",
+    "diet_prohibit2": "Grapes",
+    "diet_prohibit3": "Onions",
+    "diet_calories": "No data",
+    "exercise_goal": "30 min - 60 min",
+    "exercise_activity": "Walking",
+    "exercise_duration": "30 min",
+    "exercise_precaution1": "Adequate rest",
+    "exercise_precaution2": "Stay hydrated"
   }
 }

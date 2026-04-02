@@ -48,16 +48,14 @@ export interface PaymentRecord {
   platform: 'google_play' | 'app_store' | 'web';
 }
 
-/** AI 스캔 기록 */
-export interface ScanLog {
+/** 보상 기록 */
+export interface Reward {
   id: string;
-  userId: string;
-  userName: string;
-  petBreed: string;
-  scanDate: string;
-  healthScore: number;
-  resultSummary: string;
-  imageUrl?: string;
+  type: 'premium_days' | 'scan_credits' | 'coupon';
+  label: string;
+  value: number;
+  grantedAt: string;
+  grantedBy: string;
 }
 
 /** 유저 피드백 */
@@ -70,6 +68,9 @@ export interface Feedback {
   category: 'bug' | 'feature' | 'improvement' | 'other';
   status: 'pending' | 'reviewed' | 'implemented' | 'rejected';
   createdAt: string;
+  adminReply?: string;
+  repliedAt?: string;
+  rewards?: Reward[];
 }
 
 /** 시스템 통계 */

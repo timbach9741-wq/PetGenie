@@ -5,7 +5,7 @@
  * 나중에 Firebase 연동 시 이 파일의 함수 내부만 Firestore 쿼리로 교체하면 됨
  * =====================================================
  */
-import type { AppUser, PaymentRecord, ScanLog, Feedback, AppStats } from '../types';
+import type { AppUser, PaymentRecord, Feedback, Reward, AppStats } from '../types';
 
 // ── 관리자 이메일 (하드코딩) ──
 export const ADMIN_EMAIL = 'timbach@naver.com';
@@ -107,21 +107,7 @@ const MOCK_USERS: AppUser[] = [
   },
 ];
 
-// ── Mock 스캔 기록 ──
-const MOCK_SCAN_LOGS: ScanLog[] = [
-  { id: 's001', userId: 'u001', userName: '김민재', petBreed: '골든 리트리버', scanDate: '2026-04-01', healthScore: 92, resultSummary: '전반적으로 건강 상태 양호. 체중 관리 권장.' },
-  { id: 's002', userId: 'u002', userName: '박소연', petBreed: '포메라니안', scanDate: '2026-04-01', healthScore: 88, resultSummary: '관절 건강 주의 필요. 영양제 섭취 권장.' },
-  { id: 's003', userId: 'u009', userName: '송지연', petBreed: '사모예드', scanDate: '2026-04-01', healthScore: 95, resultSummary: '매우 건강. 현재 식단 유지 권장.' },
-  { id: 's004', userId: 'u004', userName: '최유나', petBreed: '시츄', scanDate: '2026-03-31', healthScore: 78, resultSummary: '눈 주위 감염 의심. 수의사 방문 권장.' },
-  { id: 's005', userId: 'u007', userName: '오서진', petBreed: '웰시 코기', scanDate: '2026-03-31', healthScore: 85, resultSummary: '체중 과다. 식이조절 및 운동량 증가 필요.' },
-  { id: 's006', userId: 'u011', userName: '윤은지', petBreed: '시바 이누', scanDate: '2026-03-31', healthScore: 91, resultSummary: '피부 상태 양호. 정기 검진 권장.' },
-  { id: 's007', userId: 'u006', userName: '강하은', petBreed: '비숑 프리제', scanDate: '2026-03-30', healthScore: 82, resultSummary: '치석 축적 발견. 치과 검진 권장.' },
-  { id: 's008', userId: 'u001', userName: '김민재', petBreed: '골든 리트리버', scanDate: '2026-03-30', healthScore: 90, resultSummary: '고관절 상태 양호. 관절 영양제 지속 권장.' },
-  { id: 's009', userId: 'u003', userName: '이정훈', petBreed: '말티즈', scanDate: '2026-03-29', healthScore: 87, resultSummary: '슬개골 탈구 초기 증상. 체중 관리 필수.' },
-  { id: 's010', userId: 'u008', userName: '신태우', petBreed: '래브라도 리트리버', scanDate: '2026-03-29', healthScore: 93, resultSummary: '활동량 충분. 건강 상태 최상.' },
-  { id: 's011', userId: 'u002', userName: '박소연', petBreed: '포메라니안', scanDate: '2026-03-28', healthScore: 86, resultSummary: '호흡기 상태 점검 필요. 미세먼지 주의.' },
-  { id: 's012', userId: 'u009', userName: '송지연', petBreed: '사모예드', scanDate: '2026-03-28', healthScore: 94, resultSummary: '털 상태 우수. 빗질 루틴 잘 유지 중.' },
-];
+
 
 // ── Mock 피드백 ──
 const MOCK_FEEDBACKS: Feedback[] = [
@@ -164,10 +150,7 @@ export function toggleUserStatus(uid: string): AppUser | null {
   return { ...user };
 }
 
-/** 스캔 기록 조회 */
-export function getScanLogs(): ScanLog[] {
-  return [...MOCK_SCAN_LOGS];
-}
+
 
 /** 피드백 목록 조회 */
 export function getFeedbacks(): Feedback[] {
@@ -179,7 +162,38 @@ export function updateFeedbackStatus(id: string, status: Feedback['status']): Fe
   const fb = MOCK_FEEDBACKS.find(f => f.id === id);
   if (!fb) return null;
   fb.status = status;
-  return { ...fb };
+  return { ...fb, rewards: fb.rewards ? [...fb.rewards] : undefined };
+}
+
+/** 관리자 답변 추가 */
+export function addAdminReply(id: string, reply: string): Feedback | null {
+  const fb = MOCK_FEEDBACKS.find(f => f.id === id);
+  if (!fb) return null;
+  fb.adminReply = reply;
+  fb.repliedAt = new Date().toISOString().split('T')[0];
+  // 답변 시 자동으로 확인됨 상태로 변경
+  if (fb.status === 'pending') fb.status = 'reviewed';
+  return { ...fb, rewards: fb.rewards ? [...fb.rewards] : undefined };
+}
+
+/** 보상 지급 */
+export function grantReward(feedbackId: string, type: Reward['type'], label: string, value: number): Feedback | null {
+  const fb = MOCK_FEEDBACKS.find(f => f.id === feedbackId);
+  if (!fb) return null;
+
+  const reward: Reward = {
+    id: `r_${Date.now()}`,
+    type,
+    label,
+    value,
+    grantedAt: new Date().toISOString().split('T')[0],
+    grantedBy: ADMIN_EMAIL,
+  };
+
+  if (!fb.rewards) fb.rewards = [];
+  fb.rewards.push(reward);
+
+  return { ...fb, rewards: [...fb.rewards] };
 }
 
 /** 시스템 통계 조회 */

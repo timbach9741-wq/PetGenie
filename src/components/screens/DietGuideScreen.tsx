@@ -8,9 +8,9 @@ const DietGuideScreen = ({ onBack, dietPlan, isPremium, onUpgrade }: { onBack: (
   const { t } = useTranslation();
   const plan = dietPlan || {
     title: t('diet.title'),
-    recommendations: ["충분한 수분 섭취", "균형 잡힌 영양소 공급", "정기적인 식사 시간"],
-    prohibitedFoods: ["초콜릿", "포도", "양파"],
-    dailyCalories: "정보 없음"
+    recommendations: [t('diet.default_rec1', "충분한 수분 섭취"), t('diet.default_rec2', "균형 잡힌 영양소 공급"), t('diet.default_rec3', "정기적인 식사 시간")],
+    prohibitedFoods: [t('diet.default_prohibit1', "초콜릿"), t('diet.default_prohibit2', "포도"), t('diet.default_prohibit3', "양파")],
+    dailyCalories: t('diet.default_calories', "정보 없음")
   };
 
   return (
@@ -33,7 +33,7 @@ const DietGuideScreen = ({ onBack, dietPlan, isPremium, onUpgrade }: { onBack: (
         </div>
       )}
       <header className="px-6 pt-12 pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
-        <button onClick={onBack} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
+        <button onClick={onBack} aria-label={t('common.back', '뒤로가기')} title={t('common.back', '뒤로가기')} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-white">{t('diet.title')}</h1>
@@ -45,7 +45,7 @@ const DietGuideScreen = ({ onBack, dietPlan, isPremium, onUpgrade }: { onBack: (
           <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 mb-6">
             <Utensils className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">{plan.title}</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">{t('diet.title')}</h2>
           <p className="text-emerald-400 font-bold text-sm">{t('diet.calories')}: {plan.dailyCalories}</p>
         </section>
 

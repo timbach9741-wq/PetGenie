@@ -606,5 +606,19 @@
     "name": "AI 수의사",
     "role": "전담 수의사 주치의",
     "greeting": "안녕하세요! 반려동물의 건강을 책임지는 실버맨입니다."
+  },
+  "fallback": {
+    "diet_rec1": "충분한 수분 섭취",
+    "diet_rec2": "균형 잡힌 영양소 공급",
+    "diet_rec3": "정기적인 식사 시간",
+    "diet_prohibit1": "초콜릿",
+    "diet_prohibit2": "포도",
+    "diet_prohibit3": "양파",
+    "diet_calories": "정보 없음",
+    "exercise_goal": "30분 - 60분",
+    "exercise_activity": "산책",
+    "exercise_duration": "30분",
+    "exercise_precaution1": "충분한 휴식",
+    "exercise_precaution2": "수분 공급"
   }
 }

@@ -1,4 +1,4 @@
-﻿import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { Heart, Activity, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Search, MoreVertical, TrendingUp, Utensils, BriefcaseMedical, Dna, BookOpen, Quote, Lock, User, Image } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -14,14 +14,20 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
   const translateBreed = (breedName: string) => {
     return globalTranslate(breedName, i18n.language);
   };
+
+  const getDynamicText = (text: string | undefined | null, defaultFallback?: string) => {
+    if (!text) return defaultFallback ? t(defaultFallback) : '';
+    if (text.startsWith('hardcoded.') || text.startsWith('fallback.')) return t(text);
+    return text;
+  };
   return (
     <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
       <header className="px-6 pb-6 flex items-center justify-between bg-[#0A120A] sticky top-0 z-50" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
-        <button onClick={onBack} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
+        <button onClick={onBack} aria-label="Go back" className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-sm font-bold text-white uppercase tracking-widest">{t('analysis.detail_title')}</h1>
-        <button className="p-2 text-zinc-400">
+        <button aria-label="More options" className="p-2 text-zinc-400">
           <MoreVertical className="w-5 h-5" />
         </button>
       </header>
@@ -53,7 +59,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
             <h3 className="text-xl font-bold text-white tracking-tight">{t('dashboard.breed_analysis')}</h3>
             <div className="flex items-center gap-1.5 text-[#00FF41] text-xs font-bold">
               <CheckCircle2 className="w-4 h-4" />
-              <span>{t('analysis.confidence') || 'Confidence'} {analysisResult?.breedMatch || 85}%</span>
+              <span>{t('analysis.confidence') || 'Confidence'} {analysisResult?.breedMatch ?? 85}%</span>
             </div>
           </div>
           
@@ -61,12 +67,12 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
           <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden mb-3">
             <motion.div 
               initial={{ width: 0 }}
-              animate={{ width: `${analysisResult?.breedMatch || 85}%` }}
+              animate={{ width: `${analysisResult?.breedMatch ?? 85}%` }}
               transition={{ duration: 1.5, ease: "easeOut" }}
               className="h-full bg-[#00FF41] rounded-full shadow-[0_0_15px_rgba(0,255,65,0.4)]"
             />
           </div>
-          <p className="text-[10px] text-zinc-500 mb-8 text-right">{t('analysis.ai_confidence') || 'AI Analysis Confidence'}: {analysisResult?.breedMatch || 85}%</p>
+          <p className="text-[10px] text-zinc-500 mb-8 text-right">{t('analysis.ai_confidence') || 'AI Analysis Confidence'}: {analysisResult?.breedMatch ?? 85}%</p>
 
           {/* Primary breed - visible to all */}
           <div className="bg-white/5 rounded-3xl p-5 border border-white/5 mb-4">
@@ -76,7 +82,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
             </div>
             <h4 className="text-lg font-bold text-white mb-1">{translateBreed(analysisResult?.primaryBreed || "Golden Retriever")}</h4>
             <div className="flex items-center gap-3">
-              <p className="text-2xl font-black text-[#00FF41]">{isPremium ? `${analysisResult?.primaryPercentage || 70}%` : '??%'}</p>
+              <p className="text-2xl font-black text-[#00FF41]">{isPremium ? `${analysisResult?.primaryPercentage ?? 70}%` : '??%'}</p>
               {!isPremium && <span className="text-[10px] text-zinc-500">({t('analysis.upgrade_to_see') || 'Upgrade to see'})</span>}
             </div>
           </div>
@@ -88,8 +94,17 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                 <div className="w-2 h-2 rounded-full bg-zinc-500" />
                 <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{t('dashboard.secondary_breed')}</span>
               </div>
-              <h4 className="text-lg font-bold text-zinc-300 mb-1">{translateBreed(analysisResult?.secondaryBreed || "Jindo Dog")}</h4>
-              <p className="text-2xl font-black text-zinc-500">{analysisResult?.secondaryPercentage || 30}%</p>
+              {(!analysisResult?.secondaryBreed || analysisResult.secondaryBreed === 'N/A' || analysisResult?.secondaryPercentage === 0) ? (
+                <>
+                  <h4 className="text-lg font-bold text-zinc-500 mb-1">{t('analysis.none', 'None (Purebred)')}</h4>
+                  <p className="text-2xl font-black text-zinc-600">-</p>
+                </>
+              ) : (
+                <>
+                  <h4 className="text-lg font-bold text-zinc-300 mb-1">{translateBreed(analysisResult.secondaryBreed || "Jindo Dog")}</h4>
+                  <p className="text-2xl font-black text-zinc-500">{analysisResult?.secondaryPercentage ?? 30}%</p>
+                </>
+              )}
             </div>
           ) : (
             <div className="bg-white/5 rounded-3xl p-5 border border-white/5 relative overflow-hidden">
@@ -234,7 +249,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                   <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-[10px] font-black text-blue-400">{i + 1}</span>
                   </div>
-                  <p className="text-sm text-zinc-300 leading-relaxed font-medium">{basis}</p>
+                  <p className="text-sm text-zinc-300 leading-relaxed font-medium">{getDynamicText(basis)}</p>
                 </motion.div>
               ))}
             </div>
@@ -263,7 +278,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
             <div className="relative pl-6 border-l-2 border-[#00FF41]/30">
               <Quote className="absolute -left-1 -top-2 w-4 h-4 text-[#00FF41] opacity-50" />
               <p className="text-zinc-300 text-sm leading-relaxed font-medium">
-                {analysisResult?.expertInsights?.wsava || t('report.wsava_default')}
+                {getDynamicText(analysisResult?.expertInsights?.wsava, 'report.wsava_default')}
               </p>
               <div className="mt-2 flex items-center gap-1.5">
                 <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
@@ -283,7 +298,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
               <div className={cn("pl-6 border-l-2 border-blue-500/30", !isPremium && "opacity-40 blur-[2px]")}>
                 <Quote className="absolute -left-1 -top-2 w-4 h-4 text-blue-400 opacity-50" />
                 <p className="text-zinc-300 text-sm leading-relaxed font-medium">
-                  {analysisResult?.expertInsights?.steveMann || t('report.steve_mann_default')}
+                  {getDynamicText(analysisResult?.expertInsights?.steveMann, 'report.steve_mann_default')}
                 </p>
                 <div className="mt-2 flex items-center gap-1.5">
                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
@@ -422,7 +437,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                   </div>
 
                   <p className="text-zinc-400 text-sm leading-relaxed font-medium mb-4">
-                    {risk.description}
+                    {getDynamicText(risk.description)}
                   </p>
 
                   {/* Evidence badges: prevalence & source */}
@@ -430,13 +445,13 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                     {risk.prevalence && (
                       <div className="flex items-center gap-1.5 bg-rose-500/5 border border-rose-500/10 px-3 py-1.5 rounded-xl">
                         <TrendingUp className="w-3 h-3 text-rose-400" />
-                        <span className="text-[10px] font-bold text-rose-300/80 tracking-wide">{risk.prevalence}</span>
+                        <span className="text-[10px] font-bold text-rose-300/80 tracking-wide">{getDynamicText(risk.prevalence)}</span>
                       </div>
                     )}
                     {risk.source && (
                       <div className="flex items-center gap-1.5 bg-blue-500/5 border border-blue-500/10 px-3 py-1.5 rounded-xl">
                         <BookOpen className="w-3 h-3 text-blue-400" />
-                        <span className="text-[10px] font-bold text-blue-300/80 tracking-wide">📋 {risk.source}</span>
+                        <span className="text-[10px] font-bold text-blue-300/80 tracking-wide">📋 {getDynamicText(risk.source)}</span>
                       </div>
                     )}
                   </div>
@@ -446,7 +461,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                       <div className="flex -space-x-2">
                         {[1, 2, 3].map((_, idx) => (
                           <div key={idx} className="w-6 h-6 rounded-full border-2 border-[#0D0D0D] bg-zinc-800 flex items-center justify-center overflow-hidden">
-                            <img src={`https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=40&h=40&sig=${idx}`} className="w-full h-full object-cover opacity-50" />
+                            <img src={`https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=40&h=40&sig=${idx}`} alt={`Expert reviewer ${idx + 1}`} className="w-full h-full object-cover opacity-50" />
                           </div>
                         ))}
                       </div>
@@ -504,7 +519,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-base font-bold text-white">{t('report.expert_advice')}</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{insights.expertAdvice}</p>
+                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{getDynamicText(insights.expertAdvice)}</p>
                   </div>
                 </div>
                 
@@ -514,7 +529,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-base font-bold text-white">{t('report.nutrition_vital')}</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{insights.wsava}</p>
+                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{getDynamicText(insights.wsava)}</p>
                   </div>
                 </div>
                 
@@ -524,7 +539,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                   </div>
                   <div className="space-y-2">
                     <h4 className="text-base font-bold text-white">{t('report.behavior_training')}</h4>
-                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{insights.steveMann}</p>
+                    <p className="text-xs text-zinc-400 leading-relaxed font-medium">{getDynamicText(insights.steveMann)}</p>
                   </div>
                 </div>
                 {!isPremium && (

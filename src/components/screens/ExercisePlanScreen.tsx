@@ -12,9 +12,9 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
   const [completedActivities, setCompletedActivities] = useState<Set<number>>(new Set());
   const plan = exercisePlan || {
     title: t('exercise.title'),
-    dailyGoal: "30분 - 60분",
-    activities: [{ name: "산책", duration: "30분", intensity: "medium" }],
-    precautions: ["충분한 휴식", "수분 공급"]
+    dailyGoal: t('exercise.default_goal', "30분 - 60분"),
+    activities: [{ name: t('exercise.default_walk', "산책"), duration: t('exercise.default_duration', "30분"), intensity: "medium" }],
+    precautions: [t('exercise.default_precaution1', "충분한 휴식"), t('exercise.default_precaution2', "수분 공급")]
   };
 
   const toggleActivity = (index: number) => {
@@ -50,7 +50,7 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
         </div>
       )}
       <header className="px-6 pt-12 pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
-        <button onClick={onBack} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
+        <button onClick={onBack} aria-label={t('common.back', '뒤로가기')} title={t('common.back', '뒤로가기')} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-white">{t('exercise.title')}</h1>
@@ -62,7 +62,7 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
           <div className="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center text-blue-400 mb-6">
             <Activity className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">{plan.title}</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">{t('exercise.title')}</h2>
           <p className="text-blue-400 font-bold text-sm">{t('exercise.goal')}: {plan.dailyGoal}</p>
         </section>
 
