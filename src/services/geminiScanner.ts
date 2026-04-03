@@ -156,8 +156,13 @@ ${antigravityEngine.getGlobalPrompt(language.split('-')[0])}
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
-  }).then(res => {
-    if (!res.ok) throw new Error(`API HTTP Error: ${res.status}`);
+  }).then(async res => {
+    if (!res.ok) {
+      if (res.status === 429) {
+        throw new Error('API 요금제 한도가 초과되었습니다. 잠시 후 다시 시도해주세요.');
+      }
+      throw new Error(`API HTTP Error: ${res.status}`);
+    }
     return res.json();
   });
 

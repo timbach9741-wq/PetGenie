@@ -65,7 +65,7 @@ Write-Host "[2/6] Vite production build..." -ForegroundColor Cyan
 
 Push-Location $ProjectRoot
 try {
-    $viteBuild = Start-Process -FilePath "npx" -ArgumentList "vite","build" -NoNewWindow -Wait -PassThru
+    $viteBuild = Start-Process -FilePath "npx.cmd" -ArgumentList "vite","build" -NoNewWindow -Wait -PassThru
     if ($viteBuild.ExitCode -ne 0) { throw "Vite build failed" }
     Write-Host "  [OK] dist/ build complete" -ForegroundColor Green
 } finally {
@@ -78,7 +78,7 @@ Write-Host "[3/6] Capacitor Android sync..." -ForegroundColor Cyan
 
 Push-Location $ProjectRoot
 try {
-    $capSync = Start-Process -FilePath "npx" -ArgumentList "cap","sync","android" -NoNewWindow -Wait -PassThru
+    $capSync = Start-Process -FilePath "npx.cmd" -ArgumentList "cap","sync","android" -NoNewWindow -Wait -PassThru
     if ($capSync.ExitCode -ne 0) { throw "Capacitor sync failed" }
     Write-Host "  [OK] Web -> Android sync complete" -ForegroundColor Green
 } finally {

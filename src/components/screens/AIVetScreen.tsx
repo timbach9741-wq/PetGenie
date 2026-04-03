@@ -30,7 +30,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
   const [showAdPopup, setShowAdPopup] = useState(false);
   const [isAdLoading, setIsAdLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; fallbackPayload: string } | null>(null);
   const [showProfile, setShowProfile] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -64,24 +64,32 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
   };
 
   // --- 메시지 전송 핸들러 ---
-  const handleSend = async () => {
+  const handleSend = async (retryMsg?: string) => {
+    const textToSend = retryMsg || inputText.trim();
     if (!isPremium && consultationTokens <= 0) {
       setShowAdPopup(true);
       return;
     }
-    if (!inputText.trim() || isLoading) return;
+    if (!textToSend || isLoading) return;
     if (!isPremium && consultationTokens <= 0) return;
     if (!isPremium) setConsultationTokens(prev => prev - 1);
 
-    const userMsg = inputText.trim();
-    setInputText('');
+    if (!retryMsg) {
+      setInputText('');
+    }
+    
     setShowProfile(false);
-    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    
+    // 에러 상태에서 다시 시도하는 경우 새 유저 메시지를 추가하지 않음
+    if (!retryMsg) {
+      setMessages(prev => [...prev, { role: 'user', content: textToSend }]);
+    }
+    
     setIsLoading(true);
     setError(null);
 
     try {
-      // 이전 대화 히스토리 구성
+      // 이전 대화 히스토리 구성 (현재 메시지까지)
       const chatHistory = messages
         .map(m => `${m.role === 'user' ? '보호자' : '수의사'}: ${m.content}`)
         .join('\n');
@@ -92,15 +100,16 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       // i18next 현재 언어 전달
       const currentLang = i18n.language;
 
-      const aiResponse = await fetchVetAnalysis(userMsg, undefined, currentLang, petInfo, chatHistory);
+      const aiResponse = await fetchVetAnalysis(textToSend, undefined, currentLang, petInfo, chatHistory);
       setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
     } catch (err: any) {
       console.error('AI Vet Error:', err);
-      // Fallback response for demonstration when API Quota defaults
-      const fallbackMsg = i18n.language === 'ko' 
-        ? "죄송합니다만, 현재 제가 너무 많은 진료 요청을 처리하고 있어 잠시 후 다시 질문해 주시면 감사하겠습니다. (Gemini API 일일 할당량 초과)"
-        : "I apologize, but I am currently processing too many requests. Please try asking again in a few minutes. (Gemini API Quota Exceeded)";
-      setMessages(prev => [...prev, { role: 'ai', content: fallbackMsg }]);
+      // Fallback UI 처리를 위한 상태 세팅
+      const errorDetail = err.message || JSON.stringify(err);
+      setError({ 
+        message: `오류가 발생했습니다: ${errorDetail}`, 
+        fallbackPayload: textToSend 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +125,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       <header className="px-6 py-4 flex items-center bg-white border-b border-zinc-100 sticky top-0 z-10 shrink-0">
         <button
           onClick={onBack}
+          aria-label="뒤로가기"
           className="p-2 -ml-2 text-zinc-900 hover:bg-zinc-100 rounded-full transition-transform active:scale-90 mr-3"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -138,7 +148,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-8">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 pb-8">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`flex max-w-[85%] gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -179,12 +189,23 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
           </div>
         )}
 
-        {/* 에러 메시지 */}
+        {/* 에러 메시지 및 Fallback UI */}
         {error && (
           <div className="flex justify-center my-4">
-            <div className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-xs font-medium flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              {error}
+            <div className="bg-red-50 border border-red-100 flex flex-col gap-3 px-4 py-3 rounded-2xl max-w-[85%] shadow-sm">
+              <div className="flex items-center gap-2 text-red-600 text-xs font-bold">
+                <AlertCircle className="w-4 h-4" />
+                <span>네트워크 또는 서버 할당량 오류</span>
+              </div>
+              <p className="text-zinc-600 text-xs leading-relaxed">
+                {error.message}
+              </p>
+              <button
+                onClick={() => handleSend(error.fallbackPayload)}
+                className="w-full mt-1 bg-white border border-zinc-200 text-zinc-700 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-zinc-50 active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                다시 시도하기
+              </button>
             </div>
           </div>
         )}
@@ -251,8 +272,8 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       </AnimatePresence>
 
       {/* Input Area */}
-      <div className="px-4 py-3 bg-white border-t border-zinc-100 shrink-0 relative z-20">
-        <div className="flex items-center gap-2 bg-zinc-50 border border-zinc-200 rounded-full p-1 pl-4 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
+      <div className="px-4 py-3 pb-8 bg-white border-t border-zinc-100 shrink-0 relative z-20">
+        <div className="flex items-center gap-2 bg-zinc-50 border border-zinc-200 rounded-full p-2 pl-4 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
           <input
             type="text"
             className="flex-1 bg-transparent border-none focus:outline-none text-[13px] text-zinc-900 placeholder-zinc-400 py-2"
@@ -267,14 +288,14 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
             }}
           />
           <button
-            onClick={handleSend}
+            onClick={() => handleSend()}
             disabled={!inputText.trim() || isLoading}
+            aria-label="전송"
             className="p-2.5 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 transition-colors shrink-0"
           >
             <Send className="w-4 h-4" />
           </button>
         </div>
-        )
         <p className="text-[9px] text-zinc-400 text-center mt-2 pb-1">
           {t('ai_vet_disclaimer', 'AI 수의사의 답변은 참고용이며, 정확한 진단을 대체할 수 없습니다.')}
         </p>

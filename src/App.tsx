@@ -228,7 +228,7 @@ export default function App() {
       }
     } catch (error) {
       console.error("AI Analysis failed:", error);
-      const fallbackResult = getFallbackResult(t);
+      const fallbackResult = getFallbackResult();
       setAnalysisResult(fallbackResult);
       
       setHistory(prev => [{
@@ -254,7 +254,7 @@ export default function App() {
     navigateTo('pet-dashboard');
   };
 
-  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin'].includes(currentScreen);
+  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin', 'ai-vet'].includes(currentScreen);
 
   return (
     <>

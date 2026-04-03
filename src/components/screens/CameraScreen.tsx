@@ -174,14 +174,17 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
       {/* Header */}
-      <header className="px-6 pb-4 bg-white sticky top-0 z-40 border-b border-zinc-100" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+      <header className="px-6 pb-4 pt-4 bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-zinc-100/50" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
         <div className="flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-200">
-                <PawPrint className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2.5">
+              <div className="relative">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-[0_4px_12px_rgb(52,211,153,0.3)]">
+                  <PawPrint className="w-5 h-5 text-white drop-shadow-sm" />
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>
               </div>
-              <h1 className="text-lg font-black text-zinc-900 tracking-tight">Pet Genie</h1>
+              <h1 className="text-[20px] font-black text-transparent bg-clip-text bg-gradient-to-r from-zinc-900 to-zinc-600 tracking-tight">Pet Genie</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -195,52 +198,66 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 p-7 text-white shadow-2xl shadow-zinc-300"
+          className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-950 p-8 text-white shadow-2xl shadow-zinc-300/60 border border-white/10"
         >
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-[60px]" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-500/10 rounded-full blur-[50px]" />
+          {/* Animated Glow Elements */}
+          <motion.div 
+             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+             className="absolute -top-20 -right-20 w-64 h-64 bg-emerald-500/20 rounded-full blur-[70px]" 
+          />
+          <motion.div 
+             animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.4, 0.2] }}
+             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+             className="absolute -bottom-10 -left-20 w-56 h-56 bg-teal-500/20 rounded-full blur-[60px]" 
+          />
           
-          {/* Floating particles */}
-          {[...Array(6)].map((_, i) => (
+          {/* Floating stylized particles */}
+          {[...Array(8)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-emerald-400/20"
-              style={{ width: 3 + Math.random() * 4, height: 3 + Math.random() * 4, left: `${20 + Math.random() * 60}%`, top: `${10 + Math.random() * 60}%` }}
-              animate={{ y: [0, -15, 0], opacity: [0.2, 0.6, 0.2] }}
-              transition={{ duration: 3 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 2 }}
+              className="absolute rounded-full bg-emerald-400/30"
+              style={{ width: 3 + Math.random() * 5, height: 3 + Math.random() * 5, left: `${10 + Math.random() * 80}%`, top: `${10 + Math.random() * 80}%` }}
+              animate={{ y: [0, -20, 0], opacity: [0.1, 0.7, 0.1], scale: [1, 1.5, 1] }}
+              transition={{ duration: 3 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 2 }}
             />
           ))}
 
           <div className="relative z-10">
             {/* Scan count badge */}
-            <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full px-3 py-1.5 mb-5">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 bg-black/40 backdrop-blur-xl border border-white/5 rounded-full px-3 py-1.5 mb-6 shadow-inner">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest">
                 {isPremium ? t('scan_home.unlimited') : t('scan_home.scans_left', { count: scansLeft })}
               </span>
             </div>
 
-            <h2 className="text-[22px] font-extrabold leading-tight mb-2 tracking-tight">
+            <h2 className="text-[26px] font-black leading-tight mb-3 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
               {t('scan_home.hero_title')}
             </h2>
-            <p className="text-white/40 text-[13px] font-medium leading-relaxed mb-7 max-w-[240px]">
+            <p className="text-white/60 text-[14px] font-medium leading-relaxed mb-8 max-w-[260px]">
               {t('scan_home.hero_desc')}
             </p>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Premium Action Buttons */}
+            <div className="grid grid-cols-2 gap-4 mt-6">
               <button
                 onClick={() => setMode('camera')}
-                className="flex items-center justify-center gap-2.5 py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-2xl font-bold text-[13px] active:scale-[0.97] transition-all shadow-lg shadow-emerald-500/25"
+                className="group relative flex flex-col items-center justify-center gap-2 py-5 rounded-[1.5rem] active:scale-[0.96] transition-all overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 shadow-[0_8px_30px_rgb(16,185,129,0.3)] ring-1 ring-white/20"
               >
-                <Camera className="w-5 h-5" />
-                {t('scan_home.take_photo')}
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+                <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-inner mb-1">
+                  <Camera className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-white font-bold text-[13px] tracking-wide">{t('scan_home.take_photo')}</span>
               </button>
-              <label className="flex items-center justify-center gap-2.5 py-4 bg-white/10 hover:bg-white/15 text-white border border-white/10 rounded-2xl font-bold text-[13px] active:scale-[0.97] transition-all cursor-pointer">
+
+              <label className="group relative flex flex-col items-center justify-center gap-2 py-5 rounded-[1.5rem] active:scale-[0.96] transition-all cursor-pointer bg-white/5 hover:bg-white/10 backdrop-blur-md border border-white/10 shadow-xl">
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
-                <Upload className="w-5 h-5" />
-                {t('scan_home.upload_photo')}
+                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                  <Upload className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-white/90 font-bold text-[13px] tracking-wide">{t('scan_home.upload_photo')}</span>
               </label>
             </div>
           </div>
