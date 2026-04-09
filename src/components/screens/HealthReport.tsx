@@ -21,8 +21,8 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
     return text;
   };
   return (
-    <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
-      <header className="px-6 pb-6 flex items-center justify-between bg-[#0A120A] sticky top-0 z-50" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+    <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar pb-32">
+      <header className="px-6 pb-6 pt-[calc(env(safe-area-inset-top,0px)+16px)] flex items-center justify-between bg-[#0A120A] sticky top-0 z-50">
         <button onClick={onBack} aria-label="Go back" className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
@@ -111,7 +111,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
               <div className="absolute inset-0 z-10 bg-black/50 backdrop-blur-md flex items-center justify-center">
                 <div className="flex items-center gap-2">
                   <Lock className="w-3.5 h-3.5 text-white/50" />
-                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Premium</span>
+                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">{t('common.premium', 'Premium')}</span>
                 </div>
               </div>
               <div className="blur-[4px] opacity-30">
@@ -223,7 +223,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                 <h3 className="text-lg font-bold text-white">
                   {t('report.identification_basis')}
                 </h3>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Identification Basis</p>
+                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{t('report.identification_basis_sub', 'Identification Basis')}</p>
               </div>
             </div>
             
@@ -368,7 +368,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
           <div className="flex items-center justify-between px-2">
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-white tracking-tight">{t('report.risk_factors_title')}</h3>
-              <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">Genetic Health Screening</p>
+              <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">{t('report.genetic_screening_sub', 'Genetic Health Screening')}</p>
             </div>
             <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
               <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
@@ -423,7 +423,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                       <div>
                         <h4 className="text-lg font-bold text-white group-hover:text-[#00FF41] transition-colors">{translateBreed(risk.name)}</h4>
                         <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
-                          {risk.riskLevel === 'high' ? 'Critical Risk' : risk.riskLevel === 'medium' ? 'Moderate Risk' : 'Low Risk'}
+                          {risk.riskLevel === 'high' ? t('report.risk_critical', 'Critical Risk') : risk.riskLevel === 'medium' ? t('report.risk_moderate', 'Moderate Risk') : t('report.risk_low', 'Low Risk')}
                         </p>
                       </div>
                     </div>
@@ -499,7 +499,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
           <div className="flex items-center justify-between px-2">
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-white tracking-tight">{t('report.ai_insights_title')}</h3>
-              <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">AI-Powered Recommendations</p>
+              <p className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest">{t('report.ai_recommendations_sub', 'AI-Powered Recommendations')}</p>
             </div>
           </div>
           
@@ -595,7 +595,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">{t('analysis.mapping_title')}</h3>
-                  <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Advanced DNA Mapping</p>
+                  <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">{t('report.dna_mapping_sub', 'Advanced DNA Mapping')}</p>
                 </div>
               </div>
               <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center">
@@ -605,14 +605,14 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
 
             <div className="space-y-6">
               {(analysisResult?.detailedMarkers || [
-                { label: t('report.marker_mdr1'), value: 98, status: 'normal' },
-                { label: t('report.marker_dm'), value: 85, status: 'normal' },
-                { label: t('report.marker_pra'), value: 12, status: 'caution' }
+                { label: 'report.marker_mdr1', value: 98, status: 'normal' },
+                { label: 'report.marker_dm', value: 85, status: 'normal' },
+                { label: 'report.marker_pra', value: 12, status: 'caution' }
               ]).map((marker: any, i: number) => (
                 <div key={i} className="space-y-3">
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">{marker.label}</span>
+                      <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">{t(marker.label)}</span>
                       {marker.testSource && (
                         <span className="ml-2 text-[9px] font-medium text-zinc-600">({marker.testSource})</span>
                       )}
@@ -642,7 +642,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
             </div>
 
             {/* Decorative Grid Lines */}
-            <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+            <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-[size:20px_20px]" />
           </div>
         </section>
 

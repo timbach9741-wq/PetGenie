@@ -42,6 +42,20 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // --- 자동 시작 (Welcome Message) ---
+  useEffect(() => {
+    if (messages.length === 0) {
+      // 0.5초 뒤에 수의사가 첫 인사를 건네게 함
+      const timer = setTimeout(() => {
+        setMessages([{ 
+          role: 'ai', 
+          content: t('ai_vet.welcome_message', '안녕하세요! AI 수의사입니다. 🐾\n아이의 증상이나 궁금한 점이 있으신가요? 사료 추천, 행동 상담 등 무엇이든 물어보세요!') 
+        }]);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   const handleWatchAd = () => {
     setShowAdPopup(false);
     setIsAdLoading(true);
@@ -91,11 +105,11 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
     try {
       // 이전 대화 히스토리 구성 (현재 메시지까지)
       const chatHistory = messages
-        .map(m => `${m.role === 'user' ? '보호자' : '수의사'}: ${m.content}`)
+        .map(m => `${m.role === 'user' ? t('ai_vet.role_owner', '보호자') : t('ai_vet.role_vet', '수의사')}: ${m.content}`)
         .join('\n');
 
       // 반려동물 정보
-      const petInfo = `이름: ${petProfile?.name || '알 수 없음'}, 나이: ${petProfile?.age || '알 수 없음'}, 견종: ${petProfile?.breed || '알 수 없음'}, 성별: ${petProfile?.gender || '알 수 없음'}`;
+      const petInfo = `${t('profile.pet_name', '이름')}: ${petProfile?.name || t('common.unknown', '알 수 없음')}, ${t('profile.pet_age', '나이')}: ${petProfile?.age || t('common.unknown', '알 수 없음')}, ${t('profile.pet_breed', '견종')}: ${petProfile?.breed || t('common.unknown', '알 수 없음')}, ${t('profile.pet_gender', '성별')}: ${petProfile?.gender || t('common.unknown', '알 수 없음')}`;
 
       // i18next 현재 언어 전달
       const currentLang = i18n.language;
@@ -107,7 +121,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       // Fallback UI 처리를 위한 상태 세팅
       const errorDetail = err.message || JSON.stringify(err);
       setError({ 
-        message: `오류가 발생했습니다: ${errorDetail}`, 
+        message: `${t('ai_vet.error_occurred', '오류가 발생했습니다')}: ${errorDetail}`, 
         fallbackPayload: textToSend 
       });
     } finally {
@@ -117,6 +131,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
 
   const handleSuggestionClick = (text: string) => {
     setInputText(text);
+    handleSend(text);
   };
 
   return (
@@ -148,7 +163,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       )}
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 pb-8">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 pb-48">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`flex max-w-[85%] gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -162,7 +177,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
                 </div>
               )}
               <div
-                className={`p-3 rounded-2xl text-[13px] ${
+                className={`p-3 rounded-2xl text-[13px] break-words ${
                   msg.role === 'user'
                     ? 'bg-zinc-900 text-white rounded-tr-sm'
                     : 'bg-white border border-zinc-200 text-zinc-800 rounded-tl-sm shadow-sm whitespace-pre-wrap leading-relaxed'
@@ -195,7 +210,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
             <div className="bg-red-50 border border-red-100 flex flex-col gap-3 px-4 py-3 rounded-2xl max-w-[85%] shadow-sm">
               <div className="flex items-center gap-2 text-red-600 text-xs font-bold">
                 <AlertCircle className="w-4 h-4" />
-                <span>네트워크 또는 서버 할당량 오류</span>
+                <span>{t('ai_vet.network_error', '네트워크 또는 서버 할당량 오류')}</span>
               </div>
               <p className="text-zinc-600 text-xs leading-relaxed">
                 {error.message}
@@ -204,7 +219,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
                 onClick={() => handleSend(error.fallbackPayload)}
                 className="w-full mt-1 bg-white border border-zinc-200 text-zinc-700 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-zinc-50 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
-                다시 시도하기
+                {t('ai_vet.retry', '다시 시도하기')}
               </button>
             </div>
           </div>
@@ -246,10 +261,10 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
               <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-50">
                 <Gift className="w-8 h-8 text-indigo-500" />
               </div>
-              <h3 className="text-lg font-bold text-center text-zinc-900 mb-2">상담 한도 소진</h3>
+              <h3 className="text-lg font-bold text-center text-zinc-900 mb-2">{t('ai_vet.quota_exhausted', '상담 한도 소진')}</h3>
               <p className="text-[9px] text-zinc-400 font-mono text-center mb-1">UNIT: ca-app-pub-7630237731274328/6964597935</p>
               <p className="text-sm text-zinc-500 text-center mb-6 leading-relaxed">
-                일일 무료 상담(3회)이 모두 소진되었습니다.<br/>광고를 시청하고 상담 기회를 1회 추가하시겠어요?
+                {t('ai_vet.quota_desc', '일일 무료 상담(3회)이 모두 소진되었습니다.')}<br/>{t('ai_vet.quota_ask', '광고를 시청하고 상담 기회를 1회 추가하시겠어요?')}
               </p>
               
               <div className="flex gap-3">
@@ -257,13 +272,13 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
                   onClick={() => setShowAdPopup(false)}
                   className="flex-1 py-3.5 rounded-xl font-bold text-sm text-zinc-500 bg-zinc-100 hover:bg-zinc-200 transition-colors"
                 >
-                  취소(Cancel)
+                  {t('common.cancel', '취소')}
                 </button>
                 <button 
                   onClick={handleWatchAd}
                   className="flex-1 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-500 to-purple-500 shadow-lg shadow-purple-900/20 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
                 >
-                  <Gift className="w-4 h-4" /> 광고 보기
+                  <Gift className="w-4 h-4" /> {t('ai_vet.watch_ad', '광고 보기')}
                 </button>
               </div>
             </motion.div>
@@ -272,7 +287,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       </AnimatePresence>
 
       {/* Input Area */}
-      <div className="px-4 py-3 pb-8 bg-white border-t border-zinc-100 shrink-0 relative z-20">
+      <div className="px-4 py-4 pb-[calc(2.5rem+env(safe-area-inset-bottom,24px))] bg-white border-t border-zinc-100 shrink-0 relative z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
         <div className="flex items-center gap-2 bg-zinc-50 border border-zinc-200 rounded-full p-2 pl-4 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
           <input
             type="text"

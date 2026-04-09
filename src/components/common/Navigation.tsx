@@ -7,8 +7,8 @@ import vetImage from '../../assets/images/ai-vet-character.png';
 
 const navItems = [
   { id: 'camera', icon: Camera, label: 'nav.scan', isSpecial: false },
-  { id: 'ai-vet', icon: HeartPulse, label: 'nav.ai_vet', isSpecial: true, imgIcon: vetImage },
   { id: 'pet-dashboard', icon: LayoutGrid, label: 'nav.health', isSpecial: false },
+  { id: 'ai-vet', icon: HeartPulse, label: 'nav.ai_vet', isSpecial: true, imgIcon: vetImage },
   { id: 'history', icon: HistoryIcon, label: 'nav.history', isSpecial: false },
   { id: 'profile', icon: User, label: 'nav.profile', isSpecial: false },
 ];

@@ -13,8 +13,20 @@ const ExercisePlanScreen = ({ onBack, exercisePlan, isPremium, onUpgrade }: { on
   const plan = exercisePlan || {
     title: t('exercise.title'),
     dailyGoal: t('exercise.default_goal', "30분 - 60분"),
-    activities: [{ name: t('exercise.default_walk', "산책"), duration: t('exercise.default_duration', "30분"), intensity: "medium" }],
-    precautions: [t('exercise.default_precaution1', "충분한 휴식"), t('exercise.default_precaution2', "수분 공급")]
+    activities: [
+      { name: t('exercise.default_walk', "산책"), duration: t('exercise.default_duration', "30분"), intensity: "medium" },
+      { name: t('exercise.fetch', "공 던지기 놀이"), duration: "15분", intensity: "high" },
+      { name: t('exercise.nose_work', "노즈워크 (냄새 추적)"), duration: "15분", intensity: "low" },
+      { name: t('exercise.tug_of_war', "터그 놀이 (줄다리기)"), duration: "10분", intensity: "high" },
+      { name: t('exercise.obedience', "복종 훈련 (앉아, 기다려)"), duration: "10분", intensity: "low" },
+      { name: t('exercise.free_play', "자유 놀이 / 탐색 시간"), duration: "20분", intensity: "medium" },
+    ],
+    precautions: [
+      t('exercise.default_precaution1', "충분한 휴식"),
+      t('exercise.default_precaution2', "수분 공급"),
+      t('exercise.default_precaution3', "고온 시간대(낮 12~3시) 운동 자제"),
+      t('exercise.default_precaution4', "식후 1시간 이내 격렬한 운동 금지"),
+    ]
   };
 
   const toggleActivity = (index: number) => {

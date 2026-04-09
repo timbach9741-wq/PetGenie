@@ -123,13 +123,13 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
           )}
         </div>
         <div className="absolute inset-0 z-30 flex flex-col pointer-events-none">
-          <div className="w-full flex justify-between items-center p-6 pointer-events-auto" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
-            <button onClick={() => { setMode('home'); if(videoRef.current?.srcObject) { (videoRef.current.srcObject as MediaStream).getTracks().forEach(t=>t.stop()); } }} className="p-3 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 text-white active:scale-90 transition-transform">
+          <div className="w-full flex justify-between items-center p-6 pt-[calc(env(safe-area-inset-top,0px)+16px)] pointer-events-auto">
+            <button title="Go Back" onClick={() => { setMode('home'); if(videoRef.current?.srcObject) { (videoRef.current.srcObject as MediaStream).getTracks().forEach(t=>t.stop()); } }} className="p-3 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 text-white active:scale-90 transition-transform">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="bg-black/40 backdrop-blur-xl rounded-2xl px-4 py-2.5 border border-white/10 flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-white text-[10px] font-bold uppercase tracking-[0.2em]">AI Vision Active</span>
+              <span className="text-white text-[10px] font-bold uppercase tracking-[0.2em]">{t('camera.ai_vision_active', 'AI Vision Active')}</span>
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center">
@@ -147,13 +147,13 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
               )}
               <div className="flex flex-col items-center gap-2 opacity-40">
                 <Scan className="w-8 h-8 text-white" />
-                <span className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Align Subject</span>
+                <span className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">{t('camera.align_subject', 'Align Subject')}</span>
               </div>
             </div>
           </div>
           <div className="w-full bg-gradient-to-t from-black/90 to-transparent pt-16 pb-12 px-8 pointer-events-auto">
             <div className="flex items-center justify-center">
-              <button onClick={handleCapture} disabled={isScanning} className="relative group">
+              <button title="Capture Image" onClick={handleCapture} disabled={isScanning} className="relative group">
                 <div className="w-20 h-20 rounded-full border-2 border-white/30 flex items-center justify-center p-1">
                   <div className="w-full h-full rounded-full border-4 border-white flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-white group-active:scale-90 transition-transform" />
@@ -172,9 +172,9 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
   // Language switching handled by LanguageSwitcher component
 
   return (
-    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
       {/* Header */}
-      <header className="px-6 pb-4 pt-4 bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-zinc-100/50" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+      <header className="px-6 pb-4 pt-[calc(env(safe-area-inset-top,0px)+16px)] bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-zinc-100/50">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2.5">

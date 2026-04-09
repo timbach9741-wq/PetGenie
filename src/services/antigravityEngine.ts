@@ -19,7 +19,14 @@ export const antigravityEngine = {
 
   // 2. AI 분석 시 현재 언어를 1순위로 강제 고정
   getGlobalPrompt: (lang: string) => {
-    const langMap: Record<string, string> = { ko: 'KOREAN', en: 'ENGLISH', ja: 'JAPANESE', 'zh-TW': 'CHINESE', es: 'SPANISH' };
-    return `[SYSTEM] ROLE: AI VET. TARGET LANG: ${langMap[lang] || 'ENGLISH'}. DO NOT USE OTHER LANGUAGES.`;
+    const baseLang = lang.split('-')[0];
+    const langMap: Record<string, string> = { 
+      ko: 'KOREAN', 
+      en: 'ENGLISH', 
+      ja: 'JAPANESE', 
+      zh: 'TRADITIONAL CHINESE', 
+      es: 'SPANISH' 
+    };
+    return `[SYSTEM] ROLE: AI VET. TARGET LANG: ${langMap[baseLang] || 'ENGLISH'}. DO NOT USE OTHER LANGUAGES.`;
   }
 };

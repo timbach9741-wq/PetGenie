@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { 
   Camera, Heart, Scan, ChevronRight, Activity, Weight, Calendar,
   AlertCircle, CheckCircle2, Shield, TrendingUp, Utensils, Moon, Clock, Droplets,
-  Check, Sparkles, PawPrint, Bell, Sun, CloudRain, Thermometer, Dna, FileText, BookOpen
+  Check, Sparkles, PawPrint, Bell, Sun, CloudRain, Thermometer, Dna, FileText, BookOpen,
+  Syringe, Timer, Scale, Star, AlertOctagon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -287,6 +288,37 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
               <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">{item.label}</span>
             </button>
           ))}
+        </div>
+
+        {/* 🆕 Pet Tools - 신규 기능 바로가기 */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-bold text-zinc-500 px-1 uppercase tracking-wider">{t('dashboard.pet_tools', 'Pet Tools')}</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { icon: AlertOctagon, label: t('emergency.title', '응급 가이드'), desc: t('emergency.short_desc', '즉시 대응 매뉴얼'), color: 'bg-rose-500', screen: 'emergency-guide' as Screen },
+              { icon: Timer, label: t('walk.title', '산책 타이머'), desc: t('walk.short_desc', '산책 기록 & 추적'), color: 'bg-emerald-500', screen: 'walk-timer' as Screen },
+              { icon: Syringe, label: t('vaccine.title', '예방접종'), desc: t('vaccine.short_desc', '접종 스케줄 관리'), color: 'bg-blue-500', screen: 'vaccination' as Screen },
+              { icon: Scale, label: t('weight.title', '체중 추적'), desc: t('weight.short_desc', '체중 변화 기록'), color: 'bg-sky-500', screen: 'weight-tracker' as Screen },
+              { icon: Star, label: t('breed.title', '견종 도감'), desc: t('breed.short_desc', '견종 상세 정보'), color: 'bg-purple-500', screen: 'breed-info' as Screen },
+            ].map((item, i) => (
+              <motion.button
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.05 }}
+                onClick={() => onNavigate(item.screen)}
+                className="bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm flex items-center gap-3 text-left group active:scale-[0.97] transition-transform"
+              >
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0", item.color)}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-zinc-900 truncate">{item.label}</p>
+                  <p className="text-[10px] text-zinc-400 truncate">{item.desc}</p>
+                </div>
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         {/* Recent Scans Section */}

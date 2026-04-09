@@ -42,13 +42,18 @@ const CareGuideScreen = lazy(() => import('./components/screens/CareGuideScreen'
 const HistoryScreen = lazy(() => import('./components/screens/HistoryScreen'));
 const PrivacyPolicyScreen = lazy(() => import('./components/screens/PrivacyPolicyScreen'));
 const AdminDashboard = lazy(() => import('./components/screens/AdminDashboard'));
+const EmergencyGuideScreen = lazy(() => import('./components/screens/EmergencyGuideScreen'));
+const WalkTimerScreen = lazy(() => import('./components/screens/WalkTimerScreen'));
+const VaccinationScreen = lazy(() => import('./components/screens/VaccinationScreen'));
+const WeightTrackerScreen = lazy(() => import('./components/screens/WeightTrackerScreen'));
+const BreedInfoScreen = lazy(() => import('./components/screens/BreedInfoScreen'));
 const LoginScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.LoginScreen })));
 const SignUpScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.SignUpScreen })));
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // --- Types ---
-type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin';
+type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info';
 interface PetProfile {
   name: string;
   breed: string;
@@ -109,13 +114,35 @@ export default function App() {
       return saved ? JSON.parse(saved) : { name: '', breed: '', age: '', gender: '', weight: '' };
     } catch { return { name: '', breed: '', age: '', gender: '', weight: '' }; }
   });
-  const [dailyCare, setDailyCare] = useState<CareItem[]>([
+  // 아이콘 타입 문자열 → 실제 Lucide 아이콘으로 매핑하는 헬퍼
+  const careIconMap: Record<string, any> = {
+    heart: Heart, eye: Eye, activity: Activity, sparkles: Sparkles,
+    shield: Shield, thermometer: Thermometer, droplets: Droplets,
+    utensils: Utensils, check: Check, calendar: Calendar,
+  };
+
+  // 기본 3개 항목 (모든 강아지에게 공통)
+  const baseCareItems: CareItem[] = [
     { id: 'walk', label: 'dashboard.care_walk', icon: Activity, completed: false },
     { id: 'feed', label: 'dashboard.care_feed', icon: Utensils, completed: false },
     { id: 'water', label: 'dashboard.care_water', icon: Droplets, completed: false },
-    { id: 'supplement', label: 'dashboard.care_supplement', icon: Heart, completed: false },
-    { id: 'brush', label: 'dashboard.care_brush', icon: Sparkles, completed: false },
-  ]);
+  ];
+
+  const [dailyCare, setDailyCare] = useState<CareItem[]>(() => {
+    // localStorage에서 저장된 케어 항목 복원 (완료 상태 유지)
+    try {
+      const saved = localStorage.getItem('petgenie_daily_care');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // 저장된 항목에 아이콘 복원 (JSON에 함수 저장 불가하므로)
+        return parsed.map((item: any) => ({
+          ...item,
+          icon: careIconMap[item.iconType] || Heart,
+        }));
+      }
+    } catch {}
+    return baseCareItems;
+  });
 
   // Set initial screen based on onboarding state
   useEffect(() => {
@@ -212,7 +239,7 @@ export default function App() {
 
       setHistory(prev => [{
         id: Date.now(),
-        date: new Date().toLocaleDateString(),
+        date: new Date().toLocaleString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
         image: data.image,
         result: result
       }, ...prev]);
@@ -220,6 +247,32 @@ export default function App() {
       if (result?.primaryBreed && !petProfile.breed) {
         setPetProfile({ ...petProfile, breed: result.primaryBreed });
       }
+
+      // AI 분석 결과에 따른 맞춤형 데일리 케어 업데이트
+      const aiCareItems: CareItem[] = (result?.dailyCareChecklist || []).map((item: any) => ({
+        id: item.id || `ai_care_${Math.random().toString(36).slice(2, 7)}`,
+        label: item.label,
+        icon: careIconMap[item.iconType] || Heart,
+        iconType: item.iconType,
+        completed: false,
+      }));
+      const newCare = [
+        ...baseCareItems,
+        ...(aiCareItems.length > 0 ? aiCareItems : [
+          // AI 응답 없을 때 기본 맞춤 항목
+          { id: 'supplement', label: i18n.language === 'ko' ? '영양제 급여' : 'Supplement', icon: Heart, iconType: 'heart', completed: false },
+          { id: 'brush', label: i18n.language === 'ko' ? '빗질 / 그루밍' : 'Brushing', icon: Sparkles, iconType: 'sparkles', completed: false },
+          { id: 'teeth', label: i18n.language === 'ko' ? '치아 관리' : 'Dental Care', icon: Shield, iconType: 'shield', completed: false },
+          { id: 'eyes', label: i18n.language === 'ko' ? '눈/귀 체크' : 'Eye/Ear Check', icon: Eye, iconType: 'eye', completed: false },
+        ]),
+      ];
+      setDailyCare(newCare);
+      // localStorage에 저장 (아이콘 타입만 저장, 함수는 저장 불가)
+      try {
+        localStorage.setItem('petgenie_daily_care', JSON.stringify(
+          newCare.map(c => ({ ...c, icon: undefined, iconType: (c as any).iconType || c.id }))
+        ));
+      } catch {}
       
       if (!isPremium) {
         setInterstitialAction({ onComplete: () => navigateTo('health-report') });
@@ -233,7 +286,7 @@ export default function App() {
       
       setHistory(prev => [{
         id: Date.now(),
-        date: new Date().toLocaleDateString(),
+        date: new Date().toLocaleString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
         image: data.image,
         result: fallbackResult
       }, ...prev]);
@@ -254,7 +307,7 @@ export default function App() {
     navigateTo('pet-dashboard');
   };
 
-  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin', 'ai-vet'].includes(currentScreen);
+  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin', 'ai-vet', 'emergency-guide', 'walk-timer', 'vaccination', 'weight-tracker', 'breed-info'].includes(currentScreen);
 
   return (
     <>
@@ -422,6 +475,24 @@ export default function App() {
                   onBack={goBack}
                 />
               )}
+              {currentScreen === 'emergency-guide' && (
+                <EmergencyGuideScreen onBack={goBack} />
+              )}
+              {currentScreen === 'walk-timer' && (
+                <WalkTimerScreen
+                  onBack={goBack}
+                  onCompleteCare={(id) => toggleCare(id)}
+                />
+              )}
+              {currentScreen === 'vaccination' && (
+                <VaccinationScreen onBack={goBack} petProfile={petProfile} />
+              )}
+              {currentScreen === 'weight-tracker' && (
+                <WeightTrackerScreen onBack={goBack} />
+              )}
+              {currentScreen === 'breed-info' && (
+                <BreedInfoScreen onBack={goBack} analysisResult={analysisResult} />
+              )}
             </motion.div>
         </AnimatePresence>
           </Suspense>
@@ -469,38 +540,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {interstitialAction && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-6 text-white"
-          >
-            <div className="bg-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center relative overflow-hidden border border-zinc-700 shadow-2xl">
-              <div className="absolute top-3 left-3 bg-zinc-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider text-zinc-300">{t('common.sponsored', 'Sponsored')}</div>
-              <div className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-6 mt-4">{t('common.google_adsense', 'Google AdSense')}</div>
-              
-              <div className="aspect-[300/250] bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-700 mb-8">
-                <span className="text-zinc-600 font-bold uppercase tracking-widest text-sm">{t('common.full_screen_ad', 'Full Screen Ad Area')}</span>
-              </div>
-              
-              <h3 className="font-bold text-lg mb-2">{t('dashboard.premium_banner.title', 'Premium Pet Care')}</h3>
-              <p className="text-sm text-zinc-400 leading-relaxed mb-8">{t('dashboard.premium_banner.desc', 'Smart dog care begins here')}</p>
-              
-              <button 
-                onClick={() => {
-                  interstitialAction.onComplete();
-                  setInterstitialAction(null);
-                }}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-emerald-900/20 [-webkit-tap-highlight-color:transparent]"
-              >
-                {t('common.close_ad_and_view', 'Close Ad & View Results')}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
     </>
   );
 }

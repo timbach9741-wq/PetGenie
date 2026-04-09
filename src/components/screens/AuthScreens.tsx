@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Scan } from 'lucide-react';
 import { motion } from 'motion/react';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../lib/firebase';
 
 export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: string) => void, onNavigateToSignUp: () => void }) => {
   const { t } = useTranslation();
@@ -12,6 +14,21 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email && password) onLogin(email);
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      // 구글 로그인 성공 후, 인증된 사용자의 이메일을 onLogin으로 전달합니다.
+      if (result.user.email) {
+        onLogin(result.user.email);
+      } else {
+        alert(t('auth.login_failed') || '로그인에 실패했습니다. (이메일 없음)');
+      }
+    } catch (error: any) {
+      console.error("Google Auth Error", error);
+      alert(t('auth.login_failed') || `구글 로그인 중 에러가 발생했습니다: ${error.message}`);
+    }
   };
 
   const handleSocialLogin = (provider: string) => onLogin(`${provider}@user.com`);
@@ -33,7 +50,7 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
         </div>
 
         <div className="space-y-3">
-          <button onClick={() => handleSocialLogin('google')} className="w-full flex items-center justify-center gap-3 bg-white text-zinc-900 py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] shadow-lg">
+          <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 bg-white text-zinc-900 py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] shadow-lg">
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -41,12 +58,6 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             {t('auth.google_login')}
-          </button>
-          <button onClick={() => handleSocialLogin('apple')} className="w-full flex items-center justify-center gap-3 bg-white/10 text-white py-4 rounded-2xl font-bold text-sm border border-white/10 transition-all active:scale-[0.98]">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-            </svg>
-            {t('auth.apple_login')}
           </button>
           <button onClick={() => handleSocialLogin('kakao')} className="w-full flex items-center justify-center gap-3 bg-[#FEE500] text-[#191919] py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#191919">
@@ -83,7 +94,7 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
               className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
             />
             <label htmlFor="marketing-consent-login" className="text-xs text-zinc-400 leading-tight">
-              I agree to receive launch benefits via email
+              {t('auth.marketing_consent', 'I agree to receive launch benefits via email')}
             </label>
           </div>
           <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-900/20 transition-all active:scale-[0.98]">
@@ -91,8 +102,8 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
           </button>
           <div className="text-center pt-2">
             <p className="text-[10px] text-zinc-500 leading-relaxed">
-              By continuing, you agree to Pet Genie's <br/>
-              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Terms</a> and <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Privacy Policy</a>
+              {t('auth.terms_prefix', 'By continuing, you agree to Pet Genie\'s')} <br/>
+              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.terms_link', 'Terms')}</a> {t('auth.terms_and', 'and')} <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.privacy_link', 'Privacy Policy')}</a>
             </p>
           </div>
         </form>
@@ -161,7 +172,7 @@ export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email
               className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
             />
             <label htmlFor="marketing-consent-signup" className="text-xs text-zinc-400 leading-tight">
-              I agree to receive launch benefits via email
+              {t('auth.marketing_consent', 'I agree to receive launch benefits via email')}
             </label>
           </div>
           <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-900/20 transition-all active:scale-[0.98]">
@@ -169,8 +180,8 @@ export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email
           </button>
           <div className="text-center pt-2">
             <p className="text-[10px] text-zinc-500 leading-relaxed">
-              By continuing, you agree to Pet Genie's <br/>
-              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Terms</a> and <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">Privacy Policy</a>
+              {t('auth.terms_prefix', 'By continuing, you agree to Pet Genie\'s')} <br/>
+              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.terms_link', 'Terms')}</a> {t('auth.terms_and', 'and')} <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.privacy_link', 'Privacy Policy')}</a>
             </p>
           </div>
         </form>

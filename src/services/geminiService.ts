@@ -4,15 +4,20 @@
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
+// 시스템 인스트럭션 생성 - lang은 반드시 원본 언어 코드(ko, en, ja 등)로 전달해야 함
 const getSystemInstruction = (lang: string, petInfo?: string) => {
   const langMap: Record<string, string> = { ko: 'KOREAN', en: 'ENGLISH', ja: 'JAPANESE', 'zh-TW': 'CHINESE', zh: 'CHINESE', es: 'SPANISH' };
   const targetLang = langMap[lang] || 'ENGLISH';
-  const noKoreanStr = lang === 'ko' ? '' : 'NEVER USE KOREAN. ';
   
-  return `REPLY ONLY IN [${targetLang}]. NO KOREAN.\nALL BREED AND DISEASE NAMES MUST BE TRANSLATED.
+  // 한국어일 때는 한국어로 답변하도록, 그 외에는 한국어 사용 금지
+  const langRestriction = lang === 'ko' 
+    ? `반드시 한국어로만 답변하세요. 영어를 사용하지 마세요. 모든 품종명과 질병명도 한국어로 번역하세요.` 
+    : `REPLY ONLY IN [${targetLang}]. NEVER USE KOREAN. ALL BREED AND DISEASE NAMES MUST BE TRANSLATED TO ${targetLang}.`;
+  
+  return `${langRestriction}
 IDENTITY: You are "AI Vet", a highly advanced Veterinary Genetics Expert AI. Always act and speak as AI Vet. You have 15 years of experience.
 Structure: [Summary] - [Detailed Analysis] - [First Aid] - [Urgency].
-Disclaimer: "This is for reference only. Visit a vet for a professional diagnosis."
+${lang === 'ko' ? 'Disclaimer: "이 내용은 참고용입니다. 정확한 진단은 반드시 동물병원을 방문해주세요."' : 'Disclaimer: "This is for reference only. Visit a vet for a professional diagnosis."'}
 ${petInfo ? `Current patient information: ${petInfo}` : ''}
 `;
 };
@@ -46,7 +51,8 @@ export const fetchVetAnalysis = async (
   };
   const targetLang = langMap[currentLang] || "English";
 
-  const systemText = getSystemInstruction(targetLang, petInfo);
+  // 원본 언어 코드(ko, en 등)를 그대로 전달해야 getSystemInstruction 내부 langMap이 정상 동작
+  const systemText = getSystemInstruction(currentLang, petInfo);
 
   // --- 캐시 (Cache) 검사 ---
   const cacheKey = [userInput, currentLang, petInfo || '', chatHistory || ''].join('||');

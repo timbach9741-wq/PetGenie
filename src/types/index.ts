@@ -1,5 +1,5 @@
 // --- Types ---
-export type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin';
+export type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info';
 
 // --- Pet Profile Type ---
 export interface PetProfile {
@@ -15,6 +15,7 @@ export interface CareItem {
   id: string;
   label: string;
   icon: any;
+  iconType?: string; // localStorage 저장/복원 시 아이콘 매핑용
   completed: boolean;
 }
 

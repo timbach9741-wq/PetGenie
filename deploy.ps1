@@ -35,29 +35,22 @@ $totalStart = Get-Date
 $newCode = 0
 $newName = "0.0.0"
 
-# --- STEP 1: versionCode auto-increment ---
-Write-Host "[1/6] versionCode auto-increment..." -ForegroundColor Cyan
+# --- STEP 1: Read current version from build.gradle ---
+Write-Host "[1/6] Reading version from build.gradle..." -ForegroundColor Cyan
 
 $content = Get-Content $GradleFile -Raw
 
 if ($content -match 'versionCode\s+(\d+)') {
-    $oldCode = [int]$Matches[1]
-    $newCode = $oldCode + 1
-    $content = $content -replace "versionCode\s+$oldCode", "versionCode $newCode"
-    Write-Host "  versionCode: $oldCode -> $newCode" -ForegroundColor Yellow
+    $newCode = [int]$Matches[1]
+    Write-Host "  versionCode: $newCode" -ForegroundColor Yellow
 }
 
 if ($content -match 'versionName\s+"(\d+\.\d+\.\d+)"') {
-    $oldName = $Matches[1]
-    $parts = $oldName.Split('.')
-    $patch = [int]$parts[2] + 1
-    $newName = "$($parts[0]).$($parts[1]).$patch"
-    $content = $content -replace ('versionName\s+"' + [regex]::Escape($oldName) + '"'), "versionName `"$newName`""
-    Write-Host "  versionName: $oldName -> $newName" -ForegroundColor Yellow
+    $newName = $Matches[1]
+    Write-Host "  versionName: $newName" -ForegroundColor Yellow
 }
 
-Set-Content -Path $GradleFile -Value $content -NoNewline
-Write-Host "  [OK] build.gradle updated" -ForegroundColor Green
+Write-Host "  [OK] Version confirmed" -ForegroundColor Green
 
 # --- STEP 2: Vite build ---
 Write-Host ""

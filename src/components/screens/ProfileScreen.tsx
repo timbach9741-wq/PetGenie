@@ -179,7 +179,7 @@ const ProfileScreen = ({
             {user?.email === 'timbach@naver.com' && (
               <button onClick={() => onNavigate('admin')} className="w-full flex items-center gap-4 py-3.5 px-1 rounded-xl hover:bg-emerald-50 transition-colors">
                 <Shield className="w-5 h-5 text-emerald-600" />
-                <span className="flex-1 text-left text-sm font-bold text-emerald-600">Admin Dashboard</span>
+                <span className="flex-1 text-left text-sm font-bold text-emerald-600">{t('profile.admin_dashboard', 'Admin Dashboard')}</span>
                 <ChevronRight className="w-4 h-4 text-emerald-300" />
               </button>
             )}

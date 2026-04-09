@@ -24,18 +24,19 @@ export const performPetScan = async (
     ${petProfile.gender ? `- Gender: ${petProfile.gender}` : ''}
   `;
 
+  const baseLang = language.split('-')[0];
   const langMap: Record<string, string> = {
     ko: "Korean",
     en: "English",
     ja: "Japanese",
-    "zh-TW": "Traditional Chinese",
+    zh: "Traditional Chinese",
     es: "Spanish"
   };
-  const responseLang = langMap[language] || "English";
+  const responseLang = langMap[baseLang] || "English";
 
-  const noKoreanStr = language === 'ko' ? '' : 'NEVER USE KOREAN. ';
+  const noKoreanStr = baseLang === 'ko' ? '' : 'NEVER USE KOREAN. ';
   
-  const prompt = `REPLY ONLY IN [${responseLang.toUpperCase()}]. NO KOREAN.\nALL BREED AND DISEASE NAMES MUST BE TRANSLATED.
+  const prompt = `REPLY ONLY IN [${responseLang.toUpperCase()}]. ${noKoreanStr}\nALL BREED AND DISEASE NAMES MUST BE TRANSLATED.
 IDENTITY: You are "AI Vet", a highly advanced Veterinary Genetics Expert AI. Always act and speak as AI Vet. Perform a rigorous, evidence-based visual phenotype analysis of this dog image to identify its breed composition, health risks, and care requirements.
 
 ANALYSIS GUIDELINES:
@@ -93,17 +94,36 @@ Return a valid JSON object with this exact structure. All string values MUST be 
   ],
   "dietPlan": {
     "title": "Diet plan title in ${responseLang}",
-    "source": "WSAVA / NRC",
-    "recommendations": ["Nutrition advice in ${responseLang}"],
-    "prohibitedFoods": ["Dangerous foods in ${responseLang}"],
-    "dailyCalories": "Recommended daily calories range in ${responseLang}"
+    "source": "WSAVA / NRC / AAFCO",
+    IMPORTANT: Generate breed-specific diet recommendations. Consider the breed's common health issues (e.g., joint problems → omega-3 rich foods, sensitive stomach → easily digestible proteins, obesity-prone → calorie control).
+    "recommendations": [
+      Generate 5-6 breed-specific nutrition recommendations in ${responseLang}.
+      Include: ideal protein sources, fat ratio, fiber needs, breed-specific supplements (glucosamine for large breeds, etc.), meal frequency, and portion guidance.
+    ],
+    "prohibitedFoods": [
+      Generate 6-8 dangerous foods in ${responseLang}.
+      Include common ones (chocolate, grapes, onion, macadamia, xylitol) PLUS breed-specific warnings if applicable.
+    ],
+    "supplements": [
+      Generate 2-3 breed-specific supplement recommendations.
+      Each: {"name": "Supplement name in ${responseLang}", "benefit": "Why this breed needs it in ${responseLang}"}
+    ],
+    "feedingTips": [
+      Generate 3-4 breed-specific feeding tips in ${responseLang}.
+      E.g., elevated bowl for large breeds, slow-feeder for fast eaters, meal splitting for bloat-prone breeds.
+    ],
+    "dailyCalories": "Recommended daily calories range based on breed size in ${responseLang}"
   },
   "exercisePlan": {
     "title": "Exercise plan title in ${responseLang}",
     "source": "Guidelines source in English",
     "dailyGoal": "Daily goal duration in ${responseLang}",
-    "activities": [{"name": "Activity name in ${responseLang}", "duration": "Duration in ${responseLang}", "intensity": "low" | "medium" | "high"}],
-    "precautions": ["Precautions during exercise in ${responseLang}"]
+    "activities": [
+      IMPORTANT: Generate 5-7 diverse activities with varied intensities (mix of low, medium, high).
+      Include breed-appropriate exercises such as: walks, fetch, tug-of-war, swimming, agility training, nose work, obedience drills, free play, hill walking, interval jogging, mental enrichment games, etc.
+      Each: {"name": "Activity name in ${responseLang}", "duration": "Duration in ${responseLang}", "intensity": "low" | "medium" | "high"}
+    ],
+    "precautions": ["Precautions during exercise in ${responseLang} - generate at least 4 items"]
   },
   "expertInsights": {
     "expertAdvice": "General evaluation in ${responseLang}",
@@ -119,6 +139,26 @@ Return a valid JSON object with this exact structure. All string values MUST be 
       "source": "Source in English"
     }
   ],
+  "dailyCareChecklist": [
+    IMPORTANT: Generate exactly 4 breed-specific daily care items tailored to the identified breed's needs and health risks.
+    Do NOT include generic items like walking, feeding, or water (those are already provided).
+    Focus on breed-specific grooming, health monitoring, and preventive care.
+    Examples: ear cleaning, dental care, eye/tear stain wiping, joint stretching, skin fold cleaning, coat brushing, nail check, weight monitoring, breathing check, etc.
+    Each: {"id": "unique_snake_case_id", "label": "Short care task name in ${responseLang}", "iconType": "heart" | "eye" | "activity" | "sparkles" | "shield" | "thermometer"}
+  ],
+  "breedEncyclopedia": {
+    IMPORTANT: Generate comprehensive breed encyclopedia data for the identified breed.
+    "origin": "Country/region of origin in ${responseLang}",
+    "group": "Breed group classification in ${responseLang} (e.g., Sporting, Herding, Toy, Working, etc.)",
+    "lifespan": "Average lifespan range in ${responseLang} (e.g., '12-15년')",
+    "sizeCategory": "Size category in ${responseLang} (소형 / 중형 / 대형 / 초대형)",
+    "temperament": ["3-5 key temperament traits in ${responseLang}"],
+    "funFacts": ["3-4 interesting/fun facts about this breed in ${responseLang}"],
+    "idealFor": "Ideal owner/family type in ${responseLang}",
+    "groomingLevel": "Grooming needs level in ${responseLang} (낮음 / 보통 / 높음 / 매우 높음)",
+    "exerciseNeeds": "Exercise needs level in ${responseLang} (낮음 / 보통 / 높음 / 매우 높음)",
+    "trainability": "Training ease in ${responseLang} (쉬움 / 보통 / 어려움 - with brief reason)"
+  },
   "disclaimer": "This analysis is generated by AI..."
 }
 
@@ -218,9 +258,9 @@ export const getFallbackResult = () => ({
     }
   ],
   detailedMarkers: [
-    { label: 'report.marker_mdr1', value: 98, status: 'report.status_normal', testSource: 'UCDavis VGL Panel' },
-    { label: 'report.marker_dm', value: 85, status: 'report.status_normal', testSource: 'UCDavis VGL Panel' },
-    { label: 'report.marker_pra', value: 12, status: 'report.status_caution', testSource: 'OFA/CHIC Recommended Test' },
+    { label: 'report.marker_mdr1', value: 98, status: 'normal', testSource: 'UCDavis VGL Panel' },
+    { label: 'report.marker_dm', value: 85, status: 'normal', testSource: 'UCDavis VGL Panel' },
+    { label: 'report.marker_pra', value: 12, status: 'caution', testSource: 'OFA/CHIC Recommended Test' },
   ],
   dietPlan: null, // components will handle fallback
   exercisePlan: null, // components will handle fallback

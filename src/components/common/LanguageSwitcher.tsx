@@ -20,8 +20,11 @@ const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 'pill' 
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentLangCode = i18n.language ? i18n.language.split('-')[0] : 'ko';
-  const currentLangIndex = LANGUAGES.findIndex(l => l.code === currentLangCode);
+  const langCode = i18n.language || 'ko';
+  let currentLangIndex = LANGUAGES.findIndex(l => l.code === langCode);
+  if (currentLangIndex === -1) {
+    currentLangIndex = LANGUAGES.findIndex(l => l.code.startsWith(langCode.split('-')[0]));
+  }
   const currentLang = LANGUAGES[currentLangIndex >= 0 ? currentLangIndex : 0];
 
   useEffect(() => {
@@ -87,14 +90,14 @@ const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 'pill' 
                 onClick={() => selectLang(lang.code)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors",
-                  i18n.language === lang.code
+                  currentLang.code === lang.code
                     ? "bg-emerald-50 text-emerald-700 font-bold"
                     : "text-zinc-700 hover:bg-zinc-50"
                 )}
               >
                 <span className="text-lg">{lang.flag}</span>
                 <span className="flex-1 text-left">{lang.label}</span>
-                {i18n.language === lang.code && (
+                {currentLang.code === lang.code && (
                   <Check className="w-4 h-4 text-emerald-500" />
                 )}
               </button>
@@ -107,4 +110,3 @@ const LanguageSwitcher = ({ variant = 'button' }: { variant?: 'button' | 'pill' 
 };
 
 export default LanguageSwitcher;
-
