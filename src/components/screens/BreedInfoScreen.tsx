@@ -89,9 +89,9 @@ const BreedInfoScreen = ({ onBack, analysisResult }: { onBack: () => void, analy
   const healthRisks = analysisResult?.healthRisks || [];
 
   return (
-    <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(100px + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar pb-[calc(100px+env(safe-area-inset-bottom,0px))]">
       <header className="px-6 pt-12 pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
-        <button onClick={onBack} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
+        <button onClick={onBack} title={t('common.back', '뒤로가기')} aria-label={t('common.back', '뒤로가기')} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-white">{t('breed.title', '견종 도감')}</h1>

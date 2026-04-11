@@ -27,12 +27,13 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
   const careCompletionRate = dailyCare.length > 0 ? (completedCareCount / dailyCare.length) * 100 : 0;
   const healthScore = Math.round(careCompletionRate);
   const healthColor = healthScore >= 80 ? '#10b981' : healthScore >= 60 ? '#f59e0b' : healthScore >= 40 ? '#fb923c' : '#94a3b8';
+  const healthTextColor = healthScore >= 80 ? 'text-emerald-500' : healthScore >= 60 ? 'text-amber-500' : healthScore >= 40 ? 'text-orange-400' : 'text-slate-400';
   const healthLabel = healthScore >= 80 ? t('dashboard.health_excellent') : healthScore >= 60 ? t('dashboard.health_good') : healthScore >= 40 ? t('dashboard.health_caution') : t('dashboard.health_warning');
 
   return (
-    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
       {/* Header with Profile */}
-      <header className="bg-white px-6 pb-6 border-b border-zinc-100 sticky top-0 z-30" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+      <header className="bg-white px-6 pb-6 border-b border-zinc-100 sticky top-0 z-30 pt-[calc(env(safe-area-inset-top,0px)+16px)]">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-emerald-500/20 shadow-sm bg-zinc-100 flex items-center justify-center">
@@ -188,7 +189,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
             <div className="relative">
               <CircularProgress value={healthScore} size={100} strokeWidth={8} color={healthColor} />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-black" style={{ color: healthColor }}>{healthScore}</span>
+                <span className={cn("text-2xl font-black", healthTextColor)}>{healthScore}</span>
                 <span className="text-[9px] font-bold text-zinc-400">{healthLabel}</span>
               </div>
             </div>

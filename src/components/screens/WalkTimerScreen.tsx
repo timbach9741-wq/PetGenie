@@ -104,9 +104,9 @@ const WalkTimerScreen = ({ onBack, onCompleteCare }: { onBack: () => void, onCom
   }).length;
 
   return (
-    <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar" style={{ paddingBottom: 'calc(100px + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar pb-[calc(100px+env(safe-area-inset-bottom,0px))]">
       <header className="px-6 pt-12 pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
-        <button onClick={onBack} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
+        <button onClick={onBack} title={t('common.back', '뒤로가기')} aria-label={t('common.back', '뒤로가기')} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold text-white">{t('walk.title', '산책 타이머')}</h1>
@@ -136,6 +136,8 @@ const WalkTimerScreen = ({ onBack, onCompleteCare }: { onBack: () => void, onCom
             {seconds > 0 && (
               <button
                 onClick={stopWalk}
+                title={t('walk.stop', '정지')}
+                aria-label={t('walk.stop', '정지')}
                 className="w-14 h-14 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center active:scale-90 transition-transform"
               >
                 <Square className="w-6 h-6" />
@@ -143,6 +145,8 @@ const WalkTimerScreen = ({ onBack, onCompleteCare }: { onBack: () => void, onCom
             )}
             <button
               onClick={toggleTimer}
+              title={isRunning ? t('walk.pause', '일시정지') : t('walk.start', '시작')}
+              aria-label={isRunning ? t('walk.pause', '일시정지') : t('walk.start', '시작')}
               className={cn(
                 "w-20 h-20 rounded-full flex items-center justify-center active:scale-90 transition-all shadow-xl",
                 isRunning
