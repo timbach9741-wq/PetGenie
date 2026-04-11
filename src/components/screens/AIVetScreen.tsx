@@ -3,6 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Send, User, AlertCircle, Loader2, Gift } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { AdMob, RewardAdOptions, RewardAdPluginEvents } from '@capacitor-community/admob';
+import { Capacitor } from '@capacitor/core';
 import { fetchVetAnalysis } from '../../services/geminiService';
 import { PetProfile } from '../../types';
 import vetImage from '../../assets/images/ai-vet-character.png';
@@ -56,25 +58,60 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
     }
   }, []);
 
-  const handleWatchAd = () => {
+  const handleWatchAd = async () => {
     setShowAdPopup(false);
     setIsAdLoading(true);
-    // Simulate Ad Network Request
-    setTimeout(() => {
-      // Simulate 30% chance of Ad Load Failure
-      const isFailed = Math.random() < 0.3;
-      setIsAdLoading(false);
+
+    if (!Capacitor.isNativePlatform()) {
+      // 웹이나 시뮬레이션 환경 대비용 fallback
+      setTimeout(() => {
+        const isFailed = Math.random() < 0.3;
+        setIsAdLoading(false);
+        if (isFailed) {
+          alert(t('ai_vet.ad_failed_fallback', '광고 로드에 실패했습니다. 예외적으로 1회 상담 기회를 시크릿 제공합니다!'));
+          setConsultationTokens(1);
+        } else {
+          alert(t('ai_vet.ad_reward_success', '광고 시청 혜택으로 1회 무료 상담이 충전되었습니다.'));
+          setConsultationTokens(1);
+        }
+      }, 1500);
+      return;
+    }
+
+    try {
+      const options: RewardAdOptions = {
+        adId: ADMOB_IDS.REWARDED,
+        isTesting: false,
+      };
       
-      if (isFailed) {
-        // Fallback: Give 1 token anyway
+      // 이전 리스너들 정리
+      AdMob.removeAllListeners().catch(() => {});
+      
+      await AdMob.prepareRewardVideoAd(options);
+      
+      AdMob.addListener(RewardAdPluginEvents.Rewarded, (rewardItem) => {
+        setConsultationTokens(1);
+        alert(t('ai_vet.ad_reward_success', '광고 시청 혜택으로 1회 무료 상담이 충전되었습니다.'));
+      });
+      
+      AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
+        setIsAdLoading(false);
+      });
+
+      AdMob.addListener(RewardAdPluginEvents.FailedToLoad, (error) => {
+        console.warn('AdMob failed to load', error);
+        setIsAdLoading(false);
         alert(t('ai_vet.ad_failed_fallback', '광고 로드에 실패했습니다. 예외적으로 1회 상담 기회를 시크릿 제공합니다!'));
         setConsultationTokens(1);
-      } else {
-        // Ad watched successfully
-        alert(t('ai_vet.ad_reward_success', '광고 시청 혜택으로 1회 무료 상담이 충전되었습니다.'));
-        setConsultationTokens(1);
-      }
-    }, 1500);
+      });
+
+      await AdMob.showRewardVideoAd();
+    } catch (error) {
+      console.error('AdMob Error', error);
+      setIsAdLoading(false);
+      alert(t('ai_vet.ad_failed_fallback', '광고 로드에 실패했습니다. 예외적으로 1회 상담 기회를 시크릿 제공합니다!'));
+      setConsultationTokens(1);
+    }
   };
 
   // --- 메시지 전송 핸들러 ---

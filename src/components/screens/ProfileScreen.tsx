@@ -202,7 +202,7 @@ const ProfileScreen = ({
         {/* Logout / About */}
         <div className="space-y-3">
           <div className="bg-white rounded-3xl p-4 border border-zinc-100 shadow-sm text-center">
-            <p className="text-[10px] text-zinc-400">{t('profile.version')} 1.0.0</p>
+            <p className="text-[10px] text-zinc-400">{t('profile.version')} 1.0.8</p>
           </div>
           <button onClick={onLogout} className="w-full flex items-center justify-center gap-2 py-4 bg-rose-50 text-rose-600 rounded-2xl font-bold text-sm border border-rose-100 active:scale-[0.98] transition-transform">
             <LogOut className="w-4 h-4" />

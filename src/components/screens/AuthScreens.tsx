@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Scan } from 'lucide-react';
 import { motion } from 'motion/react';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider } from '../../lib/firebase';
 
 export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: string) => void, onNavigateToSignUp: () => void }) => {
@@ -11,9 +11,19 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
   const [password, setPassword] = useState('');
   const [agreeMarketing, setAgreeMarketing] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) onLogin(email);
+    if (email && password) {
+      try {
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        if (result.user.email) {
+          onLogin(result.user.email);
+        }
+      } catch (error: any) {
+        console.error("Firebase Email Auth Error", error);
+        alert(t('auth.login_failed') || `로그인에 실패했습니다: ${error.message}`);
+      }
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -30,8 +40,6 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
       alert(t('auth.login_failed') || `구글 로그인 중 에러가 발생했습니다: ${error.message}`);
     }
   };
-
-  const handleSocialLogin = (provider: string) => onLogin(`${provider}@user.com`);
 
   return (
     <motion.div 
@@ -58,12 +66,6 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
             {t('auth.google_login')}
-          </button>
-          <button onClick={() => handleSocialLogin('kakao')} className="w-full flex items-center justify-center gap-3 bg-[#FEE500] text-[#191919] py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]">
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#191919">
-              <path d="M12 3C6.48 3 2 6.36 2 10.5c0 2.67 1.77 5.02 4.44 6.38l-1.13 4.12 4.78-3.15c.6.08 1.24.15 1.91.15 5.52 0 10-3.36 10-7.5S17.52 3 12 3z"/>
-            </svg>
-            {t('auth.kakao_login')}
           </button>
         </div>
 
@@ -125,10 +127,18 @@ export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeMarketing, setAgreeMarketing] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email && password && password === confirmPassword) {
-      onSignUp(email);
+      try {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        if (result.user.email) {
+          onSignUp(result.user.email);
+        }
+      } catch (error: any) {
+        console.error("Firebase SignUp Error", error);
+        alert(t('auth.signup_failed') || `회원가입에 실패했습니다. (이메일 양식 또는 비밀번호 6자리 이상 확인)`);
+      }
     } else if (password !== confirmPassword) {
       alert(t('auth.password_mismatch'));
     }

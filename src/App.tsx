@@ -6,6 +6,8 @@ import { ADMOB_IDS } from './config/ads';
 
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
+import { AdMob } from '@capacitor-community/admob';
+import { Capacitor } from '@capacitor/core';
 import { 
   Camera, Heart, LayoutDashboard, ShoppingBag, FileText, Settings, Scan,
   ChevronRight, Activity, Weight, Calendar, AlertCircle, CheckCircle2,
@@ -149,7 +151,14 @@ export default function App() {
     if (hasSeenOnboarding) {
       setCurrentScreen('camera');
     }
-  }, []);
+    
+    // AdMob Initialization for native platform
+    if (Capacitor.isNativePlatform()) {
+      AdMob.initialize({
+        requestTrackingAuthorization: true,
+      }).catch(err => console.warn('AdMob init error', err));
+    }
+  }, [hasSeenOnboarding]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2500);
