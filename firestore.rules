@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 관리자 확인 (이메일 기반 하드코딩)
+    // 보안을 위해 추후 Custom Claims 또는 admins 컬렉션으로 분리 가능
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'timbach@naver.com';
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 1. users 컬렉션
+    match /users/{userId} {
+      // 읽기: 본인 또는 관리자
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // 쓰기(생성/수정): 본인 또는 관리자 (클라이언트 단 가입시 최초 생성 고려)
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // 2. feedbacks 컬렉션
+    match /feedbacks/{feedbackId} {
+      // 읽기: 본인 또는 관리자
+      // list 등 전체 쿼리는 관리자만 가능, 본인 조회는 resource 확인 필요하므로 
+      // 앱 내 피드백 기능이 본인 목록 조회가 없다면 단순 등록(create)만 개방
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // 3. payments 컬렉션 (유저 하위 컬렉션이라면 경로 매치가 다르지만 현재 구조 미정이므로 임시)
+    // 보통 payments 문서 내에 userId가 존재함.
+    match /payments/{paymentId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      // 클라이언트 직접 결제 기록 저장은 위험하지만, 우선 본인 등록 허용
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // 기타 (기본 거부)
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

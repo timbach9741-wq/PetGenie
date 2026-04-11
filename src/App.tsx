@@ -521,6 +521,7 @@ export default function App() {
               {currentScreen === 'vaccination' && (
                 <VaccinationScreen onBack={goBack} petProfile={petProfile} />
               )}
+
               {currentScreen === 'weight-tracker' && (
                 <WeightTrackerScreen onBack={goBack} />
               )}

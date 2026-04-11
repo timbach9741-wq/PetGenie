@@ -21,7 +21,7 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
         }
       } catch (error: any) {
         console.error("Firebase Email Auth Error", error);
-        alert(t('auth.login_failed') || `로그인에 실패했습니다: ${error.message}`);
+        alert(`${t('auth.login_failed')}\n\n상세 오류: ${error.message}`);
       }
     }
   };
@@ -137,7 +137,7 @@ export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email
         }
       } catch (error: any) {
         console.error("Firebase SignUp Error", error);
-        alert(t('auth.signup_failed') || `회원가입에 실패했습니다. (이메일 양식 또는 비밀번호 6자리 이상 확인)`);
+        alert(`${t('auth.signup_failed')}\n\n상세 오류: ${error.message}`);
       }
     } else if (password !== confirmPassword) {
       alert(t('auth.password_mismatch'));

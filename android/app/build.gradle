@@ -15,8 +15,8 @@ android {
         applicationId "com.petgenie.official"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18
-        versionName "1.1.0"
+        versionCode 19
+        versionName "1.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -26,7 +26,7 @@ android {
     }
     buildTypes {
         release {
-            // R8 ?�독???�성????mapping.txt ?�동 ?�성 (구�? ?�레??콘솔 ?�로?????�요)
+            // R8 ?�독???�성????mapping.txt ?�동 ?�성 (구�? ?�레??콘솔 ?�로?????�요)
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

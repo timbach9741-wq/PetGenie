@@ -896,5 +896,45 @@
     "mock_kong": "Coco",
     "ranking_min": "min",
     "ranking_streak": "d streak"
+  },
+  "translator": {
+    "title": "Dog Communicator",
+    "short_desc": "Analyze dog language",
+    "mode_b2h": "Dog ➔ Human",
+    "mode_h2b": "Human ➔ Dog",
+    "tap_to_listen": "Tap the mic to listen",
+    "listening": "Listening...",
+    "analyzing": "Analyzing...",
+    "translate_btn": "Translate",
+    "ad_prompt": "Watch an ad to unlock\none translation!",
+    "ad_button": "Watch Ad to Translate",
+    "premium_unlimited": "Premium Unlimited",
+    "result_title": "Translation Result",
+    "try_again": "Try Again",
+    "responses": {
+      "r1": "Play with me now!",
+      "r2": "I'm hungry, give me a treat.",
+      "r3": "I love you, keep petting me.",
+      "r4": "I think there's a stranger nearby!",
+      "r5": "I want to go for a walk! Let's go outside.",
+      "r6": "I'm sleepy... I want to rest.",
+      "r7": "I feel so great!",
+      "r8": "Hug me!"
+    },
+    "desc": "Play various environmental sounds to trigger positive responses from your dog!",
+    "result_desc_human": "Translated effectively into human language.",
+    "result_desc_dog": "Translated effectively into dog language.",
+    "play_original": "Play original sound",
+    "human_to_dog_result": "Woof! Bark!!",
+    "ad_title": "Watch an Ad to Translate",
+    "ad_desc": "Free users can unlock a translation by watching a short rewarded ad.",
+    "presets": {
+      "play": "Let's play!",
+      "walk": "Let's walk?",
+      "love": "I love you",
+      "stop": "Stop!",
+      "eat": "Time to eat",
+      "praise": "Good job!"
+    }
   }
 }

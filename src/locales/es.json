@@ -879,5 +879,45 @@
     "mock_kong": "Coco",
     "ranking_min": " min",
     "ranking_streak": " días racha"
+  },
+  "translator": {
+    "title": "Comunicador Canino",
+    "short_desc": "Analiza el lenguaje canino",
+    "mode_b2h": "Perro ➔ Humano",
+    "mode_h2b": "Humano ➔ Perro",
+    "tap_to_listen": "Toca el botón para escuchar",
+    "listening": "Escuchando...",
+    "analyzing": "Analizando voz...",
+    "translate_btn": "Traducir",
+    "ad_prompt": "¡Mira un anuncio para\ndebloquear una traducción!",
+    "ad_button": "Ver anuncio para traducir",
+    "premium_unlimited": "Premium Ilimitado",
+    "result_title": "Resultado",
+    "try_again": "Traducir de nuevo",
+    "responses": {
+      "r1": "¡Juega conmigo ahora mismo!",
+      "r2": "Tengo hambre, dame un premio.",
+      "r3": "Te amo, sigue acariciándome.",
+      "r4": "¡Creo que hay un extraño cerca!",
+      "r5": "¡Quiero pasear! Vamos afuera.",
+      "r6": "Tengo sueño... quiero descansar.",
+      "r7": "¡Me siento de maravilla!",
+      "r8": "¡Abrázame!"
+    },
+    "desc": "¡Reproduce varios sonidos ambientales para desencadenar respuestas positivas en tu perro!",
+    "result_desc_human": "Resultado traducido al lenguaje humano.",
+    "result_desc_dog": "Resultado traducido al lenguaje canino.",
+    "play_original": "Reproducir sonido original",
+    "human_to_dog_result": "¡Guau! ¡Guau!!",
+    "ad_title": "Ver anuncio para traducir",
+    "ad_desc": "Los usuarios gratuitos pueden usar la traducción después de ver un anuncio.",
+    "presets": {
+      "play": "¡A jugar!",
+      "walk": "¿Paseamos?",
+      "love": "Te amo",
+      "stop": "¡Para!",
+      "eat": "A comer",
+      "praise": "¡Buen chico!"
+    }
   }
 }

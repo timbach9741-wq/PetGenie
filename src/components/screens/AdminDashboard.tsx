@@ -12,7 +12,7 @@
  * 3. 피드백 — 유저 건의사항 관리
  * =====================================================
  */
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft, Search, Users, BarChart3, Scan,
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  getAppUsers, searchAppUsers, filterUsersByMembership,
+  getAppUsers, filterUsersLocal,
   toggleUserStatus, getAppStats, ADMIN_EMAIL,
   getFeedbacks, updateFeedbackStatus,
   addAdminReply, grantReward
@@ -52,39 +52,63 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
 
   // ── 상태 관리 ──
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
-  const [users, setUsers] = useState<AppUser[]>(getAppUsers());
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // 전체 원본 데이터
+  const [allUsers, setAllUsers] = useState<AppUser[]>([]);
+  
+  // 화면 표시용 (검색/필터 적용)
+  const [users, setUsers] = useState<AppUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [membershipFilter, setMembershipFilter] = useState<'all' | 'free' | 'premium' | 'premium_plus'>('all');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
-  const [stats] = useState<AppStats>(getAppStats());
+  
+  const [stats, setStats] = useState<AppStats | null>(null);
 
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>(getFeedbacks());
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
 
-  // ── 유저 검색 ──
-  const handleSearch = useCallback(() => {
-    if (!searchTerm.trim()) {
-      setUsers(filterUsersByMembership(membershipFilter));
-      return;
+// ── 초기 데이터 로딩 ──
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      const fetchedUsers = await getAppUsers();
+      const fetchedFeedbacks = await getFeedbacks();
+      const derivedStats = await getAppStats(fetchedUsers);
+      
+      setAllUsers(fetchedUsers);
+      setUsers(fetchedUsers);
+      setFeedbacks(fetchedFeedbacks);
+      setStats(derivedStats);
+      setIsLoading(false);
     }
-    const results = searchAppUsers(searchTerm);
-    setUsers(results);
-  }, [searchTerm, membershipFilter]);
+    loadData();
+  }, []);
 
-  // ── 멤버십 필터 ──
+  // ── 유저 검색 & 필터 ──
+  useEffect(() => {
+    const filtered = filterUsersLocal(allUsers, searchTerm, membershipFilter);
+    setUsers(filtered);
+  }, [searchTerm, membershipFilter, allUsers]);
+
+  const handleSearch = useCallback(() => {
+    // useEffect에서 자동 처리됨
+  }, []);
+
   const handleFilterChange = useCallback((filter: typeof membershipFilter) => {
     setMembershipFilter(filter);
     setSearchTerm('');
-    setUsers(filterUsersByMembership(filter));
   }, []);
 
   // ── 유저 상태 토글 ──
-  const handleToggleStatus = useCallback((uid: string) => {
-    const updated = toggleUserStatus(uid);
+  const handleToggleStatus = useCallback(async (uid: string) => {
+    const user = allUsers.find(u => u.uid === uid);
+    if (!user) return;
+    const updated = await toggleUserStatus(uid, user.status);
     if (updated) {
-      setUsers(prev => prev.map(u => u.uid === uid ? updated : u));
+      setAllUsers(prev => prev.map(u => u.uid === uid ? updated : u));
     }
-  }, []);
+  }, [allUsers]);
 
   // ── 결제 총액 계산 헬퍼 ──
   const getTotalPayment = (user: AppUser) => {
@@ -125,18 +149,18 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
   }, []);
 
   // ── 피드백 상태 토글 ──
-  const handleToggleFeedbackStatus = useCallback((id: string, currentStatus: Feedback['status']) => {
+  const handleToggleFeedbackStatus = useCallback(async (id: string, currentStatus: Feedback['status']) => {
     const nextStatus = currentStatus === 'pending' ? 'reviewed' :
                        currentStatus === 'reviewed' ? 'implemented' : 'pending';
-    const updated = updateFeedbackStatus(id, nextStatus as Feedback['status']);
+    const updated = await updateFeedbackStatus(id, nextStatus as Feedback['status']);
     if (updated) {
       setFeedbacks(prev => prev.map(f => f.id === id ? updated : f));
     }
   }, []);
 
   // ── 관리자 답변 ──
-  const handleAdminReply = useCallback((id: string, reply: string) => {
-    const updated = addAdminReply(id, reply);
+  const handleAdminReply = useCallback(async (id: string, reply: string) => {
+    const updated = await addAdminReply(id, reply);
     if (updated) {
       setFeedbacks(prev => prev.map(f => f.id === id ? updated : f));
       setSelectedFeedback(updated);
@@ -144,9 +168,9 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
   }, []);
 
   // ── 보상 지급 ──
-  const handleGrantReward = useCallback((feedbackId: string, type: Reward['type'], label: string, value: number) => {
+  const handleGrantReward = useCallback(async (feedbackId: string, type: Reward['type'], label: string, value: number) => {
     if (window.confirm(`"${label}" 보상을 지급하시겠습니까?`)) {
-      const updated = grantReward(feedbackId, type, label, value);
+      const updated = await grantReward(feedbackId, type, label, value);
       if (updated) {
         setFeedbacks(prev => prev.map(f => f.id === feedbackId ? updated : f));
         setSelectedFeedback(updated);
@@ -155,8 +179,8 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
   }, []);
 
   // ── 피드백 상태 직접 설정 ──
-  const handleSetFeedbackStatus = useCallback((id: string, status: Feedback['status']) => {
-    const updated = updateFeedbackStatus(id, status);
+  const handleSetFeedbackStatus = useCallback(async (id: string, status: Feedback['status']) => {
+    const updated = await updateFeedbackStatus(id, status);
     if (updated) {
       setFeedbacks(prev => prev.map(f => f.id === id ? updated : f));
       setSelectedFeedback(updated);
@@ -212,7 +236,13 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
       </div>
 
       {/* ===== 콘텐츠 영역 ===== */}
-      <div className="flex-1 overflow-y-auto no-scrollbar">
+      <div className="flex-1 overflow-y-auto no-scrollbar relative">
+        {isLoading && (
+          <div className="absolute inset-0 z-10 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center">
+            <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin mb-4" />
+            <p className="text-zinc-400 text-sm font-bold">데이터를 갱신 중입니다...</p>
+          </div>
+        )}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -221,7 +251,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
           >
-            {activeTab === 'dashboard' && <DashboardTab stats={stats} />}
+            {activeTab === 'dashboard' && stats && <DashboardTab stats={stats} />}
             {activeTab === 'users' && (
               <UsersTab
                 users={users}

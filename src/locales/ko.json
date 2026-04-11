@@ -85,7 +85,9 @@
     "marketing_consent": "I agree to receive launch benefits via email",
     "terms_link": "Terms",
     "terms_and": "and",
-    "privacy_link": "Privacy Policy"
+    "privacy_link": "Privacy Policy",
+    "login_failed": "로그인에 실패했습니다. (이메일 및 비밀번호 확인)",
+    "signup_failed": "회원가입에 실패했습니다. (이미 가입된 이메일이거나 비밀번호가 너무 짧습니다)"
   },
   "nav": {
     "scan": "스캔",
@@ -897,5 +899,45 @@
     "mock_kong": "콩이",
     "ranking_min": "분",
     "ranking_streak": "일 연속"
+  },
+  "translator": {
+    "title": "강아지 소통기",
+    "short_desc": "강아지 언어 분석",
+    "mode_b2h": "강아지 ➔ 사람",
+    "mode_h2b": "사람 ➔ 강아지",
+    "tap_to_listen": "마이크 버튼을 눌러 소리를 들려주세요",
+    "listening": "듣고 있어요...",
+    "analyzing": "음성 분석 중...",
+    "translate_btn": "번역하기",
+    "ad_prompt": "광고 1회 시청 시\n번역 기능을 사용할 수 있어요!",
+    "ad_button": "광고 보고 무료 번역하기",
+    "premium_unlimited": "프리미엄 무제한",
+    "result_title": "번역 결과",
+    "try_again": "다시 번역하기",
+    "responses": {
+      "r1": "보호자님, 저랑 빨리 놀아주세요!",
+      "r2": "배가 고파요, 맛있는 간식 주세요.",
+      "r3": "사랑해요, 계속 쓰다듬어 주세요.",
+      "r4": "누군가 낯선 사람이 나타난 것 같아요!",
+      "r5": "산책 가고 싶어요! 밖으로 나가요.",
+      "r6": "졸려요.. 조금 쉴래요.",
+      "r7": "기분이 너무 좋아요!",
+      "r8": "안아주세요!"
+    },
+    "desc": "반려견의 긍정적 반응을 이끌어낼 다양한 환경음을 들려주세요!",
+    "result_desc_human": "사람의 언어로 번역된 결과입니다.",
+    "result_desc_dog": "강아지의 언어로 번역된 결과입니다.",
+    "play_original": "원래 소리 듣기",
+    "human_to_dog_result": "멍멍! 왈왈!!",
+    "ad_title": "광고 시청 후 번역하기",
+    "ad_desc": "무료 이용자는 보상형 광고를 1회 시청한 후 번역 기능을 사용할 수 있습니다.",
+    "presets": {
+      "play": "놀자!",
+      "walk": "산책 갈까?",
+      "love": "사랑해",
+      "stop": "안 돼!",
+      "eat": "밥 먹자",
+      "praise": "잘했어!"
+    }
   }
 }

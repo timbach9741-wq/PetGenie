@@ -879,5 +879,45 @@
     "mock_kong": "可可",
     "ranking_min": "分钟",
     "ranking_streak": "天连续"
+  },
+  "translator": {
+    "title": "狗狗沟通器",
+    "short_desc": "分析狗狗的语言",
+    "mode_b2h": "狗 ➔ 人",
+    "mode_h2b": "人 ➔ 狗",
+    "tap_to_listen": "点击麦克风按钮收听",
+    "listening": "正在倾听...",
+    "analyzing": "语音分析中...",
+    "translate_btn": "翻译",
+    "ad_prompt": "观看一次广告即可\n解锁翻译功能！",
+    "ad_button": "看广告免费翻译",
+    "premium_unlimited": "高级会员无限制",
+    "result_title": "翻译结果",
+    "try_again": "再次翻译",
+    "responses": {
+      "r1": "主人，快跟我一起玩吧！",
+      "r2": "我饿了，给我好吃的零食。",
+      "r3": "我爱你，继续抚摸我。",
+      "r4": "好像有陌生人出现了！",
+      "r5": "我想去散步！我们出去吧。",
+      "r6": "好困哦... 想休息一下。",
+      "r7": "我现在心情超好！",
+      "r8": "抱抱我！"
+    },
+    "desc": "播放各种环境声音以引发狗狗的积极回馈！",
+    "result_desc_human": "已翻译为人类语言。",
+    "result_desc_dog": "已翻译为狗狗语言。",
+    "play_original": "播放原声",
+    "human_to_dog_result": "汪汪！汪汪！！",
+    "ad_title": "观看广告后翻译",
+    "ad_desc": "免费用户在观看一次奖励广告后即可使用翻译功能。",
+    "presets": {
+      "play": "去玩吧！",
+      "walk": "去散步吗？",
+      "love": "我爱你",
+      "stop": "不行！",
+      "eat": "吃饭啦",
+      "praise": "做得好！"
+    }
   }
 }
