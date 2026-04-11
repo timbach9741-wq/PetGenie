@@ -9,18 +9,16 @@ $AabOutput = Join-Path $AndroidDir "app\build\outputs\bundle\release\app-release
 $DesktopPath = [System.Environment]::GetFolderPath("Desktop")
 
 # --- JAVA_HOME ---
-if (-not $env:JAVA_HOME) {
-    $jbrPath = "C:\Program Files\Android\Android Studio\jbr"
-    if (Test-Path $jbrPath) {
-        $env:JAVA_HOME = $jbrPath
+$jbrPath = "C:\Program Files\Android\Android Studio\jbr"
+if (Test-Path $jbrPath) {
+    $env:JAVA_HOME = $jbrPath
+} else {
+    $jdkPaths = Get-ChildItem "C:\Program Files\Java" -Filter "jdk-*" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($jdkPaths) {
+        $env:JAVA_HOME = $jdkPaths.FullName
     } else {
-        $jdkPaths = Get-ChildItem "C:\Program Files\Java" -Filter "jdk-*" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($jdkPaths) {
-            $env:JAVA_HOME = $jdkPaths.FullName
-        } else {
-            Write-Host "[ERROR] JAVA_HOME not found." -ForegroundColor Red
-            exit 1
-        }
+        Write-Host "[ERROR] JAVA_HOME not found." -ForegroundColor Red
+        exit 1
     }
 }
 
