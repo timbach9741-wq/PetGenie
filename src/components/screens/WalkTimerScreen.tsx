@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Play, Pause, Square, MapPin, Clock, TrendingUp, PawPrint } from 'lucide-react';
+import { ArrowLeft, Play, Pause, Square, MapPin, Clock, TrendingUp, PawPrint, Share2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
 
@@ -12,10 +12,12 @@ interface WalkRecord {
   formattedDuration: string;
 }
 
-const WalkTimerScreen = ({ onBack, onCompleteCare }: { onBack: () => void, onCompleteCare?: (id: string) => void }) => {
+const WalkTimerScreen = ({ onBack, onCompleteCare, onShareWalk }: { onBack: () => void, onCompleteCare?: (id: string) => void, onShareWalk?: (duration: number) => void }) => {
   const { t, i18n } = useTranslation();
   const [isRunning, setIsRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
+  // 산책 완료 후 마지막 기록 (공유 버튼 표시용)
+  const [lastCompletedWalk, setLastCompletedWalk] = useState<number | null>(null);
   const [records, setRecords] = useState<WalkRecord[]>(() => {
     try {
       const saved = localStorage.getItem('petgenie_walk_records');
@@ -80,6 +82,8 @@ const WalkTimerScreen = ({ onBack, onCompleteCare }: { onBack: () => void, onCom
     const newRecords = [record, ...records].slice(0, 20); // 최근 20개만 유지
     setRecords(newRecords);
     try { localStorage.setItem('petgenie_walk_records', JSON.stringify(newRecords)); } catch {}
+    // 마지막 완료된 산책 시간 저장 (공유 버튼 표시용)
+    setLastCompletedWalk(seconds);
     setSeconds(0);
 
     // 데일리 케어의 '산책' 항목 자동 완료
@@ -157,9 +161,32 @@ const WalkTimerScreen = ({ onBack, onCompleteCare }: { onBack: () => void, onCom
               {isRunning ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
             </button>
           </div>
-        </div>
+          </div>
 
-        {/* 오늘의 통계 */}
+          {/* 산책 완료 후 커뮤니티 공유 버튼 (1분 이상 산책 시에만 표시) */}
+          {lastCompletedWalk && lastCompletedWalk >= 60 && onShareWalk && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4"
+            >
+              <button
+                onClick={() => {
+                  onShareWalk(lastCompletedWalk);
+                  setLastCompletedWalk(null);
+                }}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg shadow-emerald-500/20"
+                title={t('community.share_walk', '커뮤니티에 공유')}
+                aria-label={t('community.share_walk', '커뮤니티에 공유')}
+              >
+                <Share2 className="w-5 h-5" />
+                <span>{t('community.share_walk', '커뮤니티에 공유')}</span>
+                <span className="text-emerald-200 text-xs">🐾</span>
+              </button>
+            </motion.div>
+          )}
+
+          {/* 오늘의 통계 */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white/5 rounded-2xl p-5 border border-white/5 text-center">
             <Clock className="w-5 h-5 text-emerald-400 mx-auto mb-2" />

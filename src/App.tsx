@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { antigravityEngine } from './services/antigravityEngine';
 import { performPetScan, getFallbackResult } from './services/geminiScanner';
+import { auth } from './lib/firebase';
 
 // --- 필수 컴포넌트: 정적 import (렉 방지) ---
 import { SplashScreen } from './components/screens/SplashScreen';
@@ -49,13 +50,16 @@ const WalkTimerScreen = lazy(() => import('./components/screens/WalkTimerScreen'
 const VaccinationScreen = lazy(() => import('./components/screens/VaccinationScreen'));
 const WeightTrackerScreen = lazy(() => import('./components/screens/WeightTrackerScreen'));
 const BreedInfoScreen = lazy(() => import('./components/screens/BreedInfoScreen'));
+const CommunityScreen = lazy(() => import('./components/screens/CommunityScreen'));
+const CommunityPostScreen = lazy(() => import('./components/screens/CommunityPostScreen'));
+const PostDetailScreen = lazy(() => import('./components/screens/PostDetailScreen'));
 const LoginScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.LoginScreen })));
 const SignUpScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.SignUpScreen })));
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // --- Types ---
-type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info';
+type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info' | 'community' | 'community-post' | 'post-detail';
 interface PetProfile {
   name: string;
   breed: string;
@@ -107,6 +111,8 @@ export default function App() {
   const [user, setUser] = useState<{ email: string, is_premium: boolean } | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [selectedCareGuides, setSelectedCareGuides] = useState<any[] | null>(null);
+  // 커뮤니티 - 선택된 게시글 (상세 보기용)
+  const [selectedPost, setSelectedPost] = useState<any | null>(null);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
     try { return localStorage.getItem('petgenie_onboarding') === 'true'; } catch { return false; }
   });
@@ -156,7 +162,7 @@ export default function App() {
     if (Capacitor.isNativePlatform()) {
       AdMob.initialize({
         requestTrackingAuthorization: true,
-      }).catch(err => console.warn('AdMob init error', err));
+      } as any).catch(err => console.warn('AdMob init error', err));
     }
   }, [hasSeenOnboarding]);
 
@@ -316,7 +322,7 @@ export default function App() {
     navigateTo('pet-dashboard');
   };
 
-  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin', 'ai-vet', 'emergency-guide', 'walk-timer', 'vaccination', 'weight-tracker', 'breed-info'].includes(currentScreen);
+  const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin', 'ai-vet', 'emergency-guide', 'walk-timer', 'vaccination', 'weight-tracker', 'breed-info', 'community-post', 'post-detail'].includes(currentScreen);
 
   return (
     <>
@@ -491,6 +497,25 @@ export default function App() {
                 <WalkTimerScreen
                   onBack={goBack}
                   onCompleteCare={(id) => toggleCare(id)}
+                  onShareWalk={(duration: number) => {
+                    // 산책 기록을 커뮤니티에 공유하기 위해 community-post 대신 직접 서비스 호출
+                    import('./services/communityService').then(async (mod) => {
+                      if (auth.currentUser && isLoggedIn) {
+                        try {
+                          await mod.shareWalkRecord(
+                            duration,
+                            petProfile,
+                            { uid: auth.currentUser.uid, email: auth.currentUser.email || '', displayName: auth.currentUser.displayName || undefined },
+                          );
+                          navigateTo('community');
+                        } catch (err) {
+                          console.error('산책 공유 실패:', err);
+                        }
+                      } else {
+                        navigateTo('login');
+                      }
+                    });
+                  }}
                 />
               )}
               {currentScreen === 'vaccination' && (
@@ -501,6 +526,32 @@ export default function App() {
               )}
               {currentScreen === 'breed-info' && (
                 <BreedInfoScreen onBack={goBack} analysisResult={analysisResult} />
+              )}
+              {currentScreen === 'community' && (
+                <CommunityScreen
+                  onNavigate={navigateTo}
+                  onSelectPost={(post) => {
+                    setSelectedPost(post);
+                    navigateTo('post-detail');
+                  }}
+                  isLoggedIn={isLoggedIn}
+                  onLogin={() => navigateTo('login')}
+                />
+              )}
+              {currentScreen === 'community-post' && (
+                <CommunityPostScreen
+                  onBack={goBack}
+                  petProfile={petProfile}
+                />
+              )}
+              {currentScreen === 'post-detail' && selectedPost && (
+                <PostDetailScreen
+                  post={selectedPost}
+                  onBack={goBack}
+                  isLoggedIn={isLoggedIn}
+                  onLogin={() => navigateTo('login')}
+                  onPostDeleted={() => setSelectedPost(null)}
+                />
               )}
             </motion.div>
         </AnimatePresence>

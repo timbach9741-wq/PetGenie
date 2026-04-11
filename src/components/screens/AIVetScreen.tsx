@@ -84,7 +84,8 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
         isTesting: false,
       };
       
-      // 이전 리스너들 정리
+      // 이전 리스너들 정리 (타입 정의에 누락되어 있지만 런타임에 존재)
+      // @ts-expect-error — removeAllListeners는 Capacitor 플러그인 기본 메서드
       AdMob.removeAllListeners().catch(() => {});
       
       await AdMob.prepareRewardVideoAd(options);

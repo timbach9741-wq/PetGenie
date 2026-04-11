@@ -1,5 +1,5 @@
 // --- Types ---
-export type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info';
+export type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info' | 'community' | 'community-post' | 'post-detail';
 
 // --- Pet Profile Type ---
 export interface PetProfile {
@@ -90,4 +90,44 @@ export interface AppStats {
   scansByDay: { date: string; count: number }[];
   newUsersLast7d: number;
   newUsersLast30d: number;
+}
+
+// --- 커뮤니티 관련 타입 ---
+
+/** 커뮤니티 게시글 */
+export interface CommunityPost {
+  id: string;
+  authorId: string;
+  authorEmail: string;
+  authorName: string;
+  petName: string;
+  petBreed: string;
+  type: 'photo' | 'walk'; // 일반 사진 게시글 vs 산책 인증
+  text: string;
+  imageUrl?: string; // Firebase Storage URL
+  walkDuration?: number; // 산책 시간 (초)
+  walkStreak?: number; // 연속 산책 일수
+  likes: string[]; // 좋아요 누른 유저 UID 배열
+  commentCount: number;
+  createdAt: any; // Firestore Timestamp
+}
+
+/** 댓글 */
+export interface Comment {
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  text: string;
+  createdAt: any; // Firestore Timestamp
+}
+
+/** 산책 랭킹 항목 */
+export interface WalkRankingEntry {
+  userId: string;
+  userName: string;
+  petName: string;
+  totalMinutes: number;
+  walkCount: number;
+  streak: number;
 }
