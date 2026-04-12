@@ -86,7 +86,7 @@ const Marketplace = ({ onBack, onNavigate, isPremium }: { onBack: () => void, on
 
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-32">
-      <header className="bg-white px-6 pt-12 pb-6 border-b border-zinc-100 sticky top-0 z-50">
+      <header className="bg-white px-6 pt-[calc(env(safe-area-inset-top,0px)+28px)] pb-6 border-b border-zinc-100 sticky top-0 z-50">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <button 

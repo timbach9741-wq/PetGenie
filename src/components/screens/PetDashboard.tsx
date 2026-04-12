@@ -33,7 +33,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
       {/* Header with Profile */}
-      <header className="bg-white px-6 pb-6 border-b border-zinc-100 sticky top-0 z-30 pt-[calc(env(safe-area-inset-top,0px)+16px)]">
+      <header className="bg-white px-6 pb-6 border-b border-zinc-100 sticky top-0 z-30 pt-[calc(env(safe-area-inset-top,0px)+28px)]">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-emerald-500/20 shadow-sm bg-zinc-100 flex items-center justify-center">

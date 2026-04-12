@@ -123,7 +123,7 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
           )}
         </div>
         <div className="absolute inset-0 z-30 flex flex-col pointer-events-none">
-          <div className="w-full flex justify-between items-center p-6 pt-[calc(env(safe-area-inset-top,0px)+16px)] pointer-events-auto">
+          <div className="w-full flex justify-between items-center p-6 pt-[calc(env(safe-area-inset-top,0px)+28px)] pointer-events-auto">
             <button title="Go Back" onClick={() => { setMode('home'); if(videoRef.current?.srcObject) { (videoRef.current.srcObject as MediaStream).getTracks().forEach(t=>t.stop()); } }} className="p-3 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 text-white active:scale-90 transition-transform">
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -174,7 +174,7 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
       {/* Header */}
-      <header className="px-6 pb-4 pt-[calc(env(safe-area-inset-top,0px)+16px)] bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-zinc-100/50">
+      <header className="px-6 pb-4 pt-[calc(env(safe-area-inset-top,0px)+28px)] bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-zinc-100/50">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2.5">

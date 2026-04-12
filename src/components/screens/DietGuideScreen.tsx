@@ -54,7 +54,7 @@ const DietGuideScreen = ({ onBack, dietPlan, isPremium, onUpgrade }: { onBack: (
           </button>
         </div>
       )}
-      <header className="px-6 pt-12 pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
+      <header className="px-6 pt-[calc(env(safe-area-inset-top,0px)+28px)] pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
         <button onClick={onBack} aria-label={t('common.back', '뒤로가기')} title={t('common.back', '뒤로가기')} className="p-2 -ml-2 text-white hover:bg-white/10 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>

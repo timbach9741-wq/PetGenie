@@ -33,7 +33,7 @@ const CareGuideScreen = ({ onBack, careGuides, isPremium, onUpgrade }: { onBack:
 
   return (
     <div className="h-full bg-[#0A120A] overflow-y-auto no-scrollbar pb-32">
-      <header className="px-6 pt-12 pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
+      <header className="px-6 pt-[calc(env(safe-area-inset-top,0px)+28px)] pb-6 flex items-center gap-4 bg-[#0A120A] sticky top-0 z-50">
         <button onClick={onBack} className="p-2 -ml-2 text-zinc-400 hover:text-zinc-100 bg-white/5 rounded-full">
           <ArrowLeft className="w-5 h-5" />
         </button>

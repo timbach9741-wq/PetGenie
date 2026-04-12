@@ -51,7 +51,7 @@ const ProfileScreen = ({
 
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
-      <header className="bg-white px-6 pb-6 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+16px)]">
+      <header className="bg-white px-6 pb-6 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+28px)]">
         <div className="flex justify-between items-center">
           <h1 className="text-lg font-bold text-zinc-900">{t('profile.title')}</h1>
           {!isEditing ? (

@@ -7,7 +7,7 @@ const MembershipScreen = ({ onBack, onUpgrade }: { onBack: () => void, onUpgrade
 
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-32">
-      <header className="px-6 pt-12 pb-6 flex items-center justify-between bg-white border-b border-zinc-100 sticky top-0 z-50">
+      <header className="px-6 pt-[calc(env(safe-area-inset-top,0px)+28px)] pb-6 flex items-center justify-between bg-white border-b border-zinc-100 sticky top-0 z-50">
         <button onClick={onBack} aria-label="Back" className="p-2 -ml-2 text-zinc-900 hover:bg-zinc-100 rounded-full active:scale-90 transition-transform">
           <ArrowLeft className="w-6 h-6" />
         </button>
