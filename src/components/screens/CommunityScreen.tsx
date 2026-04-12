@@ -114,7 +114,7 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin }: Comm
   return (
     <div className="h-full flex flex-col bg-zinc-50">
       {/* ── 헤더 ── */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-xl border-b border-zinc-100 px-5 pt-3 pb-2">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-xl border-b border-zinc-100 px-5 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PawPrint className="w-6 h-6 text-emerald-600" />

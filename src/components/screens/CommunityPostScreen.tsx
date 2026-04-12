@@ -100,7 +100,7 @@ const CommunityPostScreen = ({ onBack, petProfile, onPostCreated }: CommunityPos
   return (
     <div className="h-full flex flex-col bg-white">
       {/* ── 헤더 ── */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-xl border-b border-zinc-100 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-xl border-b border-zinc-100 px-4 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-3 flex items-center justify-between">
         <button
           onClick={onBack}
           className="p-2 -ml-2 rounded-xl hover:bg-zinc-100 transition-colors"
