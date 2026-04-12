@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet Genie - 스토어 이미지 미리보기</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0a1a0f 0%, #1a2f1a 50%, #0d1f12 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #4ade80, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      text-align: center;
+      color: #9ca3af;
+      margin-bottom: 50px;
+      font-size: 1.1rem;
+    }
+    .section {
+      max-width: 1200px;
+      margin: 0 auto 60px;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      color: #4ade80;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #22543d;
+    }
+    .section-title span {
+      color: #9ca3af;
+      font-size: 0.9rem;
+      font-weight: normal;
+      margin-left: 10px;
+    }
+
+    /* 앱 아이콘 */
+    .icon-section {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .icon-box {
+      text-align: center;
+    }
+    .icon-box img {
+      border-radius: 22%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .icon-box .label {
+      margin-top: 10px;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+
+    /* 그래픽 이미지 */
+    .feature-graphic img {
+      width: 100%;
+      max-width: 1024px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* 스크린샷 */
+    .screenshots {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      padding: 20px 0;
+      scroll-snap-type: x mandatory;
+    }
+    .screenshot-card {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      text-align: center;
+    }
+    .screenshot-card img {
+      height: 500px;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease;
+    }
+    .screenshot-card img:hover {
+      transform: scale(1.05);
+    }
+    .screenshot-card .label {
+      margin-top: 12px;
+      color: #fbbf24;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .screenshot-card .desc {
+      color: #9ca3af;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* 비교 섹션 */
+    .compare {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .compare-box {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .compare-box img {
+      border-radius: 22%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    .compare-box .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+    }
+    .tag-before { background: #ef4444; }
+    .tag-after { background: #22c55e; }
+    .arrow {
+      font-size: 3rem;
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🐾 Pet Genie 스토어 이미지</h1>
+  <p class="subtitle">Google Play Store 등록용 이미지 미리보기</p>
+
+  <!-- 아이콘 비교 -->
+  <div class="section">
+    <h2 class="section-title">📱 앱 아이콘 변경 <span>before → after</span></h2>
+    <div class="compare">
+      <div class="compare-box">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' rx='27' fill='%23f0f0f0'/%3E%3Cpath d='M45 75L60 45L75 75M38 55L60 35L82 55' stroke='%2367b8f7' stroke-width='8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" width="120" height="120" />
+        <div class="tag tag-before">BEFORE</div>
+        <p style="color:#9ca3af; margin-top:8px; font-size:0.85rem;">Capacitor 기본 아이콘</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="compare-box">
+        <img src="app_icon.png" width="120" height="120" />
+        <div class="tag tag-after">AFTER</div>
+        <p style="color:#9ca3af; margin-top:8px; font-size:0.85rem;">Pet Genie 브랜드 아이콘</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 앱 아이콘 크기별 -->
+  <div class="section">
+    <h2 class="section-title">🎨 앱 아이콘 <span>512 × 512</span></h2>
+    <div class="icon-section">
+      <div class="icon-box">
+        <img src="app_icon.png" width="192" height="192" />
+        <div class="label">xxxhdpi (192px)</div>
+      </div>
+      <div class="icon-box">
+        <img src="app_icon.png" width="96" height="96" />
+        <div class="label">xhdpi (96px)</div>
+      </div>
+      <div class="icon-box">
+        <img src="app_icon.png" width="48" height="48" />
+        <div class="label">mdpi (48px)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 그래픽 이미지 -->
+  <div class="section">
+    <h2 class="section-title">🖼️ 그래픽 이미지 (Feature Graphic) <span>1024 × 500</span></h2>
+    <div class="feature-graphic">
+      <img src="feature_graphic.png" alt="Feature Graphic" />
+    </div>
+  </div>
+
+  <!-- 스크린샷 -->
+  <div class="section">
+    <h2 class="section-title">📸 스토어 스크린샷 <span>1080 × 1920 · 좌우 스크롤 가능</span></h2>
+    <div class="screenshots">
+      <div class="screenshot-card">
+        <img src="screenshot_1.png" alt="AI 건강 스캔" />
+        <div class="label">① AI 건강 스캔</div>
+        <div class="desc">사진 한 장으로 건강 분석</div>
+      </div>
+      <div class="screenshot-card">
+        <img src="screenshot_2.png" alt="AI 수의사 상담" />
+        <div class="label">② AI 수의사 상담</div>
+        <div class="desc">24시간 무료 건강 상담</div>
+      </div>
+      <div class="screenshot-card">
+        <img src="screenshot_3.png" alt="상세 건강 리포트" />
+        <div class="label">③ 상세 건강 리포트</div>
+        <div class="desc">견종 분석 + 유전 질환 스크리닝</div>
+      </div>
+      <div class="screenshot-card">
+        <img src="screenshot_4.png" alt="반려인 커뮤니티" />
+        <div class="label">④ 반려인 커뮤니티</div>
+        <div class="desc">산책 기록 공유 & 랭킹</div>
+      </div>
+      <div class="screenshot-card">
+        <img src="screenshot_5.png" alt="맞춤 운동 & 식단" />
+        <div class="label">⑤ 맞춤 운동 & 식단 플랜</div>
+        <div class="desc">우리 아이에게 딱 맞는 케어</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
