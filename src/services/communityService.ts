@@ -329,17 +329,71 @@ function calculateWalkStreak(): number {
 }
 
 /**
- * 주간 산책 랭킹 (Mock 데이터 — 실제 서비스 시 Firestore 집계로 교체)
- * 왜 Mock: 초기 출시 시 유저 데이터가 부족하므로, 동기 부여용 샘플 랭킹 제공
+ * 이번 주 산책 랭킹 (실제 데이터 집계)
+ * - 'walk' 타입의 최근 1주일 게시글들을 가져와서 유저별로 묶어 누적 산책시간 계산
  */
-export function getWeeklyRanking(): WalkRankingEntry[] {
-  return [
-    { userId: 'mock_1', userName: '루나맘', petName: '루나', totalMinutes: 420, walkCount: 14, streak: 7 },
-    { userId: 'mock_2', userName: '초코아빠', petName: '초코', totalMinutes: 350, walkCount: 12, streak: 6 },
-    { userId: 'mock_3', userName: '뭉치주인', petName: '뭉치', totalMinutes: 280, walkCount: 10, streak: 5 },
-    { userId: 'mock_4', userName: '보리사랑', petName: '보리', totalMinutes: 210, walkCount: 8, streak: 4 },
-    { userId: 'mock_5', userName: '콩이맘', petName: '콩이', totalMinutes: 180, walkCount: 7, streak: 3 },
-  ];
+export async function getWeeklyRanking(): Promise<WalkRankingEntry[]> {
+  try {
+    // 최근 7일(일주일) 기준 시간
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const q = query(
+      collection(db, POSTS_COLLECTION),
+      where('createdAt', '>=', oneWeekAgo),
+      orderBy('createdAt', 'desc')
+    );
+
+    const snapshot = await getDocs(q);
+
+    // 유저 별로 walkDuration(초) 합산 및 가장 최근 기록 유지
+    const userMap = new Map<string, WalkRankingEntry>();
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      // 'walk' 타입만 자바스크립트 단에서 필터링 (복합 인덱스 오류 방지)
+      if (data.type !== 'walk') return;
+      
+      const uId = data.authorId;
+      if (!uId) return;
+
+      if (!userMap.has(uId)) {
+        userMap.set(uId, {
+          userId: uId,
+          userName: data.authorName || '이름 없음',
+          petName: data.petName || '강아지',
+          totalMinutes: 0,
+          walkCount: 0,
+          streak: data.walkStreak || 1, // 최신 게시글의 streak 값 가져옴
+        });
+      }
+      const entry = userMap.get(uId)!;
+      entry.totalMinutes += Math.round((data.walkDuration || 0) / 60);
+      entry.walkCount += 1;
+      
+      // 최신의 streak을 유지하기 보다는 단순 합산이 주요하므로,
+      // 가장 첫 번째(desc 정렬이니까 최신) streak 값으로 이미 초기화됨.
+    });
+
+    // totalMinutes 기준으로 내림차순 정렬
+    const rankingArray = Array.from(userMap.values())
+      .filter((entry) => entry.totalMinutes > 0)
+      .sort((a, b) => b.totalMinutes - a.totalMinutes)
+      .slice(0, 5); // 상위 5명만
+
+    // 데이터가 부족할 경우 목업 데이터 병합
+    if (rankingArray.length === 0) {
+      return [
+        { userId: 'mock_1', userName: '루나맘', petName: '루나', totalMinutes: 420, walkCount: 14, streak: 7 },
+        { userId: 'mock_2', userName: '초코아빠', petName: '초코', totalMinutes: 350, walkCount: 12, streak: 6 },
+        { userId: 'mock_3', userName: '뭉치주인', petName: '뭉치', totalMinutes: 280, walkCount: 10, streak: 5 },
+      ];
+    }
+    return rankingArray;
+  } catch (error) {
+    console.error('getWeeklyRanking error:', error);
+    return [];
+  }
 }
 
 /**

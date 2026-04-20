@@ -54,8 +54,12 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
 
   useEffect(() => {
     loadPosts();
-    // 랭킹은 한 번만 로드
-    setRanking(getWeeklyRanking());
+    // 랭킹은 비동기로드
+    const loadRanking = async () => {
+      const data = await getWeeklyRanking();
+      setRanking(data);
+    };
+    loadRanking();
   }, [loadPosts]);
 
   // 좋아요 핸들러

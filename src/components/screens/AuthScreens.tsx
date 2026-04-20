@@ -2,31 +2,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Scan } from 'lucide-react';
 import { motion } from 'motion/react';
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../lib/firebase';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 
 export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: string) => void, onNavigateToSignUp: () => void }) => {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [agreeMarketing, setAgreeMarketing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email && password) {
-      try {
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        if (result.user.email) {
-          onLogin(result.user.email);
-        }
-      } catch (error: any) {
-        console.error("Firebase Email Auth Error", error);
-        alert(`${t('auth.login_failed')}\n\n상세 오류: ${error.message}`);
-      }
-    }
-  };
 
   const handleGoogleLogin = async () => {
     try {
@@ -58,7 +41,7 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
       exit={{ opacity: 0, scale: 1.05 }}
       className="absolute inset-0 h-full bg-zinc-950 flex flex-col items-center justify-center p-8 text-white z-50 overflow-y-auto no-scrollbar"
     >
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-sm space-y-10">
         <div className="text-center">
           <div className="w-20 h-20 bg-emerald-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
             <Scan className="w-10 h-10 text-emerald-400" />
@@ -67,7 +50,7 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
           <p className="text-zinc-500 text-sm mt-2">{t('auth.login_welcome')}</p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-6">
           <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 bg-white text-zinc-900 py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] shadow-lg">
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -77,27 +60,8 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
             </svg>
             {t('auth.google_login')}
           </button>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t('auth.or_continue')}</span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{t('auth.email_label')}</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="example@email.com" required />
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{t('auth.password_label')}</label>
-              <button type="button" className="text-[10px] text-emerald-400 font-bold hover:underline">{t('auth.forgot_password')}</button>
-            </div>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="••••••••" required />
-          </div>
-          <div className="flex items-start gap-3 pt-2">
+          <div className="flex items-start gap-3 justify-center pt-4">
             <input 
               type="checkbox" 
               id="marketing-consent-login"
@@ -109,109 +73,20 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
               {t('auth.marketing_consent', 'I agree to receive launch benefits via email')}
             </label>
           </div>
-          <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-900/20 transition-all active:scale-[0.98]">
-            {t('auth.login_button')}
-          </button>
-          <div className="text-center pt-2">
-            <p className="text-[10px] text-zinc-500 leading-relaxed">
-              {t('auth.terms_prefix', 'By continuing, you agree to Pet Genie\'s')} <br/>
-              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.terms_link', 'Terms')}</a> {t('auth.terms_and', 'and')} <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.privacy_link', 'Privacy Policy')}</a>
-            </p>
-          </div>
-        </form>
+        </div>
 
-        <div className="text-center">
-          <button onClick={onNavigateToSignUp} className="text-zinc-500 text-xs hover:text-white transition-colors">
-            {t('auth.no_account')} <span className="text-emerald-400 font-bold">{t('auth.signup_link')}</span>
-          </button>
+        <div className="text-center pt-8">
+          <p className="text-[10px] text-zinc-500 leading-relaxed mb-4">
+            {t('auth.terms_prefix', 'By continuing, you agree to Pet Genie\'s')} <br/>
+            <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.terms_link', 'Terms')}</a> {t('auth.terms_and', 'and')} <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.privacy_link', 'Privacy Policy')}</a>
+          </p>
         </div>
       </div>
     </motion.div>
   );
 };
 
+// Sign up and Login are the same for Google Authentication
 export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email: string) => void, onNavigateToLogin: () => void }) => {
-  const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [agreeMarketing, setAgreeMarketing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email && password && password === confirmPassword) {
-      try {
-        const result = await createUserWithEmailAndPassword(auth, email, password);
-        if (result.user.email) {
-          onSignUp(result.user.email);
-        }
-      } catch (error: any) {
-        console.error("Firebase SignUp Error", error);
-        alert(`${t('auth.signup_failed')}\n\n상세 오류: ${error.message}`);
-      }
-    } else if (password !== confirmPassword) {
-      alert(t('auth.password_mismatch'));
-    }
-  };
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.05 }}
-      className="absolute inset-0 h-full bg-zinc-950 flex flex-col items-center justify-center p-8 text-white z-50"
-    >
-      <div className="w-full max-w-sm space-y-8">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-emerald-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-emerald-500/30">
-            <Scan className="w-10 h-10 text-emerald-400" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('auth.signup_title')}</h1>
-          <p className="text-zinc-500 text-sm mt-2">{t('auth.signup_welcome')}</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{t('auth.email_label')}</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="example@email.com" required />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{t('auth.password_label')}</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="••••••••" required />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{t('auth.password_confirm_label')}</label>
-            <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all" placeholder="••••••••" required />
-          </div>
-          <div className="flex items-start gap-3 pt-2">
-            <input 
-              type="checkbox" 
-              id="marketing-consent-signup"
-              checked={agreeMarketing}
-              onChange={(e) => setAgreeMarketing(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
-            />
-            <label htmlFor="marketing-consent-signup" className="text-xs text-zinc-400 leading-tight">
-              {t('auth.marketing_consent', 'I agree to receive launch benefits via email')}
-            </label>
-          </div>
-          <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-5 rounded-2xl font-bold text-sm shadow-xl shadow-emerald-900/20 transition-all active:scale-[0.98]">
-            {t('auth.signup_button')}
-          </button>
-          <div className="text-center pt-2">
-            <p className="text-[10px] text-zinc-500 leading-relaxed">
-              {t('auth.terms_prefix', 'By continuing, you agree to Pet Genie\'s')} <br/>
-              <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.terms_link', 'Terms')}</a> {t('auth.terms_and', 'and')} <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.privacy_link', 'Privacy Policy')}</a>
-            </p>
-          </div>
-        </form>
-
-        <div className="text-center">
-          <button onClick={onNavigateToLogin} className="text-zinc-500 text-xs hover:text-white transition-colors">
-            {t('auth.has_account')} <span className="text-emerald-400 font-bold">{t('auth.login_link')}</span>
-          </button>
-        </div>
-      </div>
-    </motion.div>
-  );
+  return <LoginScreen onLogin={onSignUp} onNavigateToSignUp={onNavigateToLogin} />;
 };
