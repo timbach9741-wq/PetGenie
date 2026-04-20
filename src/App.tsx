@@ -22,7 +22,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { antigravityEngine } from './services/antigravityEngine';
 import { performPetScan, getFallbackResult } from './services/geminiScanner';
-import { auth } from './lib/firebase';
+import { auth, db } from './lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // --- 필수 컴포넌트: 정적 import (렉 방지) ---
 import { SplashScreen } from './components/screens/SplashScreen';
@@ -108,7 +109,7 @@ export default function App() {
   const [interstitialAction, setInterstitialAction] = useState<{onComplete: () => void} | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{ email: string, is_premium: boolean } | null>(null);
+  const [user, setUser] = useState<{ uid?: string, email: string, is_premium: boolean } | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [selectedCareGuides, setSelectedCareGuides] = useState<any[] | null>(null);
   // 커뮤니티 - 선택된 게시글 (상세 보기용)
@@ -164,6 +165,23 @@ export default function App() {
         requestTrackingAuthorization: true,
       } as any).catch(err => console.warn('AdMob init error', err));
     }
+
+    // Firebase Auth State Listener
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setIsLoggedIn(true);
+        setUser({ 
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '', 
+          is_premium: isPromoActive // 추후 Firestore/Claims에서 확인하도록 확장 가능
+        });
+      } else {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
   }, [hasSeenOnboarding]);
 
   useEffect(() => {
@@ -217,24 +235,24 @@ export default function App() {
   };
 
   const handleLogin = (email: string) => {
-    setIsLoggedIn(true);
-    setUser({ email, is_premium: false });
     setScreenHistory([]); // Reset history on login
     setCurrentScreen('pet-dashboard');
   };
 
   const handleSignUp = (email: string) => {
-    setIsLoggedIn(true);
-    setUser({ email, is_premium: false });
     setScreenHistory([]); // Reset history on signup
     setCurrentScreen('pet-dashboard');
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUser(null);
-    setScreenHistory([]); // Reset history on logout
-    setCurrentScreen('camera');
+    auth.signOut().then(() => {
+      setIsLoggedIn(false);
+      setUser(null);
+      setScreenHistory([]); // Reset history on logout
+      setCurrentScreen('camera');
+    }).catch(err => {
+      console.error('Logout failed', err);
+    });
   };
 
   const handleScan = async (data: { image: string, weight?: number, height?: number }) => {
@@ -537,6 +555,7 @@ export default function App() {
                   }}
                   isLoggedIn={isLoggedIn}
                   onLogin={() => navigateTo('login')}
+                  onBack={goBack}
                 />
               )}
               {currentScreen === 'community-post' && (

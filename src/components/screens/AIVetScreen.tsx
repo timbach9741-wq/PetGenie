@@ -175,7 +175,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
   return (
     <div className="h-full flex flex-col bg-zinc-50 relative z-50">
       {/* Header */}
-      <header className="px-6 pt-[calc(env(safe-area-inset-top,0px)+28px)] pb-4 flex items-center bg-white border-b border-zinc-100 sticky top-0 z-10 shrink-0">
+      <header className="px-6 pt-[calc(env(safe-area-inset-top,0px)+44px)] pb-4 flex items-center bg-white border-b border-zinc-100 sticky top-0 z-10 shrink-0">
         <button
           onClick={onBack}
           aria-label="뒤로가기"

@@ -20,6 +20,8 @@
 # Capacitor 코어 클래스 보존
 -keep class com.getcapacitor.** { *; }
 -keep class com.capacitorjs.** { *; }
+-keep class io.capawesome.** { *; }
+-dontwarn io.capawesome.**
 
 # WebView 클래스 보존
 -keep class android.webkit.** { *; }

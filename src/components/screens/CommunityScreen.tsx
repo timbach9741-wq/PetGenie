@@ -27,9 +27,10 @@ interface CommunityScreenProps {
   onSelectPost: (post: CommunityPost) => void;
   isLoggedIn: boolean;
   onLogin: () => void;
+  onBack: () => void;
 }
 
-const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin }: CommunityScreenProps) => {
+const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack }: CommunityScreenProps) => {
   const { t, i18n } = useTranslation();
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [filter, setFilter] = useState<'all' | 'walk'>('all');
@@ -114,9 +115,16 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin }: Comm
   return (
     <div className="h-full flex flex-col bg-zinc-50">
       {/* ── 헤더 ── */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-xl border-b border-zinc-100 px-5 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-2">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-xl border-b border-zinc-100 px-5 pt-[calc(env(safe-area-inset-top,0px)+44px)] pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
+            <button
+              onClick={onBack}
+              aria-label={t('common.back', '뒤로가기')}
+              className="p-2 -ml-2 mr-1 text-zinc-900 hover:bg-zinc-100 rounded-full transition-transform active:scale-90"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <PawPrint className="w-6 h-6 text-emerald-600" />
             <h1 className="text-xl font-bold text-zinc-900">{t('community.title', '커뮤니티')}</h1>
           </div>

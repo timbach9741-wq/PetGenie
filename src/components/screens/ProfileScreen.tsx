@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { Settings, ChevronRight, CheckCircle2, Shield, User, Bell, PawPrint, LogOut, Globe, HelpCircle, Info } from 'lucide-react';
+import { Settings, ChevronRight, CheckCircle2, Shield, User, Bell, PawPrint, LogOut, Globe, HelpCircle, Info, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import type { Screen } from '../../types';
@@ -51,9 +51,18 @@ const ProfileScreen = ({
 
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
-      <header className="bg-white px-6 pb-6 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+28px)]">
+      <header className="bg-white px-6 pb-6 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+44px)]">
         <div className="flex justify-between items-center">
-          <h1 className="text-lg font-bold text-zinc-900">{t('profile.title')}</h1>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onBack}
+              aria-label="뒤로가기"
+              className="p-2 -ml-2 mr-1 text-zinc-900 hover:bg-zinc-100 rounded-full transition-transform active:scale-90"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-lg font-bold text-zinc-900">{t('profile.title')}</h1>
+          </div>
           {!isEditing ? (
             <button onClick={() => { setEditProfile(petProfile); setIsEditing(true); }} className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl">
               {t('profile.edit_profile')}

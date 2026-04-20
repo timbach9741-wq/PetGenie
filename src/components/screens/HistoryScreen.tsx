@@ -1,7 +1,6 @@
 import { useTranslation, Trans } from 'react-i18next';
-import { ChevronRight, History as HistoryIcon } from 'lucide-react';
+import { ChevronRight, History as HistoryIcon, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
-
 
 const HistoryScreen = ({ history, onSelect, onBack }: { history: any[], onSelect: (item: any) => void, onBack: () => void }) => {
   const { t } = useTranslation();
@@ -11,7 +10,14 @@ const HistoryScreen = ({ history, onSelect, onBack }: { history: any[], onSelect
 
   return (
     <div className="h-full bg-zinc-50 flex flex-col" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
-      <header className="px-6 pb-6 flex items-center gap-4 bg-white sticky top-0 z-50 border-b border-zinc-100" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}>
+      <header className="px-6 pb-6 flex items-center gap-2 bg-white sticky top-0 z-50 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+44px)]">
+        <button
+          onClick={onBack}
+          aria-label={"뒤로가기"}
+          className="p-2 -ml-2 text-zinc-900 hover:bg-zinc-100 rounded-full transition-transform active:scale-90"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <h1 className="text-lg font-bold text-zinc-900">{t('history.title')}</h1>
       </header>
       

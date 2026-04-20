@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "362126337752",
+    "project_id": "tim-project-1-06391183-e4da8",
+    "storage_bucket": "tim-project-1-06391183-e4da8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:362126337752:android:c8b830e7547dcdd07819ad",
+        "android_client_info": {
+          "package_name": "com.petgenie.official"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "362126337752-5kj2qgm7uo9ue8336l80hepvfq6od4qv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD19sDUqLnydETsYtAfH6SK2WhN4GO6_vs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "362126337752-5kj2qgm7uo9ue8336l80hepvfq6od4qv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

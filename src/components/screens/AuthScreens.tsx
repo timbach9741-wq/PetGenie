@@ -4,6 +4,8 @@ import { Scan } from 'lucide-react';
 import { motion } from 'motion/react';
 import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider } from '../../lib/firebase';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
 
 export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: string) => void, onNavigateToSignUp: () => void }) => {
   const { t } = useTranslation();
@@ -28,12 +30,20 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
 
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      // 구글 로그인 성공 후, 인증된 사용자의 이메일을 onLogin으로 전달합니다.
-      if (result.user.email) {
-        onLogin(result.user.email);
+      if (Capacitor.isNativePlatform()) {
+        const result = await FirebaseAuthentication.signInWithGoogle();
+        if (result.user?.email) {
+          onLogin(result.user.email);
+        } else {
+          alert('구글 로그인에 실패했습니다. (이메일 정보 없음)');
+        }
       } else {
-        alert(t('auth.login_failed') || '로그인에 실패했습니다. (이메일 없음)');
+        const result = await signInWithPopup(auth, googleProvider);
+        if (result.user?.email) {
+          onLogin(result.user.email);
+        } else {
+          alert(t('auth.login_failed') || '로그인에 실패했습니다. (이메일 없음)');
+        }
       }
     } catch (error: any) {
       console.error("Google Auth Error", error);
