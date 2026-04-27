@@ -9,7 +9,7 @@ const HistoryScreen = ({ history, onSelect, onBack }: { history: any[], onSelect
   const lastScanDate = history.length > 0 ? history[0].date : '-';
 
   return (
-    <div className="h-full bg-zinc-50 flex flex-col" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="h-full bg-zinc-50 flex flex-col pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
       <header className="px-6 pb-6 flex items-center gap-2 bg-white sticky top-0 z-50 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+44px)]">
         <button
           onClick={onBack}
@@ -56,7 +56,7 @@ const HistoryScreen = ({ history, onSelect, onBack }: { history: any[], onSelect
               className="w-full bg-white p-4 rounded-3xl border border-zinc-100 flex items-center gap-4 hover:border-emerald-500/30 transition-all active:scale-[0.98] shadow-sm"
             >
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-zinc-100 shrink-0">
-                <img src={item.image} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <img src={item.image} alt={item.result.primaryBreed || 'Scan history'} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               </div>
               <div className="flex-1 text-left">
                 <h3 className="font-bold text-zinc-900">{item.result.primaryBreed}</h3>

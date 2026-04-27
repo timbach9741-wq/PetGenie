@@ -211,6 +211,8 @@ const CommunityPostScreen = ({ onBack, petProfile, onPostCreated }: CommunityPos
         accept="image/*"
         onChange={handleImageSelect}
         className="hidden"
+        title={t('community.photo_select', '사진 추가하기')}
+        aria-label={t('community.photo_select', '사진 추가하기')}
       />
     </div>
   );
