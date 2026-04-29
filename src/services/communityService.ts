@@ -381,14 +381,6 @@ export async function getWeeklyRanking(): Promise<WalkRankingEntry[]> {
       .sort((a, b) => b.totalMinutes - a.totalMinutes)
       .slice(0, 5); // 상위 5명만
 
-    // 데이터가 부족할 경우 목업 데이터 병합
-    if (rankingArray.length === 0) {
-      return [
-        { userId: 'mock_1', userName: '루나맘', petName: '루나', totalMinutes: 420, walkCount: 14, streak: 7 },
-        { userId: 'mock_2', userName: '초코아빠', petName: '초코', totalMinutes: 350, walkCount: 12, streak: 6 },
-        { userId: 'mock_3', userName: '뭉치주인', petName: '뭉치', totalMinutes: 280, walkCount: 10, streak: 5 },
-      ];
-    }
     return rankingArray;
   } catch (error) {
     console.error('getWeeklyRanking error:', error);

@@ -198,6 +198,7 @@ const ProfileScreen = ({
               { icon: Bell, label: t('profile.notifications'), value: '', action: () => {} },
               { icon: Shield, label: t('privacy.title'), value: '', action: () => onNavigate('privacy') },
               { icon: HelpCircle, label: t('profile.help'), value: '', action: () => {} },
+              { icon: Info, label: '앱 정보', value: '', action: () => onNavigate('app-info') },
             ].map((item, i) => (
               <button key={i} onClick={item.action} className="w-full flex items-center gap-4 py-3.5 px-1 rounded-xl hover:bg-zinc-50 transition-colors">
                 <item.icon className="w-5 h-5 text-zinc-400" />

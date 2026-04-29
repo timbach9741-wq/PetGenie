@@ -7,23 +7,39 @@ import { auth, googleProvider } from '../../lib/firebase';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 
-export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: string) => void, onNavigateToSignUp: () => void }) => {
+// 실제 운영 환경의 법적 고지 페이지 주소
+export const TERMS_OF_SERVICE_URL = "https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c"; // TODO: 실제 이용약관 주소로 변경 필요
+export const PRIVACY_POLICY_URL = "https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c";
+
+export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: string, uid: string, agreeMarketing: boolean) => void, onNavigateToSignUp: () => void }) => {
   const { t } = useTranslation();
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreeMarketing, setAgreeMarketing] = useState(false);
 
+  const isAllAgreed = agreeTerms && agreeMarketing;
+
+  const handleAgreeAll = (checked: boolean) => {
+    setAgreeTerms(checked);
+    setAgreeMarketing(checked);
+  };
+
   const handleGoogleLogin = async () => {
+    if (!agreeTerms) {
+      alert(t('auth.terms_required', '서비스 이용을 위해 필수 약관에 동의해주세요.'));
+      return;
+    }
     try {
       if (Capacitor.isNativePlatform()) {
         const result = await FirebaseAuthentication.signInWithGoogle();
-        if (result.user?.email) {
-          onLogin(result.user.email);
+        if (result.user?.email && result.user?.uid) {
+          onLogin(result.user.email, result.user.uid, agreeMarketing);
         } else {
-          alert('구글 로그인에 실패했습니다. (이메일 정보 없음)');
+          alert('구글 로그인에 실패했습니다. (이메일 또는 UID 정보 없음)');
         }
       } else {
         const result = await signInWithPopup(auth, googleProvider);
-        if (result.user?.email) {
-          onLogin(result.user.email);
+        if (result.user?.email && result.user?.uid) {
+          onLogin(result.user.email, result.user.uid, agreeMarketing);
         } else {
           alert(t('auth.login_failed') || '로그인에 실패했습니다. (이메일 없음)');
         }
@@ -51,7 +67,57 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
         </div>
 
         <div className="space-y-6">
-          <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 bg-white text-zinc-900 py-4 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] shadow-lg">
+          <div className="flex flex-col gap-4">
+            {/* 전체 동의 */}
+            <div className="flex items-start gap-3 pb-4 border-b border-white/10">
+              <input 
+                type="checkbox" 
+                id="agree-all-login"
+                checked={isAllAgreed}
+                onChange={(e) => handleAgreeAll(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
+              />
+              <label htmlFor="agree-all-login" className="text-sm font-bold text-white leading-tight cursor-pointer">
+                {t('auth.agree_all', '전체 약관에 동의합니다.')}
+              </label>
+            </div>
+
+            {/* 필수 약관 동의 */}
+            <div className="flex items-start gap-3">
+              <input 
+                type="checkbox" 
+                id="terms-consent-login"
+                checked={agreeTerms}
+                onChange={(e) => setAgreeTerms(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
+              />
+              <label htmlFor="terms-consent-login" className="text-xs text-zinc-300 leading-tight cursor-pointer">
+                <span className="text-emerald-400 font-bold">[{t('auth.required', '필수')}]</span>{' '}
+                <a href={TERMS_OF_SERVICE_URL} target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors" onClick={(e) => e.stopPropagation()}>{t('auth.terms_link', '이용약관')}</a> {t('auth.terms_and', '및')} <a href={PRIVACY_POLICY_URL} target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors" onClick={(e) => e.stopPropagation()}>{t('auth.privacy_link', '개인정보 처리방침')}</a> {t('auth.consent', '동의')}
+              </label>
+            </div>
+
+            {/* 선택 마케팅 동의 */}
+            <div className="flex items-start gap-3">
+              <input 
+                type="checkbox" 
+                id="marketing-consent-login"
+                checked={agreeMarketing}
+                onChange={(e) => setAgreeMarketing(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
+              />
+              <label htmlFor="marketing-consent-login" className="text-xs text-zinc-400 leading-tight cursor-pointer">
+                <span className="text-zinc-500 font-bold">[{t('auth.optional', '선택')}]</span>{' '}
+                {t('auth.marketing_consent', '이메일 론칭 혜택 등 마케팅 수신 동의')}
+              </label>
+            </div>
+          </div>
+
+          <button 
+            onClick={handleGoogleLogin} 
+            disabled={!agreeTerms}
+            className={`w-full flex items-center justify-center gap-3 bg-white text-zinc-900 py-4 rounded-2xl font-bold text-sm transition-all shadow-lg ${!agreeTerms ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98] hover:bg-zinc-100'}`}
+          >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -60,26 +126,6 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
             </svg>
             {t('auth.google_login')}
           </button>
-
-          <div className="flex items-start gap-3 justify-center pt-4">
-            <input 
-              type="checkbox" 
-              id="marketing-consent-login"
-              checked={agreeMarketing}
-              onChange={(e) => setAgreeMarketing(e.target.checked)}
-              className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-950"
-            />
-            <label htmlFor="marketing-consent-login" className="text-xs text-zinc-400 leading-tight">
-              {t('auth.marketing_consent', 'I agree to receive launch benefits via email')}
-            </label>
-          </div>
-        </div>
-
-        <div className="text-center pt-8">
-          <p className="text-[10px] text-zinc-500 leading-relaxed mb-4">
-            {t('auth.terms_prefix', 'By continuing, you agree to Pet Genie\'s')} <br/>
-            <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.terms_link', 'Terms')}</a> {t('auth.terms_and', 'and')} <a href="https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c" target="_blank" rel="noopener noreferrer" className="underline hover:text-emerald-400 transition-colors">{t('auth.privacy_link', 'Privacy Policy')}</a>
-          </p>
         </div>
       </div>
     </motion.div>
@@ -87,6 +133,6 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
 };
 
 // Sign up and Login are the same for Google Authentication
-export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email: string) => void, onNavigateToLogin: () => void }) => {
+export const SignUpScreen = ({ onSignUp, onNavigateToLogin }: { onSignUp: (email: string, uid: string, agreeMarketing: boolean) => void, onNavigateToLogin: () => void }) => {
   return <LoginScreen onLogin={onSignUp} onNavigateToSignUp={onNavigateToLogin} />;
 };

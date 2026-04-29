@@ -61,6 +61,7 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
   const [users, setUsers] = useState<AppUser[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [membershipFilter, setMembershipFilter] = useState<'all' | 'free' | 'premium' | 'premium_plus'>('all');
+  const [marketingFilter, setMarketingFilter] = useState<'all' | 'agreed' | 'disagreed'>('all');
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   
   const [stats, setStats] = useState<AppStats | null>(null);
@@ -87,9 +88,14 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
 
   // ── 유저 검색 & 필터 ──
   useEffect(() => {
-    const filtered = filterUsersLocal(allUsers, searchTerm, membershipFilter);
+    let filtered = filterUsersLocal(allUsers, searchTerm, membershipFilter);
+    if (marketingFilter !== 'all') {
+      filtered = filtered.filter(u => 
+        marketingFilter === 'agreed' ? u.marketingConsent === true : u.marketingConsent !== true
+      );
+    }
     setUsers(filtered);
-  }, [searchTerm, membershipFilter, allUsers]);
+  }, [searchTerm, membershipFilter, marketingFilter, allUsers]);
 
   const handleSearch = useCallback(() => {
     // useEffect에서 자동 처리됨
@@ -260,6 +266,8 @@ export default function AdminDashboard({ onBack }: { onBack: () => void }) {
                 onSearch={handleSearch}
                 membershipFilter={membershipFilter}
                 onFilterChange={handleFilterChange}
+                marketingFilter={marketingFilter}
+                onMarketingFilterChange={setMarketingFilter}
                 expandedUser={expandedUser}
                 onToggleExpand={(uid) => setExpandedUser(expandedUser === uid ? null : uid)}
                 onToggleStatus={handleToggleStatus}
@@ -308,7 +316,7 @@ function DashboardTab({ stats }: { stats: AppStats }) {
           icon={<Users className="w-4 h-4" />}
           label="총 유저"
           value={stats.totalUsers.toLocaleString()}
-          sub={`+${stats.newUsersLast7d} (7일)`}
+          sub={`오늘 신규 +${stats.newUsersToday}명 / 7일 +${stats.newUsersLast7d}명`}
           color="text-blue-400"
           bgColor="bg-blue-500/10"
         />
@@ -450,7 +458,7 @@ function KPICard({ icon, label, value, sub, color, bgColor }: {
 // ═══════════════════════════════════════
 function UsersTab({
   users, searchTerm, onSearchChange, onSearch,
-  membershipFilter, onFilterChange, expandedUser, onToggleExpand,
+  membershipFilter, onFilterChange, marketingFilter, onMarketingFilterChange, expandedUser, onToggleExpand,
   onToggleStatus, getTotalPayment, getSubscriptionInfo,
 }: {
   users: AppUser[];
@@ -459,6 +467,8 @@ function UsersTab({
   onSearch: () => void;
   membershipFilter: 'all' | 'free' | 'premium' | 'premium_plus';
   onFilterChange: (v: 'all' | 'free' | 'premium' | 'premium_plus') => void;
+  marketingFilter: 'all' | 'agreed' | 'disagreed';
+  onMarketingFilterChange: (v: 'all' | 'agreed' | 'disagreed') => void;
   expandedUser: string | null;
   onToggleExpand: (uid: string) => void;
   onToggleStatus: (uid: string) => void;
@@ -486,26 +496,47 @@ function UsersTab({
         </button>
       </div>
 
-      {/* 멤버십 필터 */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar">
-        {([
-          { key: 'all' as const, label: '전체' },
-          { key: 'free' as const, label: 'Free' },
-          { key: 'premium' as const, label: 'Premium' },
-          { key: 'premium_plus' as const, label: 'Premium+' },
-        ]).map(f => (
-          <button
-            key={f.key}
-            onClick={() => onFilterChange(f.key)}
-            className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all shrink-0 ${
-              membershipFilter === f.key
-                ? 'bg-emerald-600 text-white border-emerald-600'
-                : 'bg-zinc-900 text-zinc-500 border-white/5 hover:border-zinc-700'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+      {/* 멤버십 및 마케팅 필터 */}
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {([
+            { key: 'all' as const, label: '멤버십 전체' },
+            { key: 'free' as const, label: 'Free' },
+            { key: 'premium' as const, label: 'Premium' },
+            { key: 'premium_plus' as const, label: 'Premium+' },
+          ]).map(f => (
+            <button
+              key={f.key}
+              onClick={() => onFilterChange(f.key)}
+              className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all shrink-0 ${
+                membershipFilter === f.key
+                  ? 'bg-emerald-600 text-white border-emerald-600'
+                  : 'bg-zinc-900 text-zinc-500 border-white/5 hover:border-zinc-700'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {([
+            { key: 'all' as const, label: '마케팅 동의 전체' },
+            { key: 'agreed' as const, label: '동의함' },
+            { key: 'disagreed' as const, label: '미동의' },
+          ]).map(f => (
+            <button
+              key={f.key}
+              onClick={() => onMarketingFilterChange(f.key)}
+              className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all shrink-0 ${
+                marketingFilter === f.key
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-zinc-900 text-zinc-500 border-white/5 hover:border-zinc-700'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 유저 수 표시 */}
@@ -549,6 +580,11 @@ function UsersTab({
                     <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-md ${memStyle.bg} ${memStyle.text}`}>
                       {memStyle.label}
                     </span>
+                    {user.marketingConsent && (
+                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400">
+                        마케팅 O
+                      </span>
+                    )}
                     {user.status === 'suspended' && (
                       <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-rose-500/10 text-rose-400">정지</span>
                     )}
@@ -606,6 +642,7 @@ function UsersTab({
                             <InfoItem label="총 스캔" value={`${user.totalScans}회`} />
                           </>
                         )}
+                        <InfoItem label="마케팅 수신동의" value={user.marketingConsent ? '동의함 (O)' : '미동의 (X)'} />
                       </div>
 
                       {/* 결제 내역 */}

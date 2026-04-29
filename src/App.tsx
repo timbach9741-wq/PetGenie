@@ -24,6 +24,7 @@ import { antigravityEngine } from './services/antigravityEngine';
 import { performPetScan, getFallbackResult } from './services/geminiScanner';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 
 // --- 필수 컴포넌트: 정적 import (렉 방지) ---
 import { SplashScreen } from './components/screens/SplashScreen';
@@ -234,12 +235,31 @@ export default function App() {
     setCurrentScreen('camera');
   };
 
-  const handleLogin = (email: string) => {
+  const handleLogin = async (email: string, uid: string, agreeMarketing: boolean) => {
+    try {
+      await setDoc(doc(db, 'users', uid), {
+        email,
+        marketingConsent: agreeMarketing,
+        lastLoginAt: new Date()
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error saving user data:", error);
+    }
     setScreenHistory([]); // Reset history on login
     setCurrentScreen('pet-dashboard');
   };
 
-  const handleSignUp = (email: string) => {
+  const handleSignUp = async (email: string, uid: string, agreeMarketing: boolean) => {
+    try {
+      await setDoc(doc(db, 'users', uid), {
+        email,
+        marketingConsent: agreeMarketing,
+        createdAt: new Date(),
+        lastLoginAt: new Date()
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error saving user data:", error);
+    }
     setScreenHistory([]); // Reset history on signup
     setCurrentScreen('pet-dashboard');
   };

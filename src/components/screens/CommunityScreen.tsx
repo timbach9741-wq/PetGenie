@@ -194,11 +194,7 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
                   >
                     <div className="text-white/80 text-xs font-bold">{['🥇', '🥈', '🥉'][i]}</div>
                     <div className="text-white font-bold text-sm mt-0.5">
-                      {['루나','초코','뭉치','보리','콩이'].includes(entry.petName) 
-                        ? t(`community.mock_${{
-                            '루나': 'luna', '초코': 'choco', '뭉치': 'mungchi', '보리': 'bori', '콩이': 'kong'
-                          }[entry.petName as '루나']}`, entry.petName)
-                        : entry.petName}
+                      {entry.petName}
                     </div>
                     <div className="text-white/90 text-xs">{entry.totalMinutes}{t('community.ranking_min', 'min')}</div>
                     {entry.streak >= 3 && (

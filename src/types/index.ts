@@ -1,5 +1,5 @@
 // --- Types ---
-export type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info' | 'community' | 'community-post' | 'post-detail';
+export type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info' | 'community' | 'community-post' | 'post-detail' | 'app-info';
 
 // --- Pet Profile Type ---
 export interface PetProfile {
@@ -36,6 +36,7 @@ export interface AppUser {
   petBreed: string;
   status: 'active' | 'suspended';
   payments: PaymentRecord[];
+  marketingConsent?: boolean;
 }
 
 /** 결제 내역 */
@@ -88,6 +89,7 @@ export interface AppStats {
   dailyActiveUsers: number;
   topBreeds: { breed: string; count: number }[];
   scansByDay: { date: string; count: number }[];
+  newUsersToday: number;
   newUsersLast7d: number;
   newUsersLast30d: number;
 }

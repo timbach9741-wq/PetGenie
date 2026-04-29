@@ -134,7 +134,8 @@ export async function getAppStats(users: AppUser[]): Promise<AppStats> {
     scansByDay: [
       { date: '오늘', count: 5 },
     ], // 임시
-    newUsersLast7d: 0,
-    newUsersLast30d: 0,
+    newUsersToday: users.filter(u => u.joinDate && new Date(u.joinDate).getTime() > Date.now() - 86400000).length,
+    newUsersLast7d: users.filter(u => u.joinDate && new Date(u.joinDate).getTime() > Date.now() - 7 * 86400000).length,
+    newUsersLast30d: users.filter(u => u.joinDate && new Date(u.joinDate).getTime() > Date.now() - 30 * 86400000).length,
   };
 }
