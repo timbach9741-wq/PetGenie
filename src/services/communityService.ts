@@ -176,14 +176,31 @@ export async function getPosts(
 }
 
 /**
+ * 특정 게시글 단건 조회
+ * @param postId - 게시글 ID
+ * @returns 게시글 객체 또는 null
+ */
+export async function getPostById(postId: string): Promise<CommunityPost | null> {
+  const docRef = doc(db, POSTS_COLLECTION, postId);
+  const docSnap = await getDoc(docRef);
+  
+  if (docSnap.exists()) {
+    return docToPost(docSnap);
+  }
+  return null;
+}
+
+/**
  * 좋아요 토글
  * @param postId - 게시글 ID
  * @param userId - 좋아요를 누르는 유저 UID
+ * @param userName - 좋아요를 누르는 유저 이름 (알림용)
  * @param isCurrentlyLiked - 현재 좋아요 상태
  */
 export async function toggleLike(
   postId: string,
   userId: string,
+  userName: string,
   isCurrentlyLiked: boolean,
 ): Promise<void> {
   const postRef = doc(db, POSTS_COLLECTION, postId);
@@ -258,6 +275,37 @@ export async function deletePost(postId: string, userId: string): Promise<void> 
   }
 
   await deleteDoc(postRef);
+}
+
+/**
+ * 댓글 삭제 (본인만 가능)
+ * @param postId - 게시글 ID
+ * @param commentId - 삭제할 댓글 ID
+ * @param userId - 삭제 요청자의 UID
+ */
+export async function deleteComment(postId: string, commentId: string, userId: string): Promise<void> {
+  const commentRef = doc(db, POSTS_COLLECTION, postId, COMMENTS_SUBCOLLECTION, commentId);
+  const commentSnap = await getDoc(commentRef);
+
+  if (!commentSnap.exists()) {
+    throw new Error('댓글을 찾을 수 없습니다.');
+  }
+
+  if (commentSnap.data().authorId !== userId) {
+    throw new Error('본인 댓글만 삭제할 수 있습니다.');
+  }
+
+  // 댓글 삭제
+  await deleteDoc(commentRef);
+
+  // 게시글의 commentCount 감소 (0 이하로 내려가지 않도록 유의)
+  const postRef = doc(db, POSTS_COLLECTION, postId);
+  const postSnap = await getDoc(postRef);
+  if (postSnap.exists() && postSnap.data().commentCount > 0) {
+    await updateDoc(postRef, {
+      commentCount: increment(-1),
+    });
+  }
 }
 
 /**
@@ -417,3 +465,66 @@ export function formatRelativeTime(timestamp: any, lang: string = 'ko'): string 
   if (diffDays < 7) return `${diffDays}d ago`;
   return date.toLocaleDateString('en-US');
 }
+
+/**
+ * 콘텐츠 신고 (앱 심사 필수)
+ * @param reporterId - 신고자 UID
+ * @param targetType - 'post' 또는 'comment'
+ * @param targetId - 신고 대상 ID
+ * @param reason - 신고 사유
+ */
+export async function reportContent(
+  reporterId: string,
+  targetType: 'post' | 'comment',
+  targetId: string,
+  reason: string
+): Promise<void> {
+  const reportsRef = collection(db, 'reports');
+  await addDoc(reportsRef, {
+    reporterId,
+    targetType,
+    targetId,
+    reason,
+    createdAt: serverTimestamp(),
+    status: 'pending'
+  });
+}
+
+/**
+ * 사용자 차단 (앱 심사 필수)
+ * @param blockerId - 차단하는 유저 UID
+ * @param blockedId - 차단 대상 유저 UID
+ */
+export async function blockUser(blockerId: string, blockedId: string): Promise<void> {
+  const userRef = doc(db, 'users', blockerId);
+  await updateDoc(userRef, {
+    blockedUsers: arrayUnion(blockedId)
+  }).catch(async (error) => {
+    // 문서가 없는 경우 새로 생성
+    if (error.code === 'not-found') {
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(userRef, { blockedUsers: [blockedId] }, { merge: true });
+    } else {
+      throw error;
+    }
+  });
+}
+
+/**
+ * 내가 차단한 사용자 목록 조회
+ * @param userId - 내 UID
+ */
+export async function getBlockedUsers(userId: string): Promise<string[]> {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      return snap.data().blockedUsers || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('차단 목록 로드 실패:', error);
+    return [];
+  }
+}
+

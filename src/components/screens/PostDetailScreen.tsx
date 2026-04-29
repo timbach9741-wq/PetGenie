@@ -10,7 +10,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft, Heart, MessageCircle, Trash2, Send,
-  PawPrint, Flame, Clock, Loader2, AlertCircle,
+  PawPrint, Flame, Clock, Loader2, AlertCircle, MoreVertical, ShieldAlert, Ban
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -20,7 +20,11 @@ import {
   addComment,
   getComments,
   deletePost,
+  deleteComment,
   formatRelativeTime,
+  getBlockedUsers,
+  blockUser,
+  reportContent,
 } from '../../services/communityService';
 import type { CommunityPost, Comment } from '../../types';
 
@@ -40,10 +44,26 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
   const [isSendingComment, setIsSendingComment] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
+  
+  const [blockedUsers, setBlockedUsers] = useState<string[]>([]);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // 토스트 메시지 상태
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
   // 좋아요 상태를 로컬에서 관리 (낙관적 UI)
   const [localLikes, setLocalLikes] = useState<string[]>(post.likes);
   const [likeAnimation, setLikeAnimation] = useState(false);
   const commentInputRef = useRef<HTMLInputElement>(null);
+
+  // 토스트 메시지 표시 타이머
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   const currentUserId = auth.currentUser?.uid;
   const isAuthor = currentUserId === post.authorId;
@@ -53,8 +73,16 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
   useEffect(() => {
     const loadComments = async () => {
       try {
+        const currentUserId = auth.currentUser?.uid;
+        let blocks: string[] = [];
+        if (currentUserId) {
+          blocks = await getBlockedUsers(currentUserId);
+          setBlockedUsers(blocks);
+        }
+
         const result = await getComments(post.id);
-        setComments(result);
+        // 차단 유저 댓글 필터링
+        setComments(result.filter(c => !blocks.includes(c.authorId)));
       } catch (error) {
         console.error('댓글 로드 실패:', error);
       } finally {
@@ -83,7 +111,8 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
     }
 
     try {
-      await toggleLike(post.id, currentUserId, isLiked);
+      const userName = auth.currentUser?.displayName || auth.currentUser?.email?.split('@')[0] || '익명';
+      await toggleLike(post.id, currentUserId, userName, isLiked);
     } catch (error) {
       // 롤백
       console.error('좋아요 실패:', error);
@@ -110,10 +139,31 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
       const updatedComments = await getComments(post.id);
       setComments(updatedComments);
       setCommentText('');
+      setToastMessage({ text: t('community.comment_added', '댓글이 등록되었습니다.'), type: 'success' });
     } catch (error) {
       console.error('댓글 작성 실패:', error);
+      setToastMessage({ text: t('community.comment_add_failed', '댓글 등록에 실패했습니다.'), type: 'error' });
     } finally {
       setIsSendingComment(false);
+    }
+  };
+
+  // 댓글 삭제 핸들러
+  const handleDeleteComment = async (commentId: string) => {
+    if (!currentUserId) return;
+    if (!window.confirm(t('community.delete_comment_confirm', '이 댓글을 삭제하시겠습니까?'))) return;
+
+    setDeletingCommentId(commentId);
+    try {
+      await deleteComment(post.id, commentId, currentUserId);
+      // 댓글 목록 갱신
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      setToastMessage({ text: t('community.comment_deleted', '댓글이 삭제되었습니다.'), type: 'success' });
+    } catch (error) {
+      console.error('댓글 삭제 실패:', error);
+      setToastMessage({ text: t('community.delete_comment_failed', '댓글 삭제에 실패했습니다.'), type: 'error' });
+    } finally {
+      setDeletingCommentId(null);
     }
   };
 
@@ -132,6 +182,43 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  // 차단 핸들러
+  const handleBlock = async (authorId: string) => {
+    if (!isLoggedIn) return onLogin();
+    if (!currentUserId) return;
+    if (!window.confirm(t('community.block_confirm', '이 사용자를 차단하시겠습니까?'))) return;
+    
+    try {
+      await blockUser(currentUserId, authorId);
+      setToastMessage({ text: t('community.block_success', '해당 사용자가 차단되었습니다.'), type: 'success' });
+      setActiveMenuId(null);
+      
+      setBlockedUsers(prev => [...prev, authorId]);
+      setComments(prev => prev.filter(c => c.authorId !== authorId));
+      if (post.authorId === authorId) {
+        onBack();
+      }
+    } catch (error) {
+      console.error('차단 실패:', error);
+    }
+  };
+
+  // 신고 핸들러
+  const handleReport = async (contentType: 'post' | 'comment', contentId: string) => {
+    if (!isLoggedIn) return onLogin();
+    if (!currentUserId) return;
+    const reason = window.prompt(t('community.report_reason', '신고 사유를 입력해주세요.'));
+    if (!reason) return;
+
+    try {
+      await reportContent(currentUserId, contentType, contentId, reason);
+      setToastMessage({ text: t('community.report_success', '신고가 접수되었습니다.'), type: 'success' });
+      setActiveMenuId(null);
+    } catch (error) {
+      console.error('신고 실패:', error);
     }
   };
 
@@ -157,7 +244,7 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
           <ArrowLeft className="w-5 h-5 text-zinc-700" />
         </button>
         <h1 className="font-bold text-zinc-900">{t('community.post_detail', '게시글')}</h1>
-        {/* 본인 게시글이면 삭제 버튼 */}
+        {/* 우측 액션 (삭제 또는 더보기) */}
         {isAuthor ? (
           <button
             onClick={() => setShowDeleteConfirm(true)}
@@ -167,8 +254,42 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
           >
             <Trash2 className="w-5 h-5 text-rose-500" />
           </button>
+        ) : currentUserId ? (
+          <div className="relative">
+            <button
+              onClick={() => setActiveMenuId(activeMenuId === 'post' ? null : 'post')}
+              className="p-2 -mr-2 rounded-xl hover:bg-zinc-100 transition-colors"
+            >
+              <MoreVertical className="w-5 h-5 text-zinc-700" />
+            </button>
+            <AnimatePresence>
+              {activeMenuId === 'post' && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  className="absolute right-0 top-full mt-1 w-36 bg-white rounded-xl shadow-xl border border-zinc-100 z-50 overflow-hidden"
+                >
+                  <button
+                    onClick={() => handleReport('post', post.id)}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                  >
+                    <ShieldAlert className="w-4 h-4" />
+                    <span>{t('community.report', '신고하기')}</span>
+                  </button>
+                  <button
+                    onClick={() => handleBlock(post.authorId)}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-colors border-t border-zinc-100"
+                  >
+                    <Ban className="w-4 h-4" />
+                    <span>{t('community.block_user', '작성자 차단')}</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         ) : (
-          <div className="w-9" /> // 정렬용 빈 공간
+          <div className="w-9" />
         )}
       </div>
 
@@ -320,16 +441,66 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
             <div className="divide-y divide-zinc-50">
               {comments.map((comment) => (
                 <div key={comment.id} className="px-5 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center">
-                      <span className="text-xs font-bold text-zinc-500">
-                        {(comment.authorName || '?')[0]}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center">
+                        <span className="text-xs font-bold text-zinc-500">
+                          {(comment.authorName || '?')[0]}
+                        </span>
+                      </div>
+                      <span className="font-bold text-sm text-zinc-800">{comment.authorName}</span>
+                      <span className="text-xs text-zinc-400">
+                        {formatRelativeTime(comment.createdAt, i18n.language)}
                       </span>
                     </div>
-                    <span className="font-bold text-sm text-zinc-800">{comment.authorName}</span>
-                    <span className="text-xs text-zinc-400">
-                      {formatRelativeTime(comment.createdAt, i18n.language)}
-                    </span>
+                    {currentUserId === comment.authorId ? (
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        disabled={deletingCommentId === comment.id}
+                        className="p-1.5 -mr-1.5 text-zinc-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                        title={t('community.delete_comment', '댓글 삭제')}
+                      >
+                        {deletingCommentId === comment.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </button>
+                    ) : currentUserId ? (
+                      <div className="relative">
+                        <button
+                          onClick={() => setActiveMenuId(activeMenuId === comment.id ? null : comment.id)}
+                          className="p-1.5 -mr-1.5 text-zinc-400 hover:bg-zinc-100 rounded-lg transition-colors"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                        <AnimatePresence>
+                          {activeMenuId === comment.id && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                              className="absolute right-0 top-full mt-1 w-32 bg-white rounded-xl shadow-xl border border-zinc-100 z-50 overflow-hidden"
+                            >
+                              <button
+                                onClick={() => handleReport('comment', comment.id)}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                              >
+                                <ShieldAlert className="w-3.5 h-3.5" />
+                                <span>{t('community.report', '신고하기')}</span>
+                              </button>
+                              <button
+                                onClick={() => handleBlock(comment.authorId)}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors border-t border-zinc-100"
+                              >
+                                <Ban className="w-3.5 h-3.5" />
+                                <span>{t('community.block_user', '차단')}</span>
+                              </button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : null}
                   </div>
                   <p className="text-sm text-zinc-600 mt-1 ml-9 leading-relaxed">{comment.text}</p>
                 </div>
@@ -420,6 +591,25 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
                 </button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── 토스트 메시지 ── */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 w-full max-w-md pointer-events-none"
+          >
+            <div className={cn(
+              "px-4 py-3 rounded-xl shadow-lg flex items-center justify-center text-sm font-bold",
+              toastMessage.type === 'success' ? "bg-zinc-900 text-white" : "bg-rose-500 text-white"
+            )}>
+              {toastMessage.text}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

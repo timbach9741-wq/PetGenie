@@ -168,7 +168,7 @@ export default function App() {
     }
 
     // Firebase Auth State Listener
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setIsLoggedIn(true);
         setUser({ 
@@ -176,6 +176,14 @@ export default function App() {
           email: firebaseUser.email || '', 
           is_premium: isPromoActive // 추후 Firestore/Claims에서 확인하도록 확장 가능
         });
+
+        // 사용자 로그인 시 푸시 알림 등록
+        try {
+          const { registerPushNotifications } = await import('./services/notificationService');
+          await registerPushNotifications();
+        } catch (err) {
+          console.error('Push notification registration failed', err);
+        }
       } else {
         setIsLoggedIn(false);
         setUser(null);
@@ -183,7 +191,7 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, [hasSeenOnboarding]);
+  }, [hasSeenOnboarding, isPromoActive]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2500);

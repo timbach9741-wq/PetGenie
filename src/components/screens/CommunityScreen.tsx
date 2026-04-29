@@ -9,18 +9,24 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PenSquare, Heart, MessageCircle, Trophy, PawPrint,
-  Flame, Clock, ArrowLeft, RefreshCw, LogIn,
+  Flame, Clock, ArrowLeft, RefreshCw, LogIn, MoreVertical, ShieldAlert, Ban, Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
 import { auth } from '../../lib/firebase';
 import {
   getPosts,
+  getPostById,
   toggleLike,
   getWeeklyRanking,
   formatRelativeTime,
+  getBlockedUsers,
+  blockUser,
+  reportContent,
 } from '../../services/communityService';
+import { subscribeToUnreadNotificationsCount } from '../../services/notificationService';
 import type { Screen, CommunityPost, WalkRankingEntry } from '../../types';
+import { NotificationListModal } from '../modals/NotificationListModal';
 
 interface CommunityScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -38,13 +44,24 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
   const [ranking, setRanking] = useState<WalkRankingEntry[]>([]);
   // 좋아요 애니메이션 상태 (postId → boolean)
   const [likeAnimations, setLikeAnimations] = useState<Record<string, boolean>>({});
+  const [blockedUsers, setBlockedUsers] = useState<string[]>([]);
+  const [activeMenuPostId, setActiveMenuPostId] = useState<string | null>(null);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // 피드 데이터 로드
   const loadPosts = useCallback(async () => {
     setIsLoading(true);
     try {
+      const currentUserId = auth.currentUser?.uid;
+      let blocks: string[] = [];
+      if (currentUserId) {
+        blocks = await getBlockedUsers(currentUserId);
+        setBlockedUsers(blocks);
+      }
+
       const { posts: newPosts } = await getPosts(filter, 20);
-      setPosts(newPosts);
+      setPosts(newPosts.filter(p => !blocks.includes(p.authorId)));
     } catch (error) {
       console.error('커뮤니티 피드 로드 실패:', error);
     } finally {
@@ -61,6 +78,18 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
     };
     loadRanking();
   }, [loadPosts]);
+
+  // 안읽은 알림 구독
+  useEffect(() => {
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId || !isLoggedIn) return;
+
+    const unsubscribe = subscribeToUnreadNotificationsCount(currentUserId, (count) => {
+      setUnreadCount(count);
+    });
+
+    return () => unsubscribe();
+  }, [isLoggedIn]);
 
   // 좋아요 핸들러
   const handleLike = async (post: CommunityPost, e: React.MouseEvent) => {
@@ -99,11 +128,50 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
     }
 
     try {
-      await toggleLike(post.id, userId, isLiked);
+      const userName = auth.currentUser?.displayName || auth.currentUser?.email?.split('@')[0] || '익명';
+      await toggleLike(post.id, userId, userName, isLiked);
     } catch (error) {
       // 실패 시 롤백
       console.error('좋아요 토글 실패:', error);
       loadPosts();
+    }
+  };
+
+  // 신고 핸들러
+  const handleReport = async (postId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isLoggedIn) return onLogin();
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId) return;
+    
+    const reason = window.prompt(t('community.report_reason', '신고 사유를 입력해주세요.'));
+    if (!reason) return;
+
+    try {
+      await reportContent(currentUserId, 'post', postId, reason);
+      alert(t('community.report_success', '신고가 접수되었습니다. 관리자 검토 후 조치됩니다.'));
+      setActiveMenuPostId(null);
+    } catch (error) {
+      console.error('신고 실패:', error);
+    }
+  };
+
+  // 차단 핸들러
+  const handleBlock = async (authorId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isLoggedIn) return onLogin();
+    const currentUserId = auth.currentUser?.uid;
+    if (!currentUserId) return;
+
+    if (!window.confirm(t('community.block_confirm', '이 사용자를 차단하시겠습니까? 차단하면 이 사용자의 글이 더 이상 보이지 않습니다.'))) return;
+    
+    try {
+      await blockUser(currentUserId, authorId);
+      alert(t('community.block_success', '해당 사용자가 차단되었습니다.'));
+      setActiveMenuPostId(null);
+      loadPosts(); // 피드 리로드
+    } catch (error) {
+      console.error('차단 실패:', error);
     }
   };
 
@@ -142,6 +210,20 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
             >
               <RefreshCw className={cn("w-5 h-5 text-zinc-500", isLoading && "animate-spin")} />
             </button>
+            {/* 알림 버튼 (로그인 시) */}
+            {isLoggedIn && (
+              <button
+                onClick={() => setShowNotificationModal(true)}
+                className="p-2 rounded-xl hover:bg-zinc-100 transition-colors relative"
+                aria-label={t('community.notifications', '알림')}
+              >
+                <Bell className="w-5 h-5 text-zinc-600" />
+                {/* 미확인 알림 배지 */}
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border border-white" />
+                )}
+              </button>
+            )}
             {/* 글쓰기 */}
             {isLoggedIn && (
               <button
@@ -303,12 +385,54 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
                           </span>
                         </div>
                       </div>
-                      {/* 산책 인증 배지 */}
-                      {isWalkPost && (
-                        <div className="bg-emerald-500/30 text-emerald-300 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">
-                          🏃 WALK
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {/* 산책 인증 배지 */}
+                        {isWalkPost && (
+                          <div className="bg-emerald-500/30 text-emerald-300 text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider">
+                            🏃 WALK
+                          </div>
+                        )}
+                        {/* 더보기 메뉴 (본인 글이 아닐 때만) */}
+                        {currentUserId && currentUserId !== post.authorId && (
+                          <div className="relative">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMenuPostId(activeMenuPostId === post.id ? null : post.id);
+                              }}
+                              className="p-1 -mr-1 rounded-full hover:bg-zinc-100/20 transition-colors"
+                            >
+                              <MoreVertical className={cn("w-5 h-5", isWalkPost ? "text-emerald-100" : "text-zinc-400")} />
+                            </button>
+                            
+                            <AnimatePresence>
+                              {activeMenuPostId === post.id && (
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                  className="absolute right-0 top-full mt-1 w-36 bg-white rounded-xl shadow-xl border border-zinc-100 z-50 overflow-hidden"
+                                >
+                                  <button
+                                    onClick={(e) => handleReport(post.id, e)}
+                                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                                  >
+                                    <ShieldAlert className="w-4 h-4" />
+                                    <span>{t('community.report', '신고하기')}</span>
+                                  </button>
+                                  <button
+                                    onClick={(e) => handleBlock(post.authorId, e)}
+                                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-colors border-t border-zinc-100"
+                                  >
+                                    <Ban className="w-4 h-4" />
+                                    <span>{t('community.block_user', '작성자 차단')}</span>
+                                  </button>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* 이미지 영역 (일반 게시글만) */}
@@ -429,6 +553,26 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
         >
           <PenSquare className="w-6 h-6" />
         </motion.button>
+      )}
+
+      {/* --- 모달 영역 --- */}
+      {showNotificationModal && (
+        <NotificationListModal
+          onClose={() => setShowNotificationModal(false)}
+          onNavigateToPost={async (postId) => {
+            let post = posts.find(p => p.id === postId);
+            if (!post) {
+              // 피드에 없는 옛날 게시글인 경우 DB에서 직접 조회
+              post = await getPostById(postId) || undefined;
+            }
+            if (post) {
+              onSelectPost(post);
+              setShowNotificationModal(false);
+            } else {
+              alert(t('community.post_not_found', '해당 게시글을 찾을 수 없거나 삭제되었습니다.'));
+            }
+          }}
+        />
       )}
     </div>
   );
