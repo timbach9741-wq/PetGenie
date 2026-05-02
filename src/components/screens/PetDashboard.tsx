@@ -62,6 +62,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
               {/* Close Button */}
               <button 
                 onClick={handleClosePromo}
+                aria-label={t('common.close', '닫기')}
                 className="absolute top-4 right-4 w-8 h-8 bg-black/10 backdrop-blur-md rounded-full flex items-center justify-center text-white z-10 hover:bg-black/20 transition-colors"
               >
                 <X className="w-5 h-5" />

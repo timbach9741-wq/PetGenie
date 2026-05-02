@@ -400,6 +400,7 @@ const CommunityScreen = ({ onNavigate, onSelectPost, isLoggedIn, onLogin, onBack
                                 e.stopPropagation();
                                 setActiveMenuPostId(activeMenuPostId === post.id ? null : post.id);
                               }}
+                              aria-label={t('common.more', '더보기')}
                               className="p-1 -mr-1 rounded-full hover:bg-zinc-100/20 transition-colors"
                             >
                               <MoreVertical className={cn("w-5 h-5", isWalkPost ? "text-emerald-100" : "text-zinc-400")} />

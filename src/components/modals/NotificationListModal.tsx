@@ -53,6 +53,7 @@ export function NotificationListModal({ onClose, onNavigateToPost }: Notificatio
           </div>
           <button
             onClick={onClose}
+            aria-label={t('common.close', '닫기')}
             className="p-2 -mr-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-full transition-colors"
           >
             <X className="w-6 h-6" />

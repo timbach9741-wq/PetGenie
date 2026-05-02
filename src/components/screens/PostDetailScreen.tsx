@@ -271,6 +271,7 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
           <div className="relative">
             <button
               onClick={() => setActiveMenuId(activeMenuId === comment.id ? null : comment.id)}
+              aria-label={t('common.more', '더보기')}
               className="p-1.5 -mr-1.5 text-zinc-400 hover:bg-zinc-100 rounded-lg transition-colors"
             >
               <MoreVertical className="w-4 h-4" />
@@ -349,6 +350,7 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
           <div className="relative">
             <button
               onClick={() => setActiveMenuId(activeMenuId === 'post' ? null : 'post')}
+              aria-label={t('common.more', '더보기')}
               className="p-2 -mr-2 rounded-xl hover:bg-zinc-100 transition-colors"
             >
               <MoreVertical className="w-5 h-5 text-zinc-700" />
@@ -548,7 +550,7 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
             <span className="text-xs font-bold text-emerald-600">
               {t('community.replying_to', '{{name}}님에게 답글 작성 중...', { name: replyingTo.authorName })}
             </span>
-            <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-zinc-100 rounded-full transition-colors text-zinc-500">
+            <button onClick={() => setReplyingTo(null)} aria-label={t('common.cancel', '취소')} className="p-1 hover:bg-zinc-100 rounded-full transition-colors text-zinc-500">
               <X className="w-4 h-4" />
             </button>
           </div>
