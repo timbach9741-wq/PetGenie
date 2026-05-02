@@ -1,15 +1,76 @@
+import { useState } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { Heart, Activity, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Search, MoreVertical, TrendingUp, Utensils, BriefcaseMedical, Dna, BookOpen, Quote, Lock, User, Image } from 'lucide-react';
+import { Heart, Activity, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, Search, MoreVertical, TrendingUp, Utensils, BriefcaseMedical, Dna, BookOpen, Quote, Lock, User, Image, Download, Save } from 'lucide-react';
 import { motion } from 'motion/react';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import { cn } from '../../lib/utils';
 import type { Screen } from '../../types';
 import AdBanner from '../common/AdBanner';
 import { globalTranslate } from '../../utils/translateData';
 import DrSilvermanHeader from '../common/DrSilvermanHeader';
-
+import { db, auth } from '../../lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedImage, onNavigate, onSelectCareGuides }: { onBack: () => void, isPremium: boolean, onUpgrade: () => void, analysisResult?: any, capturedImage?: string | null, onNavigate?: (s: Screen) => void, onSelectCareGuides?: (guides: any[]) => void }) => {
   const { t, i18n } = useTranslation();
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleSaveToFirebase = async () => {
+    if (!auth.currentUser) {
+      alert(t('common.login_required', '로그인이 필요합니다.'));
+      return;
+    }
+    if (!analysisResult) return;
+    
+    setIsSaving(true);
+    try {
+      await addDoc(collection(db, 'scan_reports'), {
+        userId: auth.currentUser.uid,
+        result: analysisResult,
+        createdAt: serverTimestamp(),
+      });
+      alert(t('common.save_success', '리포트가 성공적으로 저장되었습니다.'));
+    } catch (error) {
+      console.error('Error saving report:', error);
+      alert(t('common.save_failed', '리포트 저장에 실패했습니다.'));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    const element = document.getElementById('report-content');
+    if (!element) return;
+    
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(element, { 
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0A120A'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('PetGenie_Health_Report.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert(t('common.download_failed', 'PDF 다운로드에 실패했습니다.'));
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const translateBreed = (breedName: string) => {
     return globalTranslate(breedName, i18n.language);
@@ -33,7 +94,26 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
       </header>
       <DrSilvermanHeader />
 
-      <div className="p-6 space-y-8">
+      <div className="px-6 pb-2 flex items-center justify-end gap-3">
+        <button 
+          onClick={handleSaveToFirebase}
+          disabled={isSaving}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold border border-emerald-500/20 active:scale-95 transition-transform disabled:opacity-50"
+        >
+          <Save className="w-3.5 h-3.5" />
+          {isSaving ? t('common.saving', '저장 중...') : t('common.save', '리포트 저장')}
+        </button>
+        <button 
+          onClick={handleDownloadPdf}
+          disabled={isDownloading}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded-full text-xs font-bold border border-blue-500/20 active:scale-95 transition-transform disabled:opacity-50"
+        >
+          <Download className="w-3.5 h-3.5" />
+          {isDownloading ? t('common.downloading', '다운로드 중...') : t('common.download', 'PDF 다운로드')}
+        </button>
+      </div>
+
+      <div id="report-content" className="p-6 space-y-8 bg-[#0A120A]">
         {/* Analysis Image Preview */}
         {capturedImage && (
           <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5">
@@ -461,7 +541,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
                       <div className="flex -space-x-2">
                         {[1, 2, 3].map((_, idx) => (
                           <div key={idx} className="w-6 h-6 rounded-full border-2 border-[#0D0D0D] bg-zinc-800 flex items-center justify-center overflow-hidden">
-                            <img src={`https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=40&h=40&sig=${idx}`} alt={`Expert reviewer ${idx + 1}`} className="w-full h-full object-cover opacity-50" />
+                            <img src={`https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=40&h=40&sig=${idx}`} alt={`Expert reviewer ${idx + 1}`} className="w-full h-full object-cover opacity-50" crossOrigin="anonymous" />
                           </div>
                         ))}
                       </div>

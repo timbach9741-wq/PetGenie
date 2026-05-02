@@ -329,14 +329,6 @@ function DashboardTab({ stats }: { stats: AppStats }) {
           bgColor="bg-amber-500/10"
         />
         <KPICard
-          icon={<Scan className="w-4 h-4" />}
-          label="총 스캔"
-          value={stats.totalScans.toLocaleString()}
-          sub={`오늘 ${stats.scansToday}건`}
-          color="text-emerald-400"
-          bgColor="bg-emerald-500/10"
-        />
-        <KPICard
           icon={<DollarSign className="w-4 h-4" />}
           label="총 매출"
           value={`₩${stats.totalRevenue.toLocaleString()}`}
@@ -344,35 +336,46 @@ function DashboardTab({ stats }: { stats: AppStats }) {
           color="text-violet-400"
           bgColor="bg-violet-500/10"
         />
+        <KPICard
+          icon={<TrendingUp className="w-4 h-4" />}
+          label="객단가 (ARPU)"
+          value={`₩${stats.arpu.toLocaleString()}`}
+          sub={`전체 유저 대비`}
+          color="text-cyan-400"
+          bgColor="bg-cyan-500/10"
+        />
       </div>
 
-      {/* DAU 카드 */}
-      <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 rounded-3xl p-5 border border-emerald-500/10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+      {/* 리텐션 & DAU 요약 */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 rounded-3xl p-5 border border-emerald-500/10 flex flex-col justify-center">
+          <div className="flex items-center gap-2 mb-2">
             <Activity className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">일간 활성 유저 (DAU)</span>
+            <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">DAU</span>
           </div>
           <span className="text-2xl font-black text-emerald-400">{stats.dailyActiveUsers}</span>
+          <p className="text-[10px] text-zinc-500 mt-1">전체 대비 {Math.round((stats.dailyActiveUsers / (stats.totalUsers || 1)) * 100)}% 활성</p>
         </div>
-        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${(stats.dailyActiveUsers / stats.totalUsers) * 100}%` }}
-            transition={{ duration: 1 }}
-          />
+        <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 rounded-3xl p-5 border border-blue-500/10 flex flex-col justify-center">
+          <div className="flex items-center gap-2 mb-2">
+            <RefreshCw className="w-4 h-4 text-blue-400" />
+            <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">30일 리텐션</span>
+          </div>
+          <span className="text-2xl font-black text-blue-400">{stats.retentionRate30d}%</span>
+          <p className="text-[10px] text-zinc-500 mt-1">가입 30일 경과 유저 기준</p>
         </div>
-        <p className="text-[10px] text-zinc-500 mt-2">
-          전체 유저 대비 {Math.round((stats.dailyActiveUsers / stats.totalUsers) * 100)}% 활성
-        </p>
       </div>
 
       {/* 스캔 추이 (7일) */}
       <div className="bg-zinc-900 rounded-3xl p-5 border border-white/5">
-        <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4" /> 7일 스캔 추이
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+            <Scan className="w-4 h-4" /> 7일 스캔 추이
+          </h3>
+          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            총 {stats.totalScans.toLocaleString()}건
+          </span>
+        </div>
         <div className="flex items-end justify-between gap-1.5 h-28">
           {stats.scansByDay.map((day, i) => {
             const maxCount = Math.max(...stats.scansByDay.map(d => d.count));
@@ -395,8 +398,6 @@ function DashboardTab({ stats }: { stats: AppStats }) {
         </div>
       </div>
 
-
-
       {/* 멤버십 분포 */}
       <div className="bg-zinc-900 rounded-3xl p-5 border border-white/5">
         <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -406,13 +407,13 @@ function DashboardTab({ stats }: { stats: AppStats }) {
           <motion.div
             className="h-full bg-zinc-500"
             initial={{ width: 0 }}
-            animate={{ width: `${(stats.freeUsers / stats.totalUsers) * 100}%` }}
+            animate={{ width: `${(stats.freeUsers / (stats.totalUsers || 1)) * 100}%` }}
             transition={{ duration: 1 }}
           />
           <motion.div
             className="h-full bg-emerald-500"
             initial={{ width: 0 }}
-            animate={{ width: `${(stats.premiumUsers / stats.totalUsers) * 100}%` }}
+            animate={{ width: `${(stats.premiumUsers / (stats.totalUsers || 1)) * 100}%` }}
             transition={{ duration: 1 }}
           />
         </div>
@@ -429,6 +430,31 @@ function DashboardTab({ stats }: { stats: AppStats }) {
             <p className="text-lg font-black text-amber-400">{stats.premiumConversionRate}%</p>
             <p className="text-[9px] font-bold text-amber-600 uppercase">전환율</p>
           </div>
+        </div>
+      </div>
+
+      {/* 주요 반려동물 종 */}
+      <div className="bg-zinc-900 rounded-3xl p-5 border border-white/5">
+        <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <Star className="w-4 h-4" /> 주요 반려동물 종
+        </h3>
+        <div className="space-y-3">
+          {stats.topBreeds.map((breedInfo, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <span className="text-sm font-bold text-zinc-300">{breedInfo.breed}</span>
+              <div className="flex items-center gap-3">
+                <div className="h-2 w-24 bg-zinc-800 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-emerald-500"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(breedInfo.count / (stats.totalUsers || 1)) * 100}%` }}
+                    transition={{ duration: 1, delay: i * 0.1 }}
+                  />
+                </div>
+                <span className="text-xs font-black text-emerald-400 w-10 text-right">{breedInfo.count}마리</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

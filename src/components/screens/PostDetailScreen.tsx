@@ -10,7 +10,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft, Heart, MessageCircle, Trash2, Send,
-  PawPrint, Flame, Clock, Loader2, AlertCircle, MoreVertical, ShieldAlert, Ban
+  PawPrint, Flame, Clock, Loader2, AlertCircle, MoreVertical, ShieldAlert, Ban, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -48,6 +48,7 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
   
   const [blockedUsers, setBlockedUsers] = useState<string[]>([]);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
 
   // 토스트 메시지 상태
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -129,16 +130,20 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
 
     setIsSendingComment(true);
     try {
+      const parentId = replyingTo ? (replyingTo.parentId || replyingTo.id) : undefined;
+      
       await addComment(post.id, {
         authorId: user.uid,
         authorName: user.displayName || user.email?.split('@')[0] || '익명',
         text: commentText.trim(),
+        ...(parentId && { parentId }),
       });
 
       // 댓글 목록 갱신
       const updatedComments = await getComments(post.id);
       setComments(updatedComments);
       setCommentText('');
+      setReplyingTo(null);
       setToastMessage({ text: t('community.comment_added', '댓글이 등록되었습니다.'), type: 'success' });
     } catch (error) {
       console.error('댓글 작성 실패:', error);
@@ -230,6 +235,92 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
   };
 
   const isWalkPost = post.type === 'walk';
+
+  // 루트 댓글과 대댓글 분류
+  const rootComments = comments.filter(c => !c.parentId);
+  const getReplies = (parentId: string) => comments.filter(c => c.parentId === parentId);
+
+  const renderComment = (comment: Comment, isReply: boolean = false) => (
+    <div key={comment.id} className={cn("px-5 py-3", isReply ? "ml-10 border-l-2 border-zinc-50 pl-4 bg-zinc-50/50" : "")}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className={cn("rounded-full bg-zinc-100 flex items-center justify-center", isReply ? "w-6 h-6" : "w-7 h-7")}>
+            <span className={cn("font-bold text-zinc-500", isReply ? "text-[10px]" : "text-xs")}>
+              {(comment.authorName || '?')[0]}
+            </span>
+          </div>
+          <span className="font-bold text-sm text-zinc-800">{comment.authorName}</span>
+          <span className="text-xs text-zinc-400">
+            {formatRelativeTime(comment.createdAt, i18n.language)}
+          </span>
+        </div>
+        {currentUserId === comment.authorId ? (
+          <button
+            onClick={() => handleDeleteComment(comment.id)}
+            disabled={deletingCommentId === comment.id}
+            className="p-1.5 -mr-1.5 text-zinc-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+            title={t('community.delete_comment', '댓글 삭제')}
+          >
+            {deletingCommentId === comment.id ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+          </button>
+        ) : currentUserId ? (
+          <div className="relative">
+            <button
+              onClick={() => setActiveMenuId(activeMenuId === comment.id ? null : comment.id)}
+              className="p-1.5 -mr-1.5 text-zinc-400 hover:bg-zinc-100 rounded-lg transition-colors"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </button>
+            <AnimatePresence>
+              {activeMenuId === comment.id && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                  className="absolute right-0 top-full mt-1 w-32 bg-white rounded-xl shadow-xl border border-zinc-100 z-50 overflow-hidden"
+                >
+                  <button
+                    onClick={() => handleReport('comment', comment.id)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <span>{t('community.report', '신고하기')}</span>
+                  </button>
+                  <button
+                    onClick={() => handleBlock(comment.authorId)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors border-t border-zinc-100"
+                  >
+                    <Ban className="w-3.5 h-3.5" />
+                    <span>{t('community.block_user', '차단')}</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ) : null}
+      </div>
+      <p className={cn("text-sm text-zinc-600 mt-1 leading-relaxed", isReply ? "ml-8" : "ml-9")}>{comment.text}</p>
+      
+      {/* 답글 달기 버튼 */}
+      {isLoggedIn && (
+        <div className={cn("mt-1.5", isReply ? "ml-8" : "ml-9")}>
+          <button 
+            onClick={() => {
+              setReplyingTo(comment);
+              commentInputRef.current?.focus();
+            }}
+            className="text-xs font-bold text-zinc-400 hover:text-zinc-600"
+          >
+            {t('community.reply', '답글 달기')}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="h-full flex flex-col bg-zinc-50">
@@ -439,70 +530,10 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
             </div>
           ) : (
             <div className="divide-y divide-zinc-50">
-              {comments.map((comment) => (
-                <div key={comment.id} className="px-5 py-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center">
-                        <span className="text-xs font-bold text-zinc-500">
-                          {(comment.authorName || '?')[0]}
-                        </span>
-                      </div>
-                      <span className="font-bold text-sm text-zinc-800">{comment.authorName}</span>
-                      <span className="text-xs text-zinc-400">
-                        {formatRelativeTime(comment.createdAt, i18n.language)}
-                      </span>
-                    </div>
-                    {currentUserId === comment.authorId ? (
-                      <button
-                        onClick={() => handleDeleteComment(comment.id)}
-                        disabled={deletingCommentId === comment.id}
-                        className="p-1.5 -mr-1.5 text-zinc-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                        title={t('community.delete_comment', '댓글 삭제')}
-                      >
-                        {deletingCommentId === comment.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    ) : currentUserId ? (
-                      <div className="relative">
-                        <button
-                          onClick={() => setActiveMenuId(activeMenuId === comment.id ? null : comment.id)}
-                          className="p-1.5 -mr-1.5 text-zinc-400 hover:bg-zinc-100 rounded-lg transition-colors"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                        <AnimatePresence>
-                          {activeMenuId === comment.id && (
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                              animate={{ opacity: 1, scale: 1, y: 0 }}
-                              exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                              className="absolute right-0 top-full mt-1 w-32 bg-white rounded-xl shadow-xl border border-zinc-100 z-50 overflow-hidden"
-                            >
-                              <button
-                                onClick={() => handleReport('comment', comment.id)}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 transition-colors"
-                              >
-                                <ShieldAlert className="w-3.5 h-3.5" />
-                                <span>{t('community.report', '신고하기')}</span>
-                              </button>
-                              <button
-                                onClick={() => handleBlock(comment.authorId)}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors border-t border-zinc-100"
-                              >
-                                <Ban className="w-3.5 h-3.5" />
-                                <span>{t('community.block_user', '차단')}</span>
-                              </button>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ) : null}
-                  </div>
-                  <p className="text-sm text-zinc-600 mt-1 ml-9 leading-relaxed">{comment.text}</p>
+              {rootComments.map((comment) => (
+                <div key={comment.id}>
+                  {renderComment(comment, false)}
+                  {getReplies(comment.id).map(reply => renderComment(reply, true))}
                 </div>
               ))}
             </div>
@@ -511,19 +542,30 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
       </div>
 
       {/* ── 댓글 입력 (하단 고정) ── */}
-      <div className="sticky bottom-0 bg-white border-t border-zinc-100 px-4 py-3 flex items-center gap-2 z-20">
-        {isLoggedIn ? (
-          <>
-            <input
-              ref={commentInputRef}
-              type="text"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSendComment()}
-              placeholder={t('community.comment_placeholder', '댓글을 입력해주세요...')}
-              className="flex-1 bg-zinc-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-800 placeholder:text-zinc-400"
-              maxLength={200}
-            />
+      <div className="sticky bottom-0 bg-white border-t border-zinc-100 px-4 py-3 z-20">
+        {replyingTo && (
+          <div className="flex items-center justify-between mb-2 px-1">
+            <span className="text-xs font-bold text-emerald-600">
+              {t('community.replying_to', '{{name}}님에게 답글 작성 중...', { name: replyingTo.authorName })}
+            </span>
+            <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-zinc-100 rounded-full transition-colors text-zinc-500">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          {isLoggedIn ? (
+            <>
+              <input
+                ref={commentInputRef}
+                type="text"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendComment()}
+                placeholder={replyingTo ? t('community.reply_placeholder', '답글을 입력해주세요...') : t('community.comment_placeholder', '댓글을 입력해주세요...')}
+                className="flex-1 bg-zinc-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-800 placeholder:text-zinc-400"
+                maxLength={200}
+              />
             <button
               onClick={handleSendComment}
               disabled={!commentText.trim() || isSendingComment}
@@ -551,6 +593,7 @@ const PostDetailScreen = ({ post, onBack, isLoggedIn, onLogin, onPostDeleted }: 
             {t('community.login_to_comment', '로그인하고 댓글 남기기')}
           </button>
         )}
+        </div>
       </div>
 
       {/* ── 삭제 확인 모달 ── */}

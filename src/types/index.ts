@@ -86,7 +86,9 @@ export interface AppStats {
   scansThisWeek: number;
   totalRevenue: number;
   revenueThisMonth: number;
+  arpu: number;
   dailyActiveUsers: number;
+  retentionRate30d: number;
   topBreeds: { breed: string; count: number }[];
   scansByDay: { date: string; count: number }[];
   newUsersToday: number;
@@ -122,6 +124,7 @@ export interface Comment {
   authorName: string;
   text: string;
   createdAt: any; // Firestore Timestamp
+  parentId?: string; // 대댓글 지원용
 }
 
 /** 산책 랭킹 항목 */

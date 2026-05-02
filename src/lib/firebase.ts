@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getPerformance } from 'firebase/performance';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,4 +20,14 @@ const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-export { auth, googleProvider, db, storage };
+// 웹 환경에서 성능 모니터링 초기화 (지원되는 경우)
+let perf = null;
+if (typeof window !== 'undefined') {
+  try {
+    perf = getPerformance(app);
+  } catch (error) {
+    console.warn("Firebase Performance is not supported in this environment.", error);
+  }
+}
+
+export { auth, googleProvider, db, storage, perf };

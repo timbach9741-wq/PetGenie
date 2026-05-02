@@ -9,6 +9,8 @@ import { fetchVetAnalysis } from '../../services/geminiService';
 import { PetProfile } from '../../types';
 import vetImage from '../../assets/images/ai-vet-character.png';
 import DrSilvermanHeader from '../common/DrSilvermanHeader';
+import { db, auth } from '../../lib/firebase';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const VET_PHOTO = vetImage;
 
@@ -34,6 +36,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string; fallbackPayload: string } | null>(null);
   const [showProfile, setShowProfile] = useState(true);
+  const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -44,19 +47,58 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
     scrollToBottom();
   }, [messages, isLoading]);
 
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (!auth.currentUser) {
+        setIsHistoryLoaded(true);
+        return;
+      }
+      try {
+        const docRef = doc(db, 'ai_chats', auth.currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.messages && data.messages.length > 0) {
+            setMessages(data.messages);
+            setShowProfile(false);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load chat history:', err);
+      } finally {
+        setIsHistoryLoaded(true);
+      }
+    };
+    loadChatHistory();
+  }, []);
+
+  const saveChatHistory = async (newMessages: Message[]) => {
+    if (!auth.currentUser) return;
+    try {
+      const messagesToSave = newMessages.slice(-50);
+      const docRef = doc(db, 'ai_chats', auth.currentUser.uid);
+      await setDoc(docRef, {
+        messages: messagesToSave,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (err) {
+      console.error('Failed to save chat history:', err);
+    }
+  };
+
   // --- 자동 시작 (Welcome Message) ---
   useEffect(() => {
-    if (messages.length === 0) {
-      // 0.5초 뒤에 수의사가 첫 인사를 건네게 함
+    if (isHistoryLoaded && messages.length === 0) {
       const timer = setTimeout(() => {
-        setMessages([{ 
+        const welcomeMsg: Message = { 
           role: 'ai', 
           content: t('ai_vet.welcome_message', '안녕하세요! AI 수의사입니다. 🐾\n아이의 증상이나 궁금한 점이 있으신가요? 사료 추천, 행동 상담 등 무엇이든 물어보세요!') 
-        }]);
+        };
+        setMessages([welcomeMsg]);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isHistoryLoaded, messages.length, t]);
 
   const handleWatchAd = async () => {
     setShowAdPopup(false);
@@ -132,19 +174,23 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
     
     setShowProfile(false);
     
-    // 에러 상태에서 다시 시도하는 경우 새 유저 메시지를 추가하지 않음
+    let currentMessages = messages;
     if (!retryMsg) {
-      setMessages(prev => [...prev, { role: 'user', content: textToSend }]);
+      currentMessages = [...currentMessages, { role: 'user', content: textToSend }];
+      setMessages(currentMessages);
     }
     
     setIsLoading(true);
     setError(null);
 
     try {
-      // 이전 대화 히스토리 구성 (현재 메시지까지)
-      const chatHistory = messages
-        .map(m => `${m.role === 'user' ? t('ai_vet.role_owner', '보호자') : t('ai_vet.role_vet', '수의사')}: ${m.content}`)
-        .join('\n');
+      // 이전 대화 히스토리 구성 (현재 메시지 이전까지만 추출, 최근 10개로 제한하여 맥락 유지)
+      const previousMessages = currentMessages.slice(0, -1).slice(-10);
+      const chatHistory = previousMessages.length > 0
+        ? previousMessages
+            .map(m => `${m.role === 'user' ? t('ai_vet.role_owner', '보호자') : t('ai_vet.role_vet', '수의사')}: ${m.content}`)
+            .join('\n')
+        : undefined;
 
       // 반려동물 정보
       const petInfo = `${t('profile.pet_name', '이름')}: ${petProfile?.name || t('common.unknown', '알 수 없음')}, ${t('profile.pet_age', '나이')}: ${petProfile?.age || t('common.unknown', '알 수 없음')}, ${t('profile.pet_breed', '견종')}: ${petProfile?.breed || t('common.unknown', '알 수 없음')}, ${t('profile.pet_gender', '성별')}: ${petProfile?.gender || t('common.unknown', '알 수 없음')}`;
@@ -153,7 +199,9 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       const currentLang = i18n.language;
 
       const aiResponse = await fetchVetAnalysis(textToSend, undefined, currentLang, petInfo, chatHistory);
-      setMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
+      const finalMessages: Message[] = [...currentMessages, { role: 'ai', content: aiResponse }];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
     } catch (err: any) {
       console.error('AI Vet Error:', err);
       // Fallback UI 처리를 위한 상태 세팅

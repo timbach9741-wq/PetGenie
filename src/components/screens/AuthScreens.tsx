@@ -8,8 +8,8 @@ import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
 
 // 실제 운영 환경의 법적 고지 페이지 주소
-export const TERMS_OF_SERVICE_URL = "https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c"; // TODO: 실제 이용약관 주소로 변경 필요
-export const PRIVACY_POLICY_URL = "https://dandy-prose-390.notion.site/Pet-Genie-Privacy-Policy-33001a34a2ba80edb9d5c7d121135e9c";
+export const TERMS_OF_SERVICE_URL = "https://pet-genie-official.web.app/terms-of-service.html";
+export const PRIVACY_POLICY_URL = "https://pet-genie-official.web.app/privacy-policy.html";
 
 export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: string, uid: string, agreeMarketing: boolean) => void, onNavigateToSignUp: () => void }) => {
   const { t } = useTranslation();

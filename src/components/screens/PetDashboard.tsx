@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   Camera, Heart, Scan, ChevronRight, Activity, Weight, Calendar,
   AlertCircle, CheckCircle2, Shield, TrendingUp, Utensils, Moon, Clock, Droplets,
   Check, Sparkles, PawPrint, Bell, Sun, CloudRain, Thermometer, Dna, FileText, BookOpen,
-  Syringe, Timer, Scale, Star, AlertOctagon
+  Syringe, Timer, Scale, Star, AlertOctagon, X, Gift
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
@@ -14,6 +14,23 @@ import { globalTranslate } from '../../utils/translateData';
 
 const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, analysisResult, capturedImage, onLogout, dailyCare, onToggleCare, petProfile }: { onDetail: () => void, onScan: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, scanCount: number, analysisResult?: any, capturedImage?: string | null, onLogout: () => void, dailyCare: CareItem[], onToggleCare: (id: string) => void, petProfile: PetProfile }) => {
   const { t, i18n } = useTranslation();
+  const [showPromoPopup, setShowPromoPopup] = useState(false);
+
+  useEffect(() => {
+    const hasSeenPromo = localStorage.getItem('hasSeenJunePromo_v1');
+    if (!hasSeenPromo) {
+      const timer = setTimeout(() => {
+        setShowPromoPopup(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleClosePromo = () => {
+    setShowPromoPopup(false);
+    localStorage.setItem('hasSeenJunePromo_v1', 'true');
+  };
+
   const isScanLimitReached = !isPremium && scanCount >= 3;
 
   const translateBreed = (breedName: string) => {
@@ -32,6 +49,65 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
 
   return (
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+      {/* Promotional Popup */}
+      <AnimatePresence>
+        {showPromoPopup && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white rounded-[2.5rem] w-full max-w-sm overflow-hidden shadow-2xl relative"
+            >
+              {/* Close Button */}
+              <button 
+                onClick={handleClosePromo}
+                className="absolute top-4 right-4 w-8 h-8 bg-black/10 backdrop-blur-md rounded-full flex items-center justify-center text-white z-10 hover:bg-black/20 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Header Graphic */}
+              <div className="h-40 bg-gradient-to-br from-emerald-500 to-teal-600 relative flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 opacity-20">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16 blur-2xl" />
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full -ml-12 -mb-12 blur-xl" />
+                </div>
+                <motion.div 
+                  animate={{ y: [0, -10, 0] }} 
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                >
+                  <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 shadow-lg">
+                    <Gift className="w-10 h-10 text-white" />
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Content */}
+              <div className="p-8 text-center">
+                <div className="inline-block bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
+                  {i18n.language === 'ko' ? '출시 기념 특별 혜택' : 'Launch Special Offer'}
+                </div>
+                <h2 className="text-2xl font-bold text-zinc-900 mb-3 tracking-tight leading-tight">
+                  {i18n.language === 'ko' ? '6월까지 모든 프리미엄 기능 무료!' : 'All Premium Features Free Until June!'}
+                </h2>
+                <p className="text-zinc-500 text-sm leading-relaxed mb-8">
+                  {i18n.language === 'ko' 
+                    ? 'Pet Genie 정식 출시를 기념하여 6월까지 AI 질병 분석, 24시간 수의사 상담 등 모든 프리미엄 기능을 결제 없이 경험해보세요.'
+                    : 'To celebrate the launch of Pet Genie, enjoy all premium features including AI disease analysis and 24/7 vet consultation for free until June.'}
+                </p>
+
+                <button 
+                  onClick={handleClosePromo}
+                  className="w-full bg-zinc-900 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-zinc-900/20 active:scale-[0.98] transition-transform"
+                >
+                  {i18n.language === 'ko' ? '무료 혜택 시작하기' : 'Start Free Benefits'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       {/* Header with Profile */}
       <header className="bg-white px-6 pb-6 border-b border-zinc-100 sticky top-0 z-30 pt-[calc(env(safe-area-inset-top,0px)+28px)]">
         <div className="flex justify-between items-center">

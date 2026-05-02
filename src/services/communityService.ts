@@ -33,6 +33,7 @@ import {
 } from 'firebase/storage';
 import { db, storage } from '../lib/firebase';
 import type { CommunityPost, Comment, WalkRankingEntry, PetProfile } from '../types';
+import { createNotification } from './notificationService';
 
 // ── 컬렉션 참조 ──
 const POSTS_COLLECTION = 'community_posts';
@@ -69,6 +70,7 @@ function docToComment(docSnap: QueryDocumentSnapshot<DocumentData>, postId: stri
     authorName: data.authorName || '',
     text: data.text || '',
     createdAt: data.createdAt,
+    parentId: data.parentId,
   };
 }
 
@@ -235,11 +237,48 @@ export async function addComment(
     createdAt: serverTimestamp(),
   });
 
-  // 게시글의 commentCount 증가
+  // 게시글의 commentCount 증가 및 알림 처리
   const postRef = doc(db, POSTS_COLLECTION, postId);
-  await updateDoc(postRef, {
-    commentCount: increment(1),
-  });
+  const postSnap = await getDoc(postRef);
+
+  if (postSnap.exists()) {
+    await updateDoc(postRef, {
+      commentCount: increment(1),
+    });
+
+    const postData = postSnap.data();
+
+    // 새 게시글 작성자에게 알림 전송 (본인이 쓴 댓글이 아닌 경우)
+    if (postData.authorId !== commentData.authorId && !commentData.parentId) {
+      await createNotification(
+        postData.authorId,
+        commentData.authorId,
+        commentData.authorName,
+        'comment',
+        postId,
+        `${commentData.authorName}님이 게시글에 댓글을 남겼습니다: "${commentData.text}"`
+      );
+    }
+
+    // 대댓글인 경우 부모 댓글 작성자에게 알림 전송
+    if (commentData.parentId) {
+      const parentCommentRef = doc(db, POSTS_COLLECTION, postId, COMMENTS_SUBCOLLECTION, commentData.parentId);
+      const parentCommentSnap = await getDoc(parentCommentRef);
+      if (parentCommentSnap.exists()) {
+        const parentAuthorId = parentCommentSnap.data().authorId;
+        if (parentAuthorId !== commentData.authorId) {
+          await createNotification(
+            parentAuthorId,
+            commentData.authorId,
+            commentData.authorName,
+            'comment',
+            postId,
+            `${commentData.authorName}님이 댓글에 답글을 남겼습니다: "${commentData.text}"`
+          );
+        }
+      }
+    }
+  }
 
   return docRef.id;
 }

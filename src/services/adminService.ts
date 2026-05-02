@@ -116,24 +116,38 @@ export async function getAppStats(users: AppUser[]): Promise<AppStats> {
   const allPayments = users.flatMap(u => (u.payments || [])).filter(p => p.status === 'completed');
   const totalRevenue = allPayments.reduce((sum, p) => sum + p.amount, 0);
 
+  const thirtyDaysAgo = Date.now() - 30 * 86400000;
+  const usersJoinedMoreThan30d = users.filter(u => u.joinDate && new Date(u.joinDate).getTime() <= thirtyDaysAgo);
+  const activeUsersFromCohort = usersJoinedMoreThan30d.filter(u => u.lastActive && new Date(u.lastActive).getTime() > thirtyDaysAgo);
+  const retentionRate30d = usersJoinedMoreThan30d.length > 0 ? Math.round((activeUsersFromCohort.length / usersJoinedMoreThan30d.length) * 100) : 0;
+
+  const breedsMap = new Map<string, number>();
+  users.forEach(u => {
+    const b = u.petBreed || '기타';
+    breedsMap.set(b, (breedsMap.get(b) || 0) + 1);
+  });
+  const topBreeds = Array.from(breedsMap.entries())
+    .map(([breed, count]) => ({ breed, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+
   return {
     totalUsers: users.length,
     premiumUsers,
     freeUsers: users.length - premiumUsers,
     premiumConversionRate: users.length > 0 ? Math.round((premiumUsers / users.length) * 100) : 0,
     totalScans: users.reduce((sum, u) => sum + (u.totalScans || 0), 0),
-    scansToday: 0,
+    scansToday: 0, // 구체적인 스캔 로그가 없으므로 임시 0
     scansThisWeek: 0,
     totalRevenue,
-    revenueThisMonth: totalRevenue,
+    revenueThisMonth: totalRevenue, // 더 정교한 계산을 위해서는 payment의 date를 확인해야 함
+    arpu: users.length > 0 ? Math.round(totalRevenue / users.length) : 0,
     dailyActiveUsers: users.filter(u => u.lastActive && new Date(u.lastActive).getTime() > Date.now() - 86400000).length,
-    topBreeds: [
-      { breed: '골든 리트리버', count: 12 },
-      { breed: '포메라니안', count: 8 },
-    ], // 임시
+    retentionRate30d,
+    topBreeds: topBreeds.length > 0 ? topBreeds : [{ breed: '기타', count: users.length }],
     scansByDay: [
       { date: '오늘', count: 5 },
-    ], // 임시
+    ], // 임시 (스캔 로그 컬렉션이 없으므로)
     newUsersToday: users.filter(u => u.joinDate && new Date(u.joinDate).getTime() > Date.now() - 86400000).length,
     newUsersLast7d: users.filter(u => u.joinDate && new Date(u.joinDate).getTime() > Date.now() - 7 * 86400000).length,
     newUsersLast30d: users.filter(u => u.joinDate && new Date(u.joinDate).getTime() > Date.now() - 30 * 86400000).length,
