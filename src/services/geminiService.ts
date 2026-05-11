@@ -6,18 +6,19 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-
 
 // 시스템 인스트럭션 생성 - lang은 반드시 원본 언어 코드(ko, en, ja 등)로 전달해야 함
 const getSystemInstruction = (lang: string, petInfo?: string) => {
-  const langMap: Record<string, string> = { ko: 'KOREAN', en: 'ENGLISH', ja: 'JAPANESE', 'zh-TW': 'CHINESE', zh: 'CHINESE', es: 'SPANISH' };
-  const targetLang = langMap[lang] || 'ENGLISH';
+  const baseLang = lang.split('-')[0];
+  const langMap: Record<string, string> = { ko: 'KOREAN', en: 'ENGLISH', ja: 'JAPANESE', zh: 'CHINESE', es: 'SPANISH' };
+  const targetLang = langMap[baseLang] || 'ENGLISH';
   
   // 한국어일 때는 한국어로 답변하도록, 그 외에는 한국어 사용 금지
-  const langRestriction = lang === 'ko' 
+  const langRestriction = baseLang === 'ko' 
     ? `반드시 한국어로만 답변하세요. 영어를 사용하지 마세요. 모든 품종명과 질병명도 한국어로 번역하세요.` 
     : `REPLY ONLY IN [${targetLang}]. NEVER USE KOREAN. ALL BREED AND DISEASE NAMES MUST BE TRANSLATED TO ${targetLang}.`;
   
   return `${langRestriction}
 IDENTITY: You are "AI Vet", a highly advanced Veterinary Genetics Expert AI. Always act and speak as AI Vet. You have 15 years of experience.
 Structure: [Summary] - [Detailed Analysis] - [First Aid] - [Urgency].
-${lang === 'ko' ? 'Disclaimer: "이 내용은 참고용입니다. 정확한 진단은 반드시 동물병원을 방문해주세요."' : 'Disclaimer: "This is for reference only. Visit a vet for a professional diagnosis."'}
+${baseLang === 'ko' ? 'Disclaimer: "이 내용은 참고용입니다. 정확한 진단은 반드시 동물병원을 방문해주세요."' : 'Disclaimer: "This is for reference only. Visit a vet for a professional diagnosis."'}
 ${petInfo ? `Current patient information: ${petInfo}` : ''}
 `;
 };
@@ -42,14 +43,15 @@ export const fetchVetAnalysis = async (
   petInfo?: string,
   chatHistory?: string
 ): Promise<string> => {
+  const baseLang = currentLang.split('-')[0];
   const langMap: { [key: string]: string } = {
     ko: "Korean",
     en: "English",
     ja: "Japanese",
-    "zh-TW": "Traditional Chinese",
+    zh: "Chinese",
     es: "Spanish"
   };
-  const targetLang = langMap[currentLang] || "English";
+  const targetLang = langMap[baseLang] || "English";
 
   // 원본 언어 코드(ko, en 등)를 그대로 전달해야 getSystemInstruction 내부 langMap이 정상 동작
   const systemText = getSystemInstruction(currentLang, petInfo);
@@ -94,9 +96,15 @@ export const fetchVetAnalysis = async (
     }
 
     const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const candidate = data?.candidates?.[0];
+    const text = candidate?.content?.parts?.[0]?.text;
+    
     if (!text) {
-      throw new Error('Empty response from Gemini API');
+      if (candidate?.finishReason === 'SAFETY') {
+        throw new Error('안전 필터에 의해 답변이 차단되었습니다. 다른 질문을 입력해주세요.');
+      }
+      console.error('Gemini API Unexpected Response:', JSON.stringify(data));
+      throw new Error(`Empty response from Gemini API (finishReason: ${candidate?.finishReason || 'UNKNOWN'})`);
     }
     
     // --- 응답 캐시에 저장 ---

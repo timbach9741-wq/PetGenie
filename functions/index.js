@@ -95,3 +95,67 @@ exports.onCommentAdded = functions.firestore
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
   });
+
+/**
+ * 새 유저가 가입했을 때 텔레그램으로 알림 전송
+ * 트리거: functions.auth.user().onCreate()
+ */
+exports.onUserCreated = functions.auth.user().onCreate((user) => {
+  // 환경변수(.env)에서 텔레그램 봇 토큰과 채팅방 ID를 가져옵니다.
+  const botToken = process.env.TELEGRAM_BOT_TOKEN || (functions.config().telegram && functions.config().telegram.token);
+  const chatId = process.env.TELEGRAM_CHAT_ID || (functions.config().telegram && functions.config().telegram.chatid);
+
+  if (!botToken || !chatId) {
+    console.log("텔레그램 봇 토큰 또는 채팅방 ID가 설정되지 않았습니다.");
+    return null;
+  }
+
+  const email = user.email || '이메일 없음';
+  const displayName = user.displayName || '이름 없음';
+  const provider = user.providerData && user.providerData.length > 0 
+    ? user.providerData[0].providerId 
+    : '알 수 없음';
+
+  const message = `🚀 [펫지니] 신규 가입 알림\n\n👤 이름: ${displayName}\n📧 이메일: ${email}\n🔑 가입경로: ${provider}\n🆔 UID: ${user.uid}`;
+
+  const https = require('https');
+  const data = JSON.stringify({
+    chat_id: chatId,
+    text: message,
+  });
+
+  const options = {
+    hostname: 'api.telegram.org',
+    port: 443,
+    path: `/bot${botToken}/sendMessage`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(data)
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let responseBody = '';
+      res.on('data', (chunk) => { responseBody += chunk; });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          console.log("텔레그램 알림 전송 성공");
+          resolve('Success');
+        } else {
+          console.error("텔레그램 API 에러:", responseBody);
+          reject(new Error(`API Error: ${res.statusCode}`));
+        }
+      });
+    });
+
+    req.on('error', (e) => {
+      console.error("텔레그램 전송 중 오류 발생:", e);
+      reject(e);
+    });
+
+    req.write(data);
+    req.end();
+  });
+});
