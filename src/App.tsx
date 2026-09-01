@@ -100,10 +100,12 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('camera');
   const [screenHistory, setScreenHistory] = useState<Screen[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // 🎉 Grand Launch Promotion: 2026년 6월 30일까지 모든 기능 무료 개방
-  const PROMO_END_DATE = new Date('2026-07-01T00:00:00');
-  const isPromoActive = new Date() < PROMO_END_DATE;
-  const [isPremium, setIsPremium] = useState(isPromoActive);
+  // 🚀 성장 단계: 사용자 확보를 위해 2026년 12월 31일까지 전 기능 무료 개방
+  // 광고는 AdBanner.tsx에서 이 값과 무관하게 항상 노출되므로, 이 기간에도 광고 수익은 발생함.
+  // 기간 종료 후에는 실제 결제(Toss) 상태로 isPremium을 판별하도록 교체 필요.
+  const FREE_FOR_ALL_END_DATE = new Date('2027-01-01T00:00:00');
+  const FREE_FOR_ALL = new Date() < FREE_FOR_ALL_END_DATE;
+  const [isPremium, setIsPremium] = useState(FREE_FOR_ALL);
   const [scanCount, setScanCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
@@ -174,7 +176,7 @@ export default function App() {
         setUser({ 
           uid: firebaseUser.uid,
           email: firebaseUser.email || '', 
-          is_premium: isPromoActive // 추후 Firestore/Claims에서 확인하도록 확장 가능
+          is_premium: FREE_FOR_ALL // 추후 Firestore/Claims에서 확인하도록 확장 가능
         });
 
         // 사용자 로그인 시 푸시 알림 등록
@@ -191,7 +193,7 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, [hasSeenOnboarding, isPromoActive]);
+  }, [hasSeenOnboarding]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2500);

@@ -1,14 +1,36 @@
+import { useEffect } from 'react';
 import { ADMOB_IDS } from '../../config/ads';
 import { ShoppingBag, Activity } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTranslation } from 'react-i18next';
+import { Capacitor } from '@capacitor/core';
+import { AdMob, BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
+import type { BannerAdOptions } from '@capacitor-community/admob';
 
 
 const AdBanner = ({ isPremium, onUpgrade, type = 'banner' }: { isPremium: boolean, onUpgrade: () => void, type?: 'banner' | 'native' | 'large' }) => {
   const { t } = useTranslation();
 
-  // Global Flag & Ad-Free Logic Checked
-  if (isPremium) return null;
+  // 실제 AdMob 배너 노출 (banner/large 타입일 때만)
+  // 주의: 성장 단계 무료 개방 정책으로 isPremium은 항상 true(기능 잠금 해제)가 되므로,
+  // 광고 노출은 isPremium과 무관하게 이루어짐 (무료 개방 중에도 광고 수익은 필요하기 때문).
+  useEffect(() => {
+    if (type !== 'banner' && type !== 'large') return;
+    if (!Capacitor.isNativePlatform()) return;
+
+    const options: BannerAdOptions = {
+      adId: ADMOB_IDS.BANNER,
+      adSize: type === 'large' ? BannerAdSize.MEDIUM_RECTANGLE : BannerAdSize.ADAPTIVE_BANNER,
+      position: BannerAdPosition.BOTTOM_CENTER,
+      isTesting: false,
+    };
+
+    AdMob.showBanner(options).catch((err) => console.warn('AdMob banner load failed', err));
+
+    return () => {
+      AdMob.removeBanner().catch(() => {});
+    };
+  }, [type]);
 
   if (type === 'native') {
     return (
