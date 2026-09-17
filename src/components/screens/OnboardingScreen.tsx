@@ -40,6 +40,10 @@ const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
 
   const currentAccent = slides[currentSlide].accentColor;
 
+  // App.tsx의 FREE_FOR_ALL_END_DATE와 동일한 값이어야 함
+  const FREE_FOR_ALL_END_DATE = new Date('2027-01-01T00:00:00');
+  const showFreeForAllBadge = new Date() < FREE_FOR_ALL_END_DATE;
+
   // Auto-advance slides
   useEffect(() => {
     const timer = setInterval(() => {
@@ -156,6 +160,22 @@ const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
           {t('onboarding.skip')}
         </button>
       </div>
+
+      {/* === Free-For-All Promo Badge === */}
+      {showFreeForAllBadge && (
+        <div className="relative z-20 flex justify-center px-6 mt-2">
+          <div
+            className="px-3.5 py-1.5 rounded-full text-[11px] font-bold text-white flex items-center gap-1.5"
+            style={{
+              background: 'rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              backdropFilter: 'blur(20px)',
+            }}
+          >
+            🎉 {t('onboarding.free_for_all_badge', '런칭 기념, 지금은 프리미엄 전체 기능 무료')}
+          </div>
+        </div>
+      )}
 
       {/* === Bottom Glassmorphism Card === */}
       <div className="mt-auto relative z-20">
