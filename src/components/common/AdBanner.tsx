@@ -4,8 +4,9 @@ import { ShoppingBag, Activity } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { Capacitor } from '@capacitor/core';
-import { AdMob, BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
+import { BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
 import type { BannerAdOptions } from '@capacitor-community/admob';
+import { queueShowBanner, queueRemoveBanner } from '../../lib/adMobBanner';
 
 
 const AdBanner = ({ isPremium, onUpgrade, type = 'banner' }: { isPremium: boolean, onUpgrade: () => void, type?: 'banner' | 'native' | 'large' }) => {
@@ -25,10 +26,10 @@ const AdBanner = ({ isPremium, onUpgrade, type = 'banner' }: { isPremium: boolea
       isTesting: false,
     };
 
-    AdMob.showBanner(options).catch((err) => console.warn('AdMob banner load failed', err));
+    queueShowBanner(options);
 
     return () => {
-      AdMob.removeBanner().catch(() => {});
+      queueRemoveBanner();
     };
   }, [type]);
 
