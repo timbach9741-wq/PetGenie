@@ -23,6 +23,9 @@ out/
 .gradle/
 build/
 
+# 서명 키스토어 비밀번호 (git에 절대 올리지 않음)
+keystore.properties
+
 # Local configuration file (sdk path, etc)
 local.properties
 

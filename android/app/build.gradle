@@ -1,14 +1,20 @@
 apply plugin: 'com.android.application'
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.petgenie.official"
     compileSdk = rootProject.ext.compileSdkVersion
     signingConfigs {
         release {
-            storeFile file('petgenie-release.jks')
-            storePassword '***REMOVED_KEYSTORE_PASSWORD***'
-            keyAlias 'petgenie'
-            keyPassword '***REMOVED_KEYSTORE_PASSWORD***'
+            storeFile file(keystoreProperties['storeFile'] ?: 'petgenie-release.jks')
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
         }
     }
     defaultConfig {
