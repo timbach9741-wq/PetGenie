@@ -11,6 +11,7 @@ import { globalTranslate } from '../../utils/translateData';
 import DrSilvermanHeader from '../common/DrSilvermanHeader';
 import { db, auth } from '../../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { maybeRequestReview } from '../../services/reviewService';
 
 const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedImage, onNavigate, onSelectCareGuides }: { onBack: () => void, isPremium: boolean, onUpgrade: () => void, analysisResult?: any, capturedImage?: string | null, onNavigate?: (s: Screen) => void, onSelectCareGuides?: (guides: any[]) => void }) => {
   const { t, i18n } = useTranslation();
@@ -32,6 +33,7 @@ const HealthReport = ({ onBack, isPremium, onUpgrade, analysisResult, capturedIm
         createdAt: serverTimestamp(),
       });
       alert(t('common.save_success', '리포트가 성공적으로 저장되었습니다.'));
+      maybeRequestReview();
     } catch (error) {
       console.error('Error saving report:', error);
       alert(t('common.save_failed', '리포트 저장에 실패했습니다.'));
