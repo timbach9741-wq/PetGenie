@@ -46,7 +46,7 @@ const HospitalSearchScreen = ({ onBack, isPremium, onUpgrade }: { onBack: () => 
         generationConfig: { responseMimeType: "application/json" }
       };
 
-      const data = await callGemini('gemini-2.5-flash', body);
+      const data = await callGemini('gemini-flash-latest', body);
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
       const results = JSON.parse(text.replace(/```json/g, "").replace(/```/g, "").trim());
       setHospitals(results);

@@ -189,7 +189,7 @@ ${antigravityEngine.getGlobalPrompt(language.split('-')[0])}
 
   let response: any;
   try {
-    response = await callGemini('gemini-2.5-flash', body);
+    response = await callGemini('gemini-flash-latest', body);
   } catch (err: any) {
     if (err?.code === 'functions/resource-exhausted') {
       throw new Error('API 요금제 한도가 초과되었습니다. 잠시 후 다시 시도해주세요.');

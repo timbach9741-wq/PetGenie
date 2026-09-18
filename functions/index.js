@@ -1,48 +1,49 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { defineSecret } = require('firebase-functions/params');
 
 admin.initializeApp();
 const db = admin.firestore();
 
-// Gemini API 키를 Secret Manager에 보관 (클라이언트 번들에 절대 노출하지 않음).
-// 값 등록: firebase functions:secrets:set GEMINI_API_KEY
-const geminiApiKey = defineSecret('GEMINI_API_KEY');
-
 /**
  * 클라이언트가 Gemini API를 직접 호출하면 앱 번들에 키가 그대로 노출되어
  * 구글 자동 스캐너에 유출로 탐지·차단되는 사고가 실제로 있었음(2026-09-18).
- * 로그인한 사용자만 이 프록시를 거쳐 Gemini를 호출하도록 하여 키를 서버에만 둔다.
+ * 로그인한 사용자만 이 프록시를 거쳐 Gemini를 호출하도록 하여 키를 서버(Secret Manager)에만 둔다.
+ *
+ * v2(onCall, Cloud Run 기반) 대신 v1 스타일을 쓰는 이유: v2로 배포했을 때 Cloud Run의
+ * 공개 호출 IAM(allUsers invoker)이 자동으로 안 붙어 "Empty Authorization header" 오류가
+ * 계속 발생했음(조직 정책 등으로 추정). v1 콜러블은 Cloud Functions Gen1 인프라라
+ * 이 문제 없이 기본적으로 정상 동작함.
  */
-exports.geminiProxy = onCall({ secrets: [geminiApiKey], region: 'us-central1', timeoutSeconds: 60 }, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', '로그인이 필요합니다.');
-  }
-
-  const { model, body } = request.data || {};
-  if (!model || typeof model !== 'string' || !body) {
-    throw new HttpsError('invalid-argument', 'model, body가 필요합니다.');
-  }
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${geminiApiKey.value()}`;
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    if (res.status === 429) {
-      throw new HttpsError('resource-exhausted', json?.error?.message || 'Gemini API 요금제 한도 초과');
+exports.geminiProxy = functions
+  .runWith({ secrets: ['GEMINI_API_KEY'], timeoutSeconds: 60 })
+  .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', '로그인이 필요합니다.');
     }
-    throw new HttpsError('internal', json?.error?.message || `Gemini API error: ${res.status}`);
-  }
 
-  return json;
-});
+    const { model, body } = data || {};
+    if (!model || typeof model !== 'string' || !body) {
+      throw new functions.https.HttpsError('invalid-argument', 'model, body가 필요합니다.');
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const json = await res.json();
+    if (!res.ok) {
+      if (res.status === 429) {
+        throw new functions.https.HttpsError('resource-exhausted', json?.error?.message || 'Gemini API 요금제 한도 초과');
+      }
+      throw new functions.https.HttpsError('internal', json?.error?.message || `Gemini API error: ${res.status}`);
+    }
+
+    return json;
+  });
 
 /**
  * 게시글에 좋아요가 추가되었을 때 알림 생성
