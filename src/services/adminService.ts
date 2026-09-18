@@ -52,8 +52,8 @@ export async function toggleUserStatus(uid: string, currentStatus: string): Prom
 export async function getFeedbacks(): Promise<Feedback[]> {
   try {
     const fbCol = collection(db, 'feedbacks');
-    const q = query(fbCol, limit(200)); 
-    // TODO: createdAt 인덱스가 없어 정렬 시 에러 발생 가능하여 orderBy 제외
+    // where 없이 orderBy+limit만 쓰는 단일 필드 정렬이라 별도 복합 인덱스가 필요 없음
+    const q = query(fbCol, orderBy('createdAt', 'desc'), limit(200));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Feedback));
   } catch(error) {

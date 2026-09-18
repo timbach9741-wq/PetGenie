@@ -192,25 +192,33 @@ ${antigravityEngine.getGlobalPrompt(language.split('-')[0])}
     }
   };
 
-  const analysisPromise = fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  }).then(async res => {
+  // AbortController로 타임아웃 시 실제 fetch 요청도 취소해 불필요한 API 비용을 막는다.
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => abortController.abort(), 60000);
+
+  let response: any;
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: abortController.signal
+    });
     if (!res.ok) {
       if (res.status === 429) {
         throw new Error('API 요금제 한도가 초과되었습니다. 잠시 후 다시 시도해주세요.');
       }
       throw new Error(`API HTTP Error: ${res.status}`);
     }
-    return res.json();
-  });
-
-  const timeoutPromise = new Promise((_, reject) => 
-    setTimeout(() => reject(new Error("Analysis timed out")), 60000)
-  );
-
-  const response = await Promise.race([analysisPromise, timeoutPromise]) as any;
+    response = await res.json();
+  } catch (err: any) {
+    if (err?.name === 'AbortError') {
+      throw new Error('Analysis timed out');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
   const text = response?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
   const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
   
