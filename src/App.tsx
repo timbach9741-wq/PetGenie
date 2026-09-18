@@ -7,6 +7,7 @@ import { ADMOB_IDS } from './config/ads';
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { AdMob } from '@capacitor-community/admob';
+import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { 
   Camera, Heart, LayoutDashboard, ShoppingBag, FileText, Settings, Scan,
@@ -238,6 +239,23 @@ export default function App() {
     setScreenHistory([]); // Clear history when switching top-level tabs
     setCurrentScreen(screen);
   };
+
+  // 하드웨어(제스처) 뒤로가기: 화면 이동 기록이 있으면 이전 화면으로,
+  // 홈 탭('camera')이 아닌 다른 탭이면 홈 탭으로, 홈 탭에서 누르면 앱 종료.
+  // (기본값은 아무 화면에서나 바로 앱이 꺼져버려서 UX가 거칠었음)
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+    const listenerPromise = CapacitorApp.addListener('backButton', () => {
+      if (screenHistory.length > 0) {
+        goBack();
+      } else if (currentScreen !== 'camera') {
+        handleTabNavigate('camera');
+      } else {
+        CapacitorApp.exitApp();
+      }
+    });
+    return () => { listenerPromise.then(handle => handle.remove()); };
+  }, [currentScreen, screenHistory]);
 
   const handleOnboardingComplete = () => {
     setHasSeenOnboarding(true);
