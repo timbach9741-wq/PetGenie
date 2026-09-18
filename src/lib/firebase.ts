@@ -30,4 +30,4 @@ if (typeof window !== 'undefined') {
   }
 }
 
-export { auth, googleProvider, db, storage, perf };
+export { app, auth, googleProvider, db, storage, perf };

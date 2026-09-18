@@ -59,8 +59,6 @@ const PostDetailScreen = lazy(() => import('./components/screens/PostDetailScree
 const LoginScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.LoginScreen })));
 const SignUpScreen = lazy(() => import('./components/screens/AuthScreens').then(m => ({ default: m.SignUpScreen })));
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
 // --- Types ---
 type Screen = 'onboarding' | 'login' | 'signup' | 'camera' | 'pet-dashboard' | 'health-report' | 'membership' | 'diet-guide' | 'exercise-plan' | 'care-guide' | 'history' | 'privacy' | 'profile' | 'ai-vet' | 'admin' | 'emergency-guide' | 'walk-timer' | 'vaccination' | 'weight-tracker' | 'breed-info' | 'community' | 'community-post' | 'post-detail';
 interface PetProfile {
@@ -313,7 +311,7 @@ export default function App() {
     setIsAnalyzing(true);
     
     try {
-      const result = await performPetScan(data, petProfile, i18n.language, GEMINI_API_KEY, t);
+      const result = await performPetScan(data, petProfile, i18n.language, t);
       setAnalysisResult(result);
       
       if (!isPremium) setScanCount(prev => prev + 1);

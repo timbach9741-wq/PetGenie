@@ -1,8 +1,6 @@
 /// <reference types="vite/client" />
 
-// Gemini API 설정
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+import { callGemini } from '../lib/geminiProxy';
 
 // 시스템 인스트럭션 생성 - lang은 반드시 원본 언어 코드(ko, en, ja 등)로 전달해야 함
 const getSystemInstruction = (lang: string, petInfo?: string) => {
@@ -63,8 +61,6 @@ export const fetchVetAnalysis = async (
     return responseCache.get(cacheKey)!;
   }
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
   // 프롬프트 구성: 시스템 인스트럭션 + 이전 대화 내역 + 새 입력
   const fullPrompt = `${systemText}\n\n${
     chatHistory ? `[이전 대화 내역]\n${chatHistory}\n\n보호자: ${userInput}\n수의사:` : userInput
@@ -80,22 +76,7 @@ export const fetchVetAnalysis = async (
   };
 
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Gemini API HTTP Error:', response.status, errorData);
-      if (response.status === 429) {
-        throw new Error('요금제 한도가 초과되었습니다 (Quota Exceeded). 잠시 후 다시 시도해주세요.');
-      }
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await callGemini('gemini-2.5-flash', body);
     const candidate = data?.candidates?.[0];
     const text = candidate?.content?.parts?.[0]?.text;
     
@@ -118,8 +99,11 @@ export const fetchVetAnalysis = async (
     }
 
     return text;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Gemini API Error:', error);
+    if (error?.code === 'functions/resource-exhausted') {
+      throw new Error('요금제 한도가 초과되었습니다 (Quota Exceeded). 잠시 후 다시 시도해주세요.');
+    }
     throw error;
   }
 };

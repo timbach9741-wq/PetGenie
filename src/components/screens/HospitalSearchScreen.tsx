@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Search, MapPin, Heart, Activity, Navigation as NavIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { AdBanner } from '../common';
+import { callGemini } from '../../lib/geminiProxy';
 
 
 const HospitalSearchScreen = ({ onBack, isPremium, onUpgrade }: { onBack: () => void, isPremium: boolean, onUpgrade: () => void }) => {
@@ -39,21 +40,13 @@ const HospitalSearchScreen = ({ onBack, isPremium, onUpgrade }: { onBack: () => 
         Respond in ${langName}.
         IMPORTANT: Return ONLY the JSON array.`;
 
-      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`;
       const body = {
         contents: [{ role: "user", parts: [{ text: prompt }] }],
         tools: [{ google_search: {} }],
         generationConfig: { responseMimeType: "application/json" }
       };
 
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      
-      if (!res.ok) throw new Error(`API HTTP Error: ${res.status}`);
-      const data = await res.json();
+      const data = await callGemini('gemini-2.5-flash', body);
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
       const results = JSON.parse(text.replace(/```json/g, "").replace(/```/g, "").trim());
       setHospitals(results);

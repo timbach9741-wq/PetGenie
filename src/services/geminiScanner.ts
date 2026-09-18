@@ -1,16 +1,12 @@
 import { antigravityEngine } from './antigravityEngine';
+import { callGemini } from '../lib/geminiProxy';
 
 export const performPetScan = async (
   data: { image: string, weight?: number, height?: number },
   petProfile: any,
   language: string,
-  apiKey: string,
   t: any
 ) => {
-  if (!apiKey) {
-    throw new Error("API Key is missing");
-  }
-
   const mimeType = data.image.split(';')[0].split(':')[1] || "image/jpeg";
   const base64Data = data.image.split(',')[1];
   
@@ -171,7 +167,6 @@ ${antigravityEngine.getGlobalPrompt(language.split('-')[0])}
 - All text values MUST be in ${responseLang}, but keep source/reference names in English for credibility (unless they have well known translated names)
 - If weight/height data is provided, factor it into calorie calculations and health assessments`;
 
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [
       {
@@ -192,32 +187,17 @@ ${antigravityEngine.getGlobalPrompt(language.split('-')[0])}
     }
   };
 
-  // AbortController로 타임아웃 시 실제 fetch 요청도 취소해 불필요한 API 비용을 막는다.
-  const abortController = new AbortController();
-  const timeoutId = setTimeout(() => abortController.abort(), 60000);
-
   let response: any;
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: abortController.signal
-    });
-    if (!res.ok) {
-      if (res.status === 429) {
-        throw new Error('API 요금제 한도가 초과되었습니다. 잠시 후 다시 시도해주세요.');
-      }
-      throw new Error(`API HTTP Error: ${res.status}`);
-    }
-    response = await res.json();
+    response = await callGemini('gemini-2.5-flash', body);
   } catch (err: any) {
-    if (err?.name === 'AbortError') {
+    if (err?.code === 'functions/resource-exhausted') {
+      throw new Error('API 요금제 한도가 초과되었습니다. 잠시 후 다시 시도해주세요.');
+    }
+    if (err?.code === 'functions/deadline-exceeded') {
       throw new Error('Analysis timed out');
     }
-    throw err;
-  } finally {
-    clearTimeout(timeoutId);
+    throw new Error(err?.message || 'Gemini 분석 요청에 실패했습니다.');
   }
   const text = response?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
   const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
