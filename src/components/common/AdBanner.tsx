@@ -33,6 +33,13 @@ const AdBanner = ({ isPremium, onUpgrade, type = 'banner' }: { isPremium: boolea
     };
   }, [type]);
 
+  // 네이티브 플랫폼의 banner/large 타입은 실제 AdMob 배너가 별도 오버레이로 이미 표시되므로,
+  // 여기서 가짜 "Sponsored Ad Area" placeholder까지 같이 그리면 두 광고가 겹쳐 보인다.
+  // placeholder는 실제 광고가 없는 웹 프리뷰(브라우저)에서만 보여준다.
+  if ((type === 'banner' || type === 'large') && Capacitor.isNativePlatform()) {
+    return null;
+  }
+
   if (type === 'native') {
     return (
       <div className="w-full px-6 py-4">
