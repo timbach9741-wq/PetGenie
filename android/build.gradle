@@ -24,6 +24,25 @@ allprojects {
         google()
         mavenCentral()
     }
+
+    // com.google.firebase:firebase-auth:24.0.1 pulls in the pre-release
+    // androidx.credentials(-play-services-auth):1.2.0-rc01, which in turn drags in
+    // com.google.android.gms:play-services-auth:20.7.0 - a known unresolved Google bug where
+    // SignInHubActivity.onCreate throws a NullPointerException during Google sign-in
+    // (https://github.com/firebase/firebase-android-sdk/issues/8135). Forcing every module
+    // (app AND the capacitor-firebase-authentication library module itself, so AGP's
+    // "consistent resolution" compile/runtime check doesn't reintroduce the old versions)
+    // onto current stable releases avoids the crash.
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.credentials:credentials:1.5.0'
+            force 'androidx.credentials:credentials-play-services-auth:1.5.0'
+            // NOT 22.0.0+: that release deleted the legacy GoogleSignIn/GoogleSignInClient
+            // classes this plugin's Java code still calls directly. 21.6.0 is the newest
+            // release that both keeps those classes and postdates the 20.7.0 bug.
+            force 'com.google.android.gms:play-services-auth:21.6.0'
+        }
+    }
 }
 
 task clean(type: Delete) {
