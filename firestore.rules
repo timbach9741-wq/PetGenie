@@ -63,8 +63,13 @@ service cloud.firestore {
     match /community_posts/{postId} {
       allow read: if true; // 누구나 읽기 가능 (혹은 isAuthenticated()로 제한 가능)
       allow create: if isAuthenticated() && request.resource.data.authorId == request.auth.uid;
-      // 작성자 본인 또는 관리자만 수정/삭제 가능
-      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.authorId == request.auth.uid);
+      // 작성자 본인 또는 관리자만 수정/삭제 가능.
+      // 단, 좋아요(likes)·댓글 수(commentCount)는 다른 사용자가 누르거나 댓글을 달 때 바뀌므로
+      // 로그인한 사용자라면 이 두 필드만은 바꿀 수 있게 연다(communityService toggleLike/addComment).
+      allow update: if isAdmin() ||
+        (isAuthenticated() && resource.data.authorId == request.auth.uid) ||
+        (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentCount']));
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.authorId == request.auth.uid);
 
       // 4-1. comments 하위 컬렉션
       match /comments/{commentId} {
@@ -78,6 +83,40 @@ service cloud.firestore {
     match /pets/{petId} {
       // 본인의 반려동물 정보만 접근 가능
       allow read, write: if isAuthenticated() && (resource == null || resource.data.ownerId == request.auth.uid || request.resource.data.ownerId == request.auth.uid);
+    }
+
+    // 6. ai_chats — AI 수의사 대화 기록, 문서 ID = 사용자 UID (AIVetScreen)
+    match /ai_chats/{userId} {
+      allow read, write: if isOwner(userId);
+      allow read: if isAdmin();
+    }
+
+    // 7. notifications — 좋아요/댓글 알림 (notificationService)
+    // 보내는 사람이 만들고, 받는 사람만 읽고 '읽음' 표시만 바꿀 수 있다.
+    match /notifications/{notificationId} {
+      allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.recipientId == request.auth.uid);
+      allow update: if isAuthenticated() && resource.data.recipientId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if isAdmin() || (isAuthenticated() && resource.data.recipientId == request.auth.uid);
+    }
+
+    // 8. reports — 게시글/댓글 신고 (communityService.reportContent). 처리는 관리자만.
+    match /reports/{reportId} {
+      allow create: if isAuthenticated() && request.resource.data.reporterId == request.auth.uid;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 9. scan_reports — 건강 스캔 리포트 저장 (HealthReport)
+    match /scan_reports/{reportId} {
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow read, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    // 10. walk_records — 산책 기록 (WalkTimerScreen)
+    match /walk_records/{recordId} {
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
     }
 
     // 기타 (기본 거부)
