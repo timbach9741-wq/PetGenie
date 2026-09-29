@@ -43,6 +43,7 @@ exports.geminiProxy = functions
       });
       const json = await res.json();
       if (res.ok) return json;
+      console.error(`geminiProxy ${m} → ${res.status}: ${json?.error?.message || ''}`);
       lastStatus = res.status;
       lastJson = json;
       if (res.status !== 503 && res.status !== 429) break; // 요청 자체 문제는 다른 모델로 바꿔도 같으므로 중단
