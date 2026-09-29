@@ -14,6 +14,9 @@ const db = admin.firestore();
  * 계속 발생했음(조직 정책 등으로 추정). v1 콜러블은 Cloud Functions Gen1 인프라라
  * 이 문제 없이 기본적으로 정상 동작함.
  */
+// 요청 모델이 바쁠 때(503/429) 순서대로 대신 시도할 모델. "latest" 별칭은 계정 종류와 상관없이 항상 유효하다.
+const FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash'];
+
 exports.geminiProxy = functions
   .runWith({ secrets: ['GEMINI_API_KEY'], timeoutSeconds: 60 })
   .https.onCall(async (data, context) => {
@@ -26,23 +29,29 @@ exports.geminiProxy = functions
       throw new functions.https.HttpsError('invalid-argument', 'model, body가 필요합니다.');
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${process.env.GEMINI_API_KEY}`;
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-
-    const json = await res.json();
-    if (!res.ok) {
-      if (res.status === 429) {
-        throw new functions.https.HttpsError('resource-exhausted', json?.error?.message || 'Gemini API 요금제 한도 초과');
-      }
-      throw new functions.https.HttpsError('internal', json?.error?.message || `Gemini API error: ${res.status}`);
+    // 요청한 모델이 "high demand"(503)나 한도 초과(429)로 거절하면 사용자에게 바로 오류를 보이지 않고
+    // 다른 모델로 한 번 더 시도한다 (2026-09-29 웹에서 gemini-flash-latest 503 실제 발생).
+    const models = [...new Set([model, ...FALLBACK_MODELS])];
+    let lastStatus = 0;
+    let lastJson = null;
+    for (const m of models) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const json = await res.json();
+      if (res.ok) return json;
+      lastStatus = res.status;
+      lastJson = json;
+      if (res.status !== 503 && res.status !== 429) break; // 요청 자체 문제는 다른 모델로 바꿔도 같으므로 중단
     }
 
-    return json;
+    if (lastStatus === 429) {
+      throw new functions.https.HttpsError('resource-exhausted', lastJson?.error?.message || 'Gemini API 요금제 한도 초과');
+    }
+    throw new functions.https.HttpsError('internal', lastJson?.error?.message || `Gemini API error: ${lastStatus}`);
   });
 
 /**
