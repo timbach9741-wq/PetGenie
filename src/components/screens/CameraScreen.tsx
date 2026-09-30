@@ -172,7 +172,7 @@ const CameraScreen = ({ onScan, onBack, isLoggedIn, isPremium, scanCount, analys
   // Language switching handled by LanguageSwitcher component
 
   return (
-    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+var(--admob-banner-height,0px)+env(safe-area-inset-bottom,0px))]">
       {/* Header */}
       <header className="px-6 pb-4 pt-[calc(env(safe-area-inset-top,0px)+28px)] bg-white/80 backdrop-blur-xl sticky top-0 z-40 border-b border-zinc-100/50">
         <div className="flex items-center justify-between">

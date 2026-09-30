@@ -76,7 +76,7 @@ export const fetchVetAnalysis = async (
   };
 
   try {
-    const data = await callGemini('gemini-flash-latest', body);
+    const data = await callGemini('gemini-flash-latest', body, 'vet');
     const candidate = data?.candidates?.[0];
     const text = candidate?.content?.parts?.[0]?.text;
     

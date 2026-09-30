@@ -21,7 +21,7 @@ export default function AppInfoScreen({ onBack }: { onBack: () => void }) {
       </header>
 
       {/* ===== Content ===== */}
-      <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-8 pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+      <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-8 pb-[calc(80px+var(--admob-banner-height,0px)+env(safe-area-inset-bottom,0px))]">
         
         {/* App Logo & Version */}
         <div className="flex flex-col items-center justify-center pt-8 pb-4">

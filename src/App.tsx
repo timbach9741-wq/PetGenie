@@ -25,7 +25,10 @@ import { antigravityEngine } from './services/antigravityEngine';
 import { performPetScan, getFallbackResult } from './services/geminiScanner';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { AdFreeContext } from './lib/adFree';
+import { QuotaExceededError, onUsage } from './lib/geminiProxy';
+import { isBillingAvailable, restorePurchases } from './lib/billing';
 
 // --- 필수 컴포넌트: 정적 import (렉 방지) ---
 import { SplashScreen } from './components/screens/SplashScreen';
@@ -105,10 +108,11 @@ export default function App() {
   const FREE_FOR_ALL_END_DATE = new Date('2027-01-01T00:00:00');
   const FREE_FOR_ALL = new Date() < FREE_FOR_ALL_END_DATE;
   const [isPremium, setIsPremium] = useState(FREE_FOR_ALL);
+  // 실제 결제 회원 여부(광고 제거 기준). users/{uid}.premiumUntil이 지금보다 뒤면 true.
+  const [isPaidMember, setIsPaidMember] = useState(false);
   const [scanCount, setScanCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
-  const [interstitialAction, setInterstitialAction] = useState<{onComplete: () => void} | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{ uid?: string, email: string, is_premium: boolean } | null>(null);
@@ -175,8 +179,40 @@ export default function App() {
         setUser({ 
           uid: firebaseUser.uid,
           email: firebaseUser.email || '', 
-          is_premium: FREE_FOR_ALL // 추후 Firestore/Claims에서 확인하도록 확장 가능
+          is_premium: FREE_FOR_ALL
         });
+
+        // 결제 회원 여부 확인. premiumUntil은 서버(결제 확인 함수)만 기록할 수 있다(firestore.rules protectedUserFields).
+        try {
+          const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
+          const until = snap.data()?.premiumUntil?.toDate?.();
+          const paid = !!until && until.getTime() > Date.now();
+          setIsPaidMember(paid);
+          setIsPremium(FREE_FOR_ALL || paid);
+          setUser(prev => prev ? { ...prev, is_premium: FREE_FOR_ALL || paid } : prev);
+        } catch (err) {
+          console.warn('Membership check failed', err);
+        }
+
+        // 이 기기의 구글 계정에 있는 구독을 서버에 다시 확인(재설치 복원, 결제 직후 확인 실패분 처리).
+        if (isBillingAvailable()) {
+          restorePurchases(firebaseUser.uid)
+            .then((active) => {
+              if (!active) return;
+              setIsPaidMember(true);
+              setIsPremium(true);
+            })
+            .catch((err) => console.warn('Purchase restore failed', err));
+        }
+
+        // 이번 달(한국 시간) 무료 스캔 사용 횟수. 서버(geminiProxy)가 세고, 앱은 남은 횟수 표시에만 쓴다.
+        try {
+          const month = new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().slice(0, 7);
+          const usageSnap = await getDoc(doc(db, 'users', firebaseUser.uid, 'usage', `scan-${month}`));
+          setScanCount(usageSnap.data()?.count || 0);
+        } catch (err) {
+          console.warn('Usage check failed', err);
+        }
 
         // 사용자 로그인 시 푸시 알림 등록
         try {
@@ -188,11 +224,16 @@ export default function App() {
       } else {
         setIsLoggedIn(false);
         setUser(null);
+        setIsPaidMember(false);
+        setIsPremium(FREE_FOR_ALL);
       }
     });
 
     return () => unsubscribe();
   }, [hasSeenOnboarding]);
+
+  // 스캔 성공 시 서버가 알려주는 이번 달 사용 횟수로 갱신
+  useEffect(() => onUsage((u) => { if (u.kind === 'scan') setScanCount(u.used); }), []);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2500);
@@ -314,8 +355,6 @@ export default function App() {
       const result = await performPetScan(data, petProfile, i18n.language, t);
       setAnalysisResult(result);
       
-      if (!isPremium) setScanCount(prev => prev + 1);
-
       setHistory(prev => [{
         id: Date.now(),
         date: new Date().toLocaleString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
@@ -353,12 +392,15 @@ export default function App() {
         ));
       } catch {}
       
-      if (!isPremium) {
-        setInterstitialAction({ onComplete: () => navigateTo('health-report') });
-      } else {
-        navigateTo('health-report');
-      }
+      navigateTo('health-report');
     } catch (error) {
+      // 무료 스캔 한도(월 3회)를 다 쓰면 결과 대신 멤버십 안내로 보낸다.
+      if (error instanceof QuotaExceededError) {
+        setScanCount(error.used);
+        alert(t('membership.scan_quota_reached', '이번 달 무료 스캔 {{limit}}회를 모두 사용했어요. 멤버십으로 무제한 이용할 수 있어요.', { limit: error.limit }));
+        navigateTo('membership');
+        return;
+      }
       console.error("AI Analysis failed:", error);
       const fallbackResult = getFallbackResult();
       setAnalysisResult(fallbackResult);
@@ -370,26 +412,23 @@ export default function App() {
         result: fallbackResult
       }, ...prev]);
       
-      if (!isPremium) {
-        setInterstitialAction({ onComplete: () => navigateTo('health-report') });
-      } else {
-        navigateTo('health-report');
-      }
+      navigateTo('health-report');
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  const handleUpgrade = () => {
-    setIsPremium(true);
-    if (user) setUser({ ...user, is_premium: true });
-    navigateTo('pet-dashboard');
+  // 서버가 확인한 결제 결과를 화면 상태에 반영
+  const applyMembership = (active: boolean) => {
+    setIsPaidMember(active);
+    setIsPremium(FREE_FOR_ALL || active);
+    setUser(prev => prev ? { ...prev, is_premium: FREE_FOR_ALL || active } : prev);
   };
 
   const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin', 'ai-vet', 'emergency-guide', 'walk-timer', 'vaccination', 'weight-tracker', 'breed-info', 'community-post', 'post-detail'].includes(currentScreen);
 
   return (
-    <>
+    <AdFreeContext.Provider value={isPaidMember}>
     <div className="h-full bg-zinc-50 font-sans selection:bg-emerald-100 overflow-hidden font-[Inter,_-apple-system,_BlinkMacSystemFont,_'Segoe_UI',_Roboto,_sans-serif]">
       {/* Full-Screen Mobile App Container */}
       <div className="w-full h-full bg-zinc-50 relative overflow-hidden flex flex-col">
@@ -448,10 +487,6 @@ export default function App() {
                 <HistoryScreen 
                   history={history}
                   onSelect={(item) => {
-                    if (!isPremium) {
-                      navigateTo('membership');
-                      return;
-                    }
                     setAnalysisResult(item.result);
                     setCapturedImage(item.image);
                     navigateTo('health-report');
@@ -510,7 +545,8 @@ export default function App() {
               {currentScreen === 'health-report' && (
                 <HealthReport 
                   onBack={goBack} 
-                  isPremium={isPremium}
+                  // 스캔 결과는 무료 회원에게도 전부 공개한다(첫 결과를 가리면 바로 이탈). 멤버십 혜택은 무제한 스캔·광고 제거.
+                  isPremium={true}
                   onUpgrade={() => navigateTo('membership')}
                   analysisResult={analysisResult}
                   capturedImage={capturedImage}
@@ -524,7 +560,10 @@ export default function App() {
               {currentScreen === 'membership' && (
                 <MembershipScreen 
                   onBack={goBack} 
-                  onUpgrade={handleUpgrade}
+                  uid={user?.uid}
+                  isPaidMember={isPaidMember}
+                  onMembershipChanged={applyMembership}
+                  onRequireLogin={() => navigateTo('login')}
                 />
               )}
               {currentScreen === 'profile' && (
@@ -633,41 +672,9 @@ export default function App() {
       </div>
     </div>
 
-      <AnimatePresence>
-        {interstitialAction && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-6 text-white"
-          >
-            <div className="bg-zinc-800 p-8 rounded-3xl w-full max-w-sm text-center relative overflow-hidden border border-zinc-700 shadow-2xl">
-              <div className="absolute top-3 left-3 bg-zinc-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider text-zinc-300">{t('common.sponsored', 'Sponsored')}</div>
-              <div className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-6 mt-4">{t('common.admob_interstitial', 'AdMob Interstitial Unit')}</div>
-              
-              <div className="aspect-[300/250] bg-zinc-900 rounded-2xl flex items-center justify-center border border-zinc-700 mb-8">
-                <span className="text-zinc-600 font-bold uppercase tracking-widest text-[10px] break-all px-4 text-center">ca-app-pub-7630237731274328/5352133362</span>
-              </div>
-              
-              <h3 className="font-bold text-lg mb-2">{t('dashboard.premium_banner.title', 'Premium Pet Care')}</h3>
-              <p className="text-sm text-zinc-400 leading-relaxed mb-8">{t('dashboard.premium_banner.desc', 'Smart dog care begins here')}</p>
-              
-              <button 
-                onClick={() => {
-                  interstitialAction.onComplete();
-                  setInterstitialAction(null);
-                }}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-emerald-900/20 [-webkit-tap-highlight-color:transparent]"
-              >
-                {t('common.close_ad_and_view', 'Close Ad & View Results')}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
 
-    </>
+    </AdFreeContext.Provider>
   );
 }
 

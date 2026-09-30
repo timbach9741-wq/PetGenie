@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { AdMob, RewardAdOptions, RewardAdPluginEvents } from '@capacitor-community/admob';
 import { Capacitor } from '@capacitor/core';
 import { fetchVetAnalysis } from '../../services/geminiService';
+import { QuotaExceededError, grantVetAdBonus } from '../../lib/geminiProxy';
 import { PetProfile } from '../../types';
 import vetImage from '../../assets/images/ai-vet-character.png';
 import DrSilvermanHeader from '../common/DrSilvermanHeader';
@@ -30,11 +31,12 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
   const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const [consultationTokens, setConsultationTokens] = useState(3);
+  // 무료 상담 한도(하루 3회)는 서버가 센다. 한도에 걸린 질문은 광고 시청 후 다시 보낸다.
+  const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
   const [showAdPopup, setShowAdPopup] = useState(false);
   const [isAdLoading, setIsAdLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<{ message: string; fallbackPayload: string } | null>(null);
+  const [error, setError] = useState<{ title?: string; message: string; fallbackPayload: string } | null>(null);
   const [showProfile, setShowProfile] = useState(true);
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -100,23 +102,27 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
     }
   }, [isHistoryLoaded, messages.length, t]);
 
+  // 광고 보상(또는 광고 로드 실패 시 예외 제공)으로 오늘 상담 1회를 추가하고, 막혔던 질문을 다시 보낸다.
+  const grantBonusAndRetry = async () => {
+    setIsAdLoading(false);
+    try {
+      await grantVetAdBonus();
+    } catch (err: any) {
+      alert(t('ai_vet.bonus_limit', '오늘 받을 수 있는 광고 보너스를 모두 받았어요. 멤버십으로 무제한 상담할 수 있어요.'));
+      return;
+    }
+    const question = pendingQuestion;
+    setPendingQuestion(null);
+    if (question) handleSend(question);
+  };
+
   const handleWatchAd = async () => {
     setShowAdPopup(false);
     setIsAdLoading(true);
 
     if (!Capacitor.isNativePlatform()) {
-      // 웹이나 시뮬레이션 환경 대비용 fallback
-      setTimeout(() => {
-        const isFailed = Math.random() < 0.3;
-        setIsAdLoading(false);
-        if (isFailed) {
-          alert(t('ai_vet.ad_failed_fallback', '광고 로드에 실패했습니다. 예외적으로 1회 상담 기회를 시크릿 제공합니다!'));
-          setConsultationTokens(1);
-        } else {
-          alert(t('ai_vet.ad_reward_success', '광고 시청 혜택으로 1회 무료 상담이 충전되었습니다.'));
-          setConsultationTokens(1);
-        }
-      }, 1500);
+      // 웹에서는 보상형 광고가 없으므로 바로 보너스 처리
+      grantBonusAndRetry();
       return;
     }
 
@@ -125,48 +131,39 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
         adId: ADMOB_IDS.REWARDED,
         isTesting: false,
       };
-      
+
       // 이전 리스너들 정리 (타입 정의에 누락되어 있지만 런타임에 존재)
       // @ts-expect-error — removeAllListeners는 Capacitor 플러그인 기본 메서드
       AdMob.removeAllListeners().catch(() => {});
-      
+
       await AdMob.prepareRewardVideoAd(options);
-      
-      AdMob.addListener(RewardAdPluginEvents.Rewarded, (rewardItem) => {
-        setConsultationTokens(1);
-        alert(t('ai_vet.ad_reward_success', '광고 시청 혜택으로 1회 무료 상담이 충전되었습니다.'));
+
+      let rewarded = false;
+      AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+        rewarded = true;
       });
-      
+
       AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
-        setIsAdLoading(false);
+        if (rewarded) grantBonusAndRetry();
+        else setIsAdLoading(false);
       });
 
       AdMob.addListener(RewardAdPluginEvents.FailedToLoad, (error) => {
         console.warn('AdMob failed to load', error);
-        setIsAdLoading(false);
-        alert(t('ai_vet.ad_failed_fallback', '광고 로드에 실패했습니다. 예외적으로 1회 상담 기회를 시크릿 제공합니다!'));
-        setConsultationTokens(1);
+        grantBonusAndRetry();
       });
 
       await AdMob.showRewardVideoAd();
     } catch (error) {
       console.error('AdMob Error', error);
-      setIsAdLoading(false);
-      alert(t('ai_vet.ad_failed_fallback', '광고 로드에 실패했습니다. 예외적으로 1회 상담 기회를 시크릿 제공합니다!'));
-      setConsultationTokens(1);
+      grantBonusAndRetry();
     }
   };
 
   // --- 메시지 전송 핸들러 ---
   const handleSend = async (retryMsg?: string) => {
     const textToSend = retryMsg || inputText.trim();
-    if (!isPremium && consultationTokens <= 0) {
-      setShowAdPopup(true);
-      return;
-    }
     if (!textToSend || isLoading) return;
-    if (!isPremium && consultationTokens <= 0) return;
-    if (!isPremium) setConsultationTokens(prev => prev - 1);
 
     if (!retryMsg) {
       setInputText('');
@@ -203,6 +200,20 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
       setMessages(finalMessages);
       saveChatHistory(finalMessages);
     } catch (err: any) {
+      if (err instanceof QuotaExceededError) {
+        setPendingQuestion(textToSend);
+        setShowAdPopup(true);
+        return;
+      }
+      // 로그인 전에는 서버가 unauthenticated로 거절한다 → 오류 대신 로그인 안내
+      if (err?.code === 'functions/unauthenticated') {
+        setError({
+          title: t('ai_vet.login_required_title', '로그인이 필요해요'),
+          message: t('ai_vet.login_required', '로그인 후 AI 수의사와 상담할 수 있어요. 프로필 탭에서 로그인해 주세요.'),
+          fallbackPayload: textToSend,
+        });
+        return;
+      }
       console.error('AI Vet Error:', err);
       // Fallback UI 처리를 위한 상태 세팅
       const errorDetail = err.message || JSON.stringify(err);
@@ -296,7 +307,7 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
             <div className="bg-red-50 border border-red-100 flex flex-col gap-3 px-4 py-3 rounded-2xl max-w-[85%] shadow-sm">
               <div className="flex items-center gap-2 text-red-600 text-xs font-bold">
                 <AlertCircle className="w-4 h-4" />
-                <span>{t('ai_vet.network_error', '네트워크 또는 서버 할당량 오류')}</span>
+                <span>{error.title || t('ai_vet.network_error', '네트워크 또는 서버 할당량 오류')}</span>
               </div>
               <p className="text-zinc-600 text-xs leading-relaxed">
                 {error.message}
@@ -348,14 +359,13 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
                 <Gift className="w-8 h-8 text-indigo-500" />
               </div>
               <h3 className="text-lg font-bold text-center text-zinc-900 mb-2">{t('ai_vet.quota_exhausted', '상담 한도 소진')}</h3>
-              <p className="text-[9px] text-zinc-400 font-mono text-center mb-1">UNIT: ca-app-pub-7630237731274328/6964597935</p>
               <p className="text-sm text-zinc-500 text-center mb-6 leading-relaxed">
                 {t('ai_vet.quota_desc', '일일 무료 상담(3회)이 모두 소진되었습니다.')}<br/>{t('ai_vet.quota_ask', '광고를 시청하고 상담 기회를 1회 추가하시겠어요?')}
               </p>
               
               <div className="flex gap-3">
                 <button 
-                  onClick={() => setShowAdPopup(false)}
+                  onClick={() => { setShowAdPopup(false); setPendingQuestion(null); }}
                   className="flex-1 py-3.5 rounded-xl font-bold text-sm text-zinc-500 bg-zinc-100 hover:bg-zinc-200 transition-colors"
                 >
                   {t('common.cancel', '취소')}
@@ -367,6 +377,12 @@ const AIVetScreen: React.FC<AIVetScreenProps> = ({ onBack, isPremium, onUpgrade,
                   <Gift className="w-4 h-4" /> {t('ai_vet.watch_ad', '광고 보기')}
                 </button>
               </div>
+              <button
+                onClick={() => { setShowAdPopup(false); setPendingQuestion(null); onUpgrade(); }}
+                className="w-full mt-3 py-3 rounded-xl font-bold text-sm text-emerald-700 bg-emerald-50"
+              >
+                {t('ai_vet.go_membership', '멤버십으로 무제한 상담하기')}
+              </button>
             </motion.div>
           </motion.div>
         )}

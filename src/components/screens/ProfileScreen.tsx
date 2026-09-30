@@ -36,7 +36,7 @@ const ProfileScreen = ({
 
   if (!isLoggedIn) {
     return (
-      <div className="h-full bg-zinc-50 flex flex-col items-center justify-center p-8 text-center pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+      <div className="h-full bg-zinc-50 flex flex-col items-center justify-center p-8 text-center pb-[calc(80px+var(--admob-banner-height,0px)+env(safe-area-inset-bottom,0px))]">
         <div className="w-24 h-24 rounded-full bg-zinc-100 flex items-center justify-center mb-6">
           <User className="w-12 h-12 text-zinc-300" />
         </div>
@@ -50,7 +50,7 @@ const ProfileScreen = ({
   }
 
   return (
-    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+var(--admob-banner-height,0px)+env(safe-area-inset-bottom,0px))]">
       <header className="bg-white px-6 pb-6 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+44px)]">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Scan } from 'lucide-react';
 import { motion } from 'motion/react';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
 import { auth, googleProvider } from '../../lib/firebase';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { Capacitor } from '@capacitor/core';
@@ -31,6 +31,12 @@ export const LoginScreen = ({ onLogin, onNavigateToSignUp }: { onLogin: (email: 
     try {
       if (Capacitor.isNativePlatform()) {
         const result = await FirebaseAuthentication.signInWithGoogle();
+        // 네이티브 로그인만으로는 웹뷰의 Firebase JS SDK(auth)가 로그인되지 않는다.
+        // 그러면 Cloud Functions(geminiProxy 등) 호출에 로그인 토큰이 안 실려 "로그인이 필요합니다"로 거절된다
+        // (9/18 서버 경유 전환 이후 안드로이드 앱 AI 기능이 전부 막혔던 원인, 9/30 확인). 같은 구글 토큰으로 JS SDK에도 로그인한다.
+        const idToken = result.credential?.idToken;
+        if (!idToken) throw new Error('구글 인증 토큰을 받지 못했습니다.');
+        await signInWithCredential(auth, GoogleAuthProvider.credential(idToken));
         if (result.user?.email && result.user?.uid) {
           onLogin(result.user.email, result.user.uid, agreeMarketing);
         } else {

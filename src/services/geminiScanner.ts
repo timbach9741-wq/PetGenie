@@ -1,5 +1,5 @@
 import { antigravityEngine } from './antigravityEngine';
-import { callGemini } from '../lib/geminiProxy';
+import { callGemini, QuotaExceededError } from '../lib/geminiProxy';
 
 export const performPetScan = async (
   data: { image: string, weight?: number, height?: number },
@@ -189,8 +189,9 @@ ${antigravityEngine.getGlobalPrompt(language.split('-')[0])}
 
   let response: any;
   try {
-    response = await callGemini('gemini-flash-latest', body);
+    response = await callGemini('gemini-flash-latest', body, 'scan');
   } catch (err: any) {
+    if (err instanceof QuotaExceededError) throw err;
     if (err?.code === 'functions/resource-exhausted') {
       throw new Error('API 요금제 한도가 초과되었습니다. 잠시 후 다시 시도해주세요.');
     }

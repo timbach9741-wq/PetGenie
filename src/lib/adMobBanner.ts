@@ -38,12 +38,13 @@ function ensureSizeListener() {
   sizeListenerRegistered = true;
   // 네이티브 배너는 웹뷰 레이아웃 밖에 그려지는 오버레이라 하단 탭바를 가릴 수 있다.
   // 실제 배너 높이를 받아서 탭바를 그만큼 위로 밀어올려 겹치지 않게 한다.
-  // 플러그인은 네이티브(디바이스) px 단위로 높이를 주므로 devicePixelRatio로 CSS px 환산.
+  // 플러그인은 AdView.adSize 값(dp)을 그대로 주고, dp는 웹뷰 CSS px와 같으므로 환산하지 않는다.
+  // 예전엔 devicePixelRatio로 한 번 더 나눠 탭바가 배너 높이의 1/2.6만 올라가 배너 뒤에 숨었다
+  // (9/30 Z Fold6 실측: 배너 87dp인데 33px만 반영).
   // hideBanner()가 보내는 0은 무시하고, 표시 여부는 requestCount로만 판단한다.
   AdMob.addListener(BannerAdPluginEvents.SizeChanged, (info: AdMobBannerSize) => {
     if (info.height > 0) {
-      const dpr = window.devicePixelRatio || 1;
-      lastBannerHeight = info.height / dpr;
+      lastBannerHeight = info.height;
     }
     applyBannerHeightVar();
   });

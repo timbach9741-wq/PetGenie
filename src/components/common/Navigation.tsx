@@ -20,10 +20,11 @@ const Navigation = ({ current, onNavigate }: { current: Screen, onNavigate: (s: 
   // 네이티브 AdMob 하단 배너는 웹뷰 레이아웃과 무관하게 화면 최하단에 오버레이되므로,
   // 배너 실측 높이(adMobBanner.ts가 --admob-banner-height로 갱신)만큼 탭바를 위로 띄워
   // 배너가 탭바 버튼을 가려 터치를 막는 문제를 방지한다.
+  // 배너 자체는 시스템 바(내비게이션 바/작업표시줄) 위에 그려지므로 그 높이(safe-area)도 더한다.
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-zinc-100 px-2 pt-2.5 pb-[max(env(safe-area-inset-bottom,0px),12px)] flex justify-around items-center z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
-      style={{ marginBottom: 'var(--admob-banner-height, 0px)' }}
+      className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-zinc-100 px-2 pt-2.5 pb-3 flex justify-around items-center z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
+      style={{ marginBottom: 'calc(var(--admob-banner-height, 0px) + env(safe-area-inset-bottom, 0px))' }}
     >
       {navItems.map((item) => (
         <button

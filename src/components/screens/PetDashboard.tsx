@@ -48,7 +48,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
   const healthLabel = healthScore >= 80 ? t('dashboard.health_excellent') : healthScore >= 60 ? t('dashboard.health_good') : healthScore >= 40 ? t('dashboard.health_caution') : t('dashboard.health_warning');
 
   return (
-    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+    <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+var(--admob-banner-height,0px)+env(safe-area-inset-bottom,0px))]">
       {/* Promotional Popup */}
       <AnimatePresence>
         {showPromoPopup && (
@@ -90,12 +90,12 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
                   {i18n.language === 'ko' ? '출시 기념 특별 혜택' : 'Launch Special Offer'}
                 </div>
                 <h2 className="text-2xl font-bold text-zinc-900 mb-3 tracking-tight leading-tight">
-                  {i18n.language === 'ko' ? '6월까지 모든 프리미엄 기능 무료!' : 'All Premium Features Free Until June!'}
+                  {i18n.language === 'ko' ? '12월 31일까지 모든 프리미엄 기능 무료!' : 'All Premium Features Free Until December 31!'}
                 </h2>
                 <p className="text-zinc-500 text-sm leading-relaxed mb-8">
                   {i18n.language === 'ko' 
-                    ? 'Pet Genie 정식 출시를 기념하여 6월까지 AI 질병 분석, 24시간 수의사 상담 등 모든 프리미엄 기능을 결제 없이 경험해보세요.'
-                    : 'To celebrate the launch of Pet Genie, enjoy all premium features including AI disease analysis and 24/7 vet consultation for free until June.'}
+                    ? 'Pet Genie 정식 출시를 기념하여 12월 31일까지 AI 질병 분석, 24시간 AI 수의사 상담 등 모든 프리미엄 기능을 결제 없이 경험해보세요.'
+                    : 'To celebrate the launch of Pet Genie, enjoy all premium features including AI disease analysis and 24/7 AI vet chat for free until December 31.'}
                 </p>
 
                 <button 

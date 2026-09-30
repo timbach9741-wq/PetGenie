@@ -20,7 +20,7 @@ service cloud.firestore {
     // 결제/멤버십 상태는 관리자(또는 Admin SDK로 동작하는 서버)만 바꿀 수 있어야 함.
     // 클라이언트가 이 필드들을 직접 써넣으면 결제 없이 프리미엄으로 자가 승급이 가능해짐.
     function protectedUserFields() {
-      return ['isPremium', 'membershipType', 'status', 'payments', 'totalScans'];
+      return ['isPremium', 'premiumUntil', 'membershipType', 'status', 'payments', 'totalScans'];
     }
 
     // 1. users 컬렉션
@@ -38,6 +38,12 @@ service cloud.firestore {
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(protectedUserFields()));
 
       allow delete: if isAdmin();
+
+      // 무료 사용 횟수(스캔 월/상담 일). 서버(geminiProxy)만 기록하고, 본인은 남은 횟수 표시용으로 읽기만.
+      match /usage/{periodId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if false;
+      }
     }
 
     // 2. feedbacks 컬렉션

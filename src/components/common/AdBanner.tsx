@@ -7,15 +7,18 @@ import { Capacitor } from '@capacitor/core';
 import { BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
 import type { BannerAdOptions } from '@capacitor-community/admob';
 import { queueShowBanner, queueRemoveBanner } from '../../lib/adMobBanner';
+import { useAdFree } from '../../lib/adFree';
 
 
 const AdBanner = ({ isPremium, onUpgrade, type = 'banner' }: { isPremium: boolean, onUpgrade: () => void, type?: 'banner' | 'native' | 'large' }) => {
   const { t } = useTranslation();
+  const adFree = useAdFree();
 
   // 실제 AdMob 배너 노출 (banner/large 타입일 때만)
   // 주의: 성장 단계 무료 개방 정책으로 isPremium은 항상 true(기능 잠금 해제)가 되므로,
-  // 광고 노출은 isPremium과 무관하게 이루어짐 (무료 개방 중에도 광고 수익은 필요하기 때문).
+  // 광고 노출은 isPremium이 아니라 실제 결제 여부(adFree)로만 판단한다.
   useEffect(() => {
+    if (adFree) return;
     if (type !== 'banner' && type !== 'large') return;
     if (!Capacitor.isNativePlatform()) return;
 
@@ -31,12 +34,16 @@ const AdBanner = ({ isPremium, onUpgrade, type = 'banner' }: { isPremium: boolea
     return () => {
       queueRemoveBanner();
     };
-  }, [type]);
+  }, [type, adFree]);
+
+  if (adFree) return null;
 
   // 네이티브 플랫폼의 banner/large 타입은 실제 AdMob 배너가 별도 오버레이로 이미 표시되므로,
   // 여기서 가짜 "Sponsored Ad Area" placeholder까지 같이 그리면 두 광고가 겹쳐 보인다.
   // placeholder는 실제 광고가 없는 웹 프리뷰(브라우저)에서만 보여준다.
-  if ((type === 'banner' || type === 'large') && Capacitor.isNativePlatform()) {
+  // native 타입은 실제 AdMob 네이티브 광고가 아니라 "AdMob Banner / 관절 영양제" 가짜 카드라서
+  // 실제 앱에서는 보여주지 않는다(9/30 실기기에서 가짜 광고로 확인됨).
+  if (Capacitor.isNativePlatform()) {
     return null;
   }
 

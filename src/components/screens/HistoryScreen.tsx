@@ -9,7 +9,7 @@ const HistoryScreen = ({ history, onSelect, onBack }: { history: any[], onSelect
   const lastScanDate = history.length > 0 ? history[0].date : '-';
 
   return (
-    <div className="h-full bg-zinc-50 flex flex-col pb-[calc(80px+env(safe-area-inset-bottom,0px))]">
+    <div className="h-full bg-zinc-50 flex flex-col pb-[calc(80px+var(--admob-banner-height,0px)+env(safe-area-inset-bottom,0px))]">
       <header className="px-6 pb-6 flex items-center gap-2 bg-white sticky top-0 z-50 border-b border-zinc-100 pt-[calc(env(safe-area-inset-top,0px)+44px)]">
         <button
           onClick={onBack}
