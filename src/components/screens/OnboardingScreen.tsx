@@ -6,7 +6,7 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 
 
 // --- Onboarding Screen (Full-Bleed Cinematic + AI Particle) ---
-const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
+const OnboardingScreen = ({ onComplete, showFreeBadge }: { onComplete: () => void, showFreeBadge: boolean }) => {
   const { t, i18n } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -40,9 +40,8 @@ const OnboardingScreen = ({ onComplete }: { onComplete: () => void }) => {
 
   const currentAccent = slides[currentSlide].accentColor;
 
-  // App.tsx의 FREE_FOR_ALL_END_DATE와 동일한 값이어야 함
-  const FREE_FOR_ALL_END_DATE = new Date('2027-01-01T00:00:00');
-  const showFreeForAllBadge = new Date() < FREE_FOR_ALL_END_DATE;
+  // 무료 개방 중(유료화 전)에만 표시. 판단은 App.tsx가 config/billing.paidLaunchAt으로 한다.
+  const showFreeForAllBadge = showFreeBadge;
 
   // Auto-advance slides
   useEffect(() => {

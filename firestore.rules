@@ -20,7 +20,7 @@ service cloud.firestore {
     // 결제/멤버십 상태는 관리자(또는 Admin SDK로 동작하는 서버)만 바꿀 수 있어야 함.
     // 클라이언트가 이 필드들을 직접 써넣으면 결제 없이 프리미엄으로 자가 승급이 가능해짐.
     function protectedUserFields() {
-      return ['isPremium', 'premiumUntil', 'membershipType', 'status', 'payments', 'totalScans'];
+      return ['isPremium', 'premiumUntil', 'freeUntil', 'membershipType', 'status', 'payments', 'totalScans'];
     }
 
     // 1. users 컬렉션
@@ -123,6 +123,12 @@ service cloud.firestore {
     match /walk_records/{recordId} {
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow read, update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    // 11. config — 앱 공용 설정(billing.paidLaunchAt 유료화 시작 시각). 누구나 읽고, 관리자만 수정.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // 기타 (기본 거부)

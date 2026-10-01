@@ -29,6 +29,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { AdFreeContext } from './lib/adFree';
 import { QuotaExceededError, onUsage } from './lib/geminiProxy';
 import { isBillingAvailable, restorePurchases } from './lib/billing';
+import { isLegacyDevice, legacyFreeActive, fetchPaidLaunchAt, claimLegacyFree } from './lib/membership';
 
 // --- 필수 컴포넌트: 정적 import (렉 방지) ---
 import { SplashScreen } from './components/screens/SplashScreen';
@@ -102,20 +103,22 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('camera');
   const [screenHistory, setScreenHistory] = useState<Screen[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // 🚀 성장 단계: 사용자 확보를 위해 2026년 12월 31일까지 전 기능 무료 개방
-  // 광고는 AdBanner.tsx에서 이 값과 무관하게 항상 노출되므로, 이 기간에도 광고 수익은 발생함.
-  // 기간 종료 후에는 실제 결제(Toss) 상태로 isPremium을 판별하도록 교체 필요.
-  const FREE_FOR_ALL_END_DATE = new Date('2027-01-01T00:00:00');
-  const FREE_FOR_ALL = new Date() < FREE_FOR_ALL_END_DATE;
-  const [isPremium, setIsPremium] = useState(FREE_FOR_ALL);
+  // 유료화 전(config/billing.paidLaunchAt 이전)에는 모든 기능 무료 개방.
+  // 광고는 AdBanner.tsx에서 결제 여부(adFree)로만 판단하므로 무료 기간에도 광고 수익은 발생함.
+  // null = 아직 확인 전(그동안은 기능을 잠그지 않되, 무료 홍보 문구도 띄우지 않는다)
+  const [freeForAll, setFreeForAll] = useState<boolean | null>(null);
+  // 유료화 전부터 쓰던 사용자는 12/31까지 무료(users/{uid}.freeUntil, 서버가 기록). 광고는 그대로.
+  const [legacyFree, setLegacyFree] = useState(isLegacyDevice && legacyFreeActive());
   // 실제 결제 회원 여부(광고 제거 기준). users/{uid}.premiumUntil이 지금보다 뒤면 true.
   const [isPaidMember, setIsPaidMember] = useState(false);
+  const isPremium = (freeForAll ?? true) || legacyFree || isPaidMember;
+  const showFreePromo = freeForAll === true || legacyFree;
   const [scanCount, setScanCount] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{ uid?: string, email: string, is_premium: boolean } | null>(null);
+  const [user, setUser] = useState<{ uid?: string, email: string } | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [selectedCareGuides, setSelectedCareGuides] = useState<any[] | null>(null);
   // 커뮤니티 - 선택된 게시글 (상세 보기용)
@@ -172,36 +175,40 @@ export default function App() {
       } as any).catch(err => console.warn('AdMob init error', err));
     }
 
+    // 유료화 시작 시각 확인
+    fetchPaidLaunchAt().then((at) => setFreeForAll(Date.now() < at.getTime()));
+
     // Firebase Auth State Listener
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setIsLoggedIn(true);
-        setUser({ 
+        setUser({
           uid: firebaseUser.uid,
-          email: firebaseUser.email || '', 
-          is_premium: FREE_FOR_ALL
+          email: firebaseUser.email || '',
         });
 
-        // 결제 회원 여부 확인. premiumUntil은 서버(결제 확인 함수)만 기록할 수 있다(firestore.rules protectedUserFields).
+        // 결제 회원·기존 사용자 무료 여부 확인. premiumUntil/freeUntil은 서버만 기록할 수 있다(firestore.rules protectedUserFields).
         try {
           const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
           const until = snap.data()?.premiumUntil?.toDate?.();
-          const paid = !!until && until.getTime() > Date.now();
-          setIsPaidMember(paid);
-          setIsPremium(FREE_FOR_ALL || paid);
-          setUser(prev => prev ? { ...prev, is_premium: FREE_FOR_ALL || paid } : prev);
+          setIsPaidMember(!!until && until.getTime() > Date.now());
+          const freeUntil = snap.data()?.freeUntil?.toDate?.();
+          if (freeUntil && freeUntil.getTime() > Date.now()) setLegacyFree(true);
         } catch (err) {
           console.warn('Membership check failed', err);
+        }
+
+        // 유료화 전 계정이거나 유료화 전부터 쓰던 기기면 서버에 12/31까지 무료로 등록(한도 확인도 서버가 이 기록을 본다).
+        if (legacyFreeActive()) {
+          claimLegacyFree()
+            .then((granted) => { if (granted) setLegacyFree(true); })
+            .catch((err) => console.warn('Legacy free claim failed', err));
         }
 
         // 이 기기의 구글 계정에 있는 구독을 서버에 다시 확인(재설치 복원, 결제 직후 확인 실패분 처리).
         if (isBillingAvailable()) {
           restorePurchases(firebaseUser.uid)
-            .then((active) => {
-              if (!active) return;
-              setIsPaidMember(true);
-              setIsPremium(true);
-            })
+            .then((active) => { if (active) setIsPaidMember(true); })
             .catch((err) => console.warn('Purchase restore failed', err));
         }
 
@@ -225,7 +232,7 @@ export default function App() {
         setIsLoggedIn(false);
         setUser(null);
         setIsPaidMember(false);
-        setIsPremium(FREE_FOR_ALL);
+        setLegacyFree(isLegacyDevice && legacyFreeActive());
       }
     });
 
@@ -421,8 +428,6 @@ export default function App() {
   // 서버가 확인한 결제 결과를 화면 상태에 반영
   const applyMembership = (active: boolean) => {
     setIsPaidMember(active);
-    setIsPremium(FREE_FOR_ALL || active);
-    setUser(prev => prev ? { ...prev, is_premium: FREE_FOR_ALL || active } : prev);
   };
 
   const isSubScreen = ['login', 'signup', 'health-report', 'membership', 'care-guide', 'diet-guide', 'exercise-plan', 'onboarding', 'privacy', 'admin', 'ai-vet', 'emergency-guide', 'walk-timer', 'vaccination', 'weight-tracker', 'breed-info', 'community-post', 'post-detail'].includes(currentScreen);
@@ -458,7 +463,7 @@ export default function App() {
               )}
             >
               {currentScreen === 'onboarding' && (
-                <OnboardingScreen onComplete={handleOnboardingComplete} />
+                <OnboardingScreen onComplete={handleOnboardingComplete} showFreeBadge={freeForAll === true} />
               )}
               {currentScreen === 'login' && (
                 <LoginScreen 
@@ -513,6 +518,7 @@ export default function App() {
                   dailyCare={dailyCare}
                   onToggleCare={toggleCare}
                   petProfile={petProfile}
+                  showFreePromo={showFreePromo}
                 />
               )}
               {currentScreen === 'diet-guide' && (
@@ -558,10 +564,11 @@ export default function App() {
                 <PrivacyPolicyScreen onBack={goBack} />
               )}
               {currentScreen === 'membership' && (
-                <MembershipScreen 
-                  onBack={goBack} 
+                <MembershipScreen
+                  onBack={goBack}
                   uid={user?.uid}
                   isPaidMember={isPaidMember}
+                  showFreePromo={showFreePromo}
                   onMembershipChanged={applyMembership}
                   onRequireLogin={() => navigateTo('login')}
                 />
@@ -571,6 +578,7 @@ export default function App() {
                   onBack={goBack}
                   onNavigate={navigateTo}
                   isPremium={isPremium}
+                  isPaidMember={isPaidMember}
                   onUpgrade={() => navigateTo('membership')}
                   onLogout={handleLogout}
                   isLoggedIn={isLoggedIn}

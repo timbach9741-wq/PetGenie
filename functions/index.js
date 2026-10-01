@@ -20,9 +20,24 @@ const db = admin.firestore();
 const FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash'];
 
 // ── 무료 사용 한도 ──
-// 앱(App.tsx)의 FREE_FOR_ALL_END_DATE와 같은 값이어야 한다. 이 날짜 전에는 모두 무제한(성장 단계 무료 개방).
-// 결제 기능 출시일에 양쪽을 함께 바꾼다.
-const FREE_FOR_ALL_END = new Date('2027-01-01T00:00:00+09:00');
+// 유료화 시작 시각은 Firestore config/billing.paidLaunchAt(Timestamp) 하나로 앱과 서버가 함께 따른다.
+// 이 시각 전에는 모두 무제한(성장 단계 무료 개방). 문서가 없으면 원래 무료 개방 종료일을 쓴다.
+const DEFAULT_PAID_LAUNCH = new Date('2027-01-01T00:00:00+09:00');
+// 유료화 전부터 쓰던 사용자는 이 날까지 무료(users/{uid}.freeUntil, 서버만 기록). 광고는 그대로 노출된다.
+const LEGACY_FREE_UNTIL = new Date('2027-01-01T00:00:00+09:00');
+
+let paidLaunchCache = { value: DEFAULT_PAID_LAUNCH, fetchedAt: 0 };
+async function getPaidLaunchAt() {
+  if (Date.now() - paidLaunchCache.fetchedAt < 60 * 1000) return paidLaunchCache.value;
+  try {
+    const snap = await db.collection('config').doc('billing').get();
+    const at = snap.exists && snap.data().paidLaunchAt ? snap.data().paidLaunchAt.toDate() : DEFAULT_PAID_LAUNCH;
+    paidLaunchCache = { value: at, fetchedAt: Date.now() };
+  } catch (err) {
+    console.error('config/billing 읽기 실패', err.message);
+  }
+  return paidLaunchCache.value;
+}
 // 무료 회원 한도: 사진 스캔 월 3회, AI 수의사 하루 3회(+광고 시청 보너스 하루 최대 3회).
 const FREE_LIMITS = { scan: 3, vet: 3 };
 const MAX_AD_BONUS_PER_DAY = 3;
@@ -87,7 +102,7 @@ async function syncSubscription(uid, purchaseToken) {
     }, { merge: true });
     const userUpdate = { subscriptionTokenId: tokenRef.id };
     if (active) {
-      // 기존 사용자 무료 기간(premiumUntil 12/31) 같은 더 긴 기간이 있으면 줄이지 않는다.
+      // 관리자가 선물한 기간처럼 더 긴 기간이 이미 있으면 줄이지 않는다.
       const current = userSnap.exists && userSnap.data().premiumUntil ? userSnap.data().premiumUntil.toDate() : null;
       if (!current || current.getTime() < expiry.getTime()) {
         userUpdate.premiumUntil = admin.firestore.Timestamp.fromDate(expiry);
@@ -141,10 +156,41 @@ exports.verifyPlaySubscription = functions.https.onCall(async (data, context) =>
   }
 });
 
+// 기존 사용자 무료 기간 여부. 유료화 시각 전에 만든 계정이면 처음 확인할 때 freeUntil을 기록한다.
+async function hasLegacyFree(uid) {
+  if (Date.now() >= LEGACY_FREE_UNTIL.getTime()) return false;
+  const userRef = db.collection('users').doc(uid);
+  const snap = await userRef.get();
+  const freeUntil = snap.exists && snap.data().freeUntil ? snap.data().freeUntil.toDate() : null;
+  if (freeUntil && freeUntil.getTime() > Date.now()) return true;
+  const created = new Date((await admin.auth().getUser(uid)).metadata.creationTime);
+  if (created.getTime() >= (await getPaidLaunchAt()).getTime()) return false;
+  await userRef.set({ freeUntil: admin.firestore.Timestamp.fromDate(LEGACY_FREE_UNTIL) }, { merge: true });
+  return true;
+}
+
+/**
+ * 앱이 로그인할 때 호출. 유료화 전부터 이 기기에서 앱을 쓰던 사용자(legacyDevice)는 계정을 나중에 만들었어도
+ * 12/31까지 무료로 등록한다. 기기 표시는 서버가 검증할 수 없어 기간을 12/31로 한정한다.
+ */
+exports.claimLegacyFree = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', '로그인이 필요합니다.');
+  }
+  const uid = context.auth.uid;
+  if (Date.now() >= LEGACY_FREE_UNTIL.getTime()) return { freeUntil: null };
+  if (data && data.legacyDevice === true) {
+    await db.collection('users').doc(uid).set({ freeUntil: admin.firestore.Timestamp.fromDate(LEGACY_FREE_UNTIL) }, { merge: true });
+    return { freeUntil: LEGACY_FREE_UNTIL.toISOString() };
+  }
+  return { freeUntil: (await hasLegacyFree(uid)) ? LEGACY_FREE_UNTIL.toISOString() : null };
+});
+
 // 한도 확인. 무제한이면 null, 아니면 { ref, used, limit } 를 돌려준다(초과 시 예외).
 async function checkQuota(uid, kind) {
-  if (Date.now() < FREE_FOR_ALL_END.getTime()) return null;
+  if (Date.now() < (await getPaidLaunchAt()).getTime()) return null;
   if (await isPaidMember(uid)) return null;
+  if (await hasLegacyFree(uid)) return null;
   const ref = db.collection('users').doc(uid).collection('usage').doc(periodKey(kind));
   const snap = await ref.get();
   const used = snap.exists ? snap.data().count || 0 : 0;

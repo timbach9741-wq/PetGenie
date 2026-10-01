@@ -16,9 +16,9 @@ const LANGUAGES = [
 
 // --- Profile Screen ---
 const ProfileScreen = ({ 
-  onBack, onNavigate, isPremium, onUpgrade, onLogout, isLoggedIn, user, petProfile, onUpdatePetProfile, onLogin
+  onBack, onNavigate, isPremium, isPaidMember, onUpgrade, onLogout, isLoggedIn, user, petProfile, onUpdatePetProfile, onLogin
 }: { 
-  onBack: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, onUpgrade: () => void, onLogout: () => void, 
+  onBack: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, isPaidMember: boolean, onUpgrade: () => void, onLogout: () => void, 
   isLoggedIn: boolean, user: { email: string } | null, petProfile: PetProfile, onUpdatePetProfile: (p: PetProfile) => void,
   onLogin: () => void
 }) => {
@@ -172,7 +172,8 @@ const ProfileScreen = ({
               </span>
             </div>
           </div>
-          {!isPremium && (
+          {/* 무료 기간 사용자도 광고 제거를 위해 구독할 수 있도록 결제 회원이 아니면 항상 보인다 */}
+          {!isPaidMember && (
             <button onClick={onUpgrade} className="w-full mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl font-bold text-sm shadow-lg shadow-emerald-900/20 active:scale-[0.98] transition-transform">
               {t('common.upgrade')}
             </button>

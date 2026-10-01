@@ -18,11 +18,12 @@ type MembershipScreenProps = {
   onBack: () => void;
   uid?: string;
   isPaidMember: boolean;
+  showFreePromo: boolean;
   onMembershipChanged: (active: boolean) => void;
   onRequireLogin: () => void;
 };
 
-const MembershipScreen = ({ onBack, uid, isPaidMember, onMembershipChanged, onRequireLogin }: MembershipScreenProps) => {
+const MembershipScreen = ({ onBack, uid, isPaidMember, showFreePromo, onMembershipChanged, onRequireLogin }: MembershipScreenProps) => {
   const { t } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState('12m');
   const [busy, setBusy] = useState(false);
@@ -82,16 +83,18 @@ const MembershipScreen = ({ onBack, uid, isPaidMember, onMembershipChanged, onRe
           <p className="text-zinc-500 text-sm leading-relaxed">{t('membership.hero_desc', '나에게 딱 맞는 플랜을 선택하고 스마트한 건강 관리를 시작하세요.')}</p>
         </div>
 
-        {/* 🎉 12월 31일까지 무료 프로모션 배너 — i18n 적용 */}
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5 text-emerald-600" />
+        {/* 🎉 12월 31일까지 무료 프로모션 배너 — 무료 개방 중이거나 유료화 전부터 쓰던 사용자에게만 */}
+        {showFreePromo && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-emerald-800 font-bold text-sm tracking-tight">{t('membership.promo_title', '런칭 기념 사전 혜택')}</p>
+              <p className="text-emerald-600 text-[11px] font-medium mt-0.5">{t('membership.promo_desc', '12월 31일까지 Pro 플랜 기능 전체가 무료로 개방됩니다!')}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-emerald-800 font-bold text-sm tracking-tight">{t('membership.promo_title', '런칭 기념 사전 혜택')}</p>
-            <p className="text-emerald-600 text-[11px] font-medium mt-0.5">{t('membership.promo_desc', '12월 31일까지 Pro 플랜 기능 전체가 무료로 개방됩니다!')}</p>
-          </div>
-        </div>
+        )}
 
         {/* Pricing Cards */}
         <div className="space-y-4">

@@ -12,7 +12,7 @@ import { Screen, PetProfile, CareItem } from '../../types';
 import { CircularProgress, LanguageSwitcher, AdBanner } from '../common';
 import { globalTranslate } from '../../utils/translateData';
 
-const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, analysisResult, capturedImage, onLogout, dailyCare, onToggleCare, petProfile }: { onDetail: () => void, onScan: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, scanCount: number, analysisResult?: any, capturedImage?: string | null, onLogout: () => void, dailyCare: CareItem[], onToggleCare: (id: string) => void, petProfile: PetProfile }) => {
+const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, analysisResult, capturedImage, onLogout, dailyCare, onToggleCare, petProfile, showFreePromo }: { onDetail: () => void, onScan: () => void, onNavigate: (s: Screen) => void, isPremium: boolean, scanCount: number, analysisResult?: any, capturedImage?: string | null, onLogout: () => void, dailyCare: CareItem[], onToggleCare: (id: string) => void, petProfile: PetProfile, showFreePromo: boolean }) => {
   const { t, i18n } = useTranslation();
   const [showPromoPopup, setShowPromoPopup] = useState(false);
 
@@ -51,7 +51,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
     <div className="h-full bg-zinc-50 overflow-y-auto no-scrollbar pb-[calc(80px+var(--admob-banner-height,0px)+env(safe-area-inset-bottom,0px))]">
       {/* Promotional Popup */}
       <AnimatePresence>
-        {showPromoPopup && (
+        {showPromoPopup && showFreePromo && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -241,7 +241,7 @@ const PetDashboard = ({ onDetail, onScan, onNavigate, isPremium, scanCount, anal
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          onClick={() => isPremium ? onNavigate('ai-vet') : onNavigate('membership')}
+          onClick={() => onNavigate('ai-vet')}
           className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-4 flex items-center gap-3 cursor-pointer active:scale-[0.98] transition-transform shadow-lg shadow-emerald-500/20"
         >
           <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
