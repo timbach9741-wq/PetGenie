@@ -29,3 +29,10 @@ Write-Host "CODE_OLD=$oldCode"
 Write-Host "CODE_NEW=$newCode"
 Write-Host "NAME_OLD=$oldName"
 Write-Host "NAME_NEW=$newName"
+
+# 앱 화면(프로필·앱 정보)의 버전 표시는 package.json을 읽으므로 같이 맞춘다
+if ($newName) {
+    $pkg = Get-Content "package.json" -Raw -Encoding UTF8
+    $pkg = $pkg -replace '"version":\s*"[^"]*"', """version"": ""$newName"""
+    [System.IO.File]::WriteAllText((Resolve-Path "package.json"), $pkg, (New-Object System.Text.UTF8Encoding $false))
+}
